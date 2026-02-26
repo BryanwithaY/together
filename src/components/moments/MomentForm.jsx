@@ -14,7 +14,8 @@ const subtypes = [
 export default function MomentForm({ onSubmit, onClose }) {
   const [type, setType] = useState(null);
   const [subtype, setSubtype] = useState(null);
-  const [description, setDescription] = useState('');
+  const [whatHappened, setWhatHappened] = useState('');
+  const [howItFelt, setHowItFelt] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
@@ -23,7 +24,8 @@ export default function MomentForm({ onSubmit, onClose }) {
     await onSubmit({
       type,
       subtype: type === 'ego_aside' ? (subtype || 'general') : 'general',
-      description: description.trim(),
+      what_happened: whatHappened.trim(),
+      how_it_felt: howItFelt.trim(),
       date: new Date().toISOString(),
     });
     setIsSubmitting(false);
@@ -108,25 +110,38 @@ export default function MomentForm({ onSubmit, onClose }) {
         )}
       </AnimatePresence>
 
-      {/* Description */}
+      {/* What Happened & How It Felt */}
       <AnimatePresence>
         {type && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="mb-5"
+            className="mb-5 space-y-4"
           >
-            <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-3">
-              Add a note <span className="text-stone-400 font-normal">(optional)</span>
-            </p>
-            <Textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder={type === 'ego_aside' 
-                ? "What happened? How did it feel?" 
-                : "What are you grateful for about your partner?"}
-              className="resize-none rounded-xl border-stone-200 focus:border-stone-400 focus:ring-stone-400/20 min-h-[80px] text-sm"
-            />
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-3">
+                What happened? <span className="text-stone-400 font-normal">(optional)</span>
+              </p>
+              <Textarea
+                value={whatHappened}
+                onChange={(e) => setWhatHappened(e.target.value)}
+                placeholder={type === 'ego_aside' 
+                  ? "Describe the situation..." 
+                  : "What are you grateful for?"}
+                className="resize-none rounded-xl border-stone-200 focus:border-stone-400 focus:ring-stone-400/20 min-h-[70px] text-sm"
+              />
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-3">
+                How did it make you feel? <span className="text-stone-400 font-normal">(optional)</span>
+              </p>
+              <Textarea
+                value={howItFelt}
+                onChange={(e) => setHowItFelt(e.target.value)}
+                placeholder="Share your emotions and reflections..."
+                className="resize-none rounded-xl border-stone-200 focus:border-stone-400 focus:ring-stone-400/20 min-h-[70px] text-sm"
+              />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

@@ -3,7 +3,7 @@ import MomentCard from './MomentCard';
 import { motion } from 'framer-motion';
 import { Heart } from 'lucide-react';
 
-export default function MomentsList({ moments, filter }) {
+export default function MomentsList({ moments, filter, currentUser }) {
   const filtered = filter === 'all' 
     ? moments 
     : moments.filter(m => m.type === filter);
@@ -27,7 +27,7 @@ export default function MomentsList({ moments, filter }) {
   return (
     <div className="space-y-3">
       {filtered.map((moment, index) => (
-        <MomentCard key={moment.id} moment={moment} index={index} />
+        <MomentCard key={moment.id} moment={moment} index={index} currentUser={currentUser} />
       ))}
     </div>
   );

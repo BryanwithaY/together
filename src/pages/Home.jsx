@@ -13,7 +13,12 @@ import FilterTabs from '../components/moments/FilterTabs';
 export default function Home() {
   const [showForm, setShowForm] = useState(false);
   const [filter, setFilter] = useState('all');
+  const [currentUser, setCurrentUser] = useState(null);
   const queryClient = useQueryClient();
+
+  React.useEffect(() => {
+    base44.auth.me().then(setCurrentUser).catch(() => {});
+  }, []);
 
   const { data: moments = [], isLoading } = useQuery({
     queryKey: ['moments'],
@@ -77,7 +82,7 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <MomentsList moments={moments} filter={filter} />
+            <MomentsList moments={moments} filter={filter} currentUser={currentUser} />
           )}
         </div>
       </div>
