@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus } from 'lucide-react';
+import { Plus, Settings as SettingsIcon } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 
 import StatsOverview from '../components/moments/StatsOverview';
 import MomentForm from '../components/moments/MomentForm';
@@ -44,13 +46,23 @@ export default function Home() {
               <h1 className="text-2xl font-bold text-stone-800 tracking-tight">Together</h1>
               <p className="text-sm text-stone-500 mt-1">Growing closer, one moment at a time</p>
             </div>
-            <Button
-              onClick={() => setShowForm(!showForm)}
-              className="rounded-xl bg-stone-800 hover:bg-stone-900 text-white shadow-sm h-10 px-4"
-            >
-              <Plus className="w-4 h-4 mr-1.5" />
-              New Moment
-            </Button>
+            <div className="flex gap-2">
+              <Link to={createPageUrl('Settings')}>
+                <Button
+                  variant="outline"
+                  className="rounded-xl h-10 px-3"
+                >
+                  <SettingsIcon className="w-4 h-4" />
+                </Button>
+              </Link>
+              <Button
+                onClick={() => setShowForm(!showForm)}
+                className="rounded-xl bg-stone-800 hover:bg-stone-900 text-white shadow-sm h-10 px-4"
+              >
+                <Plus className="w-4 h-4 mr-1.5" />
+                New Moment
+              </Button>
+            </div>
           </div>
         </div>
       </div>
