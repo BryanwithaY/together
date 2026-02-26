@@ -12,7 +12,8 @@ import FilterTabs from '../components/moments/FilterTabs';
 
 export default function Home() {
   const [showForm, setShowForm] = useState(false);
-  const [filter, setFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [ownerFilter, setOwnerFilter] = useState('all');
   const [currentUser, setCurrentUser] = useState(null);
   const queryClient = useQueryClient();
 
@@ -70,9 +71,14 @@ export default function Home() {
 
         {/* Filter + List */}
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-stone-800">Your Moments</h2>
-            <FilterTabs active={filter} onChange={setFilter} />
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold text-stone-800 mb-4">Your Moments</h2>
+            <FilterTabs 
+              activeType={typeFilter} 
+              activeOwner={ownerFilter}
+              onTypeChange={setTypeFilter}
+              onOwnerChange={setOwnerFilter}
+            />
           </div>
 
           {isLoading ? (
@@ -82,7 +88,12 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <MomentsList moments={moments} filter={filter} currentUser={currentUser} />
+            <MomentsList 
+              moments={moments} 
+              typeFilter={typeFilter} 
+              ownerFilter={ownerFilter}
+              currentUser={currentUser} 
+            />
           )}
         </div>
       </div>

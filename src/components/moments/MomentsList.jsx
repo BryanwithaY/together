@@ -3,10 +3,21 @@ import MomentCard from './MomentCard';
 import { motion } from 'framer-motion';
 import { Heart } from 'lucide-react';
 
-export default function MomentsList({ moments, filter, currentUser }) {
-  const filtered = filter === 'all' 
-    ? moments 
-    : moments.filter(m => m.type === filter);
+export default function MomentsList({ moments, typeFilter, ownerFilter, currentUser }) {
+  const filtered = moments.filter(m => {
+    // Filter by type
+    const typeMatch = typeFilter === 'all' || m.type === typeFilter;
+    
+    // Filter by owner
+    let ownerMatch = true;
+    if (ownerFilter === 'mine') {
+      ownerMatch = m.created_by === currentUser?.email;
+    } else if (ownerFilter === 'partner') {
+      ownerMatch = m.created_by !== currentUser?.email;
+    }
+    
+    return typeMatch && ownerMatch;
+  });
 
   if (filtered.length === 0) {
     return (
