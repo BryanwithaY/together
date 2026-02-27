@@ -18,9 +18,14 @@ const subtypes = [
   { value: 'let_partner_lead', icon: Users, label: 'Let Partner Lead' },
 ];
 
+const EMOJI_OPTIONS = ['💪','🧘','🤝','❤️','🙏','✨','🌱','🎯','😌','🫶','🌟','🦁','🕊️','🌊','🔥','💡','🎁','🤗','🌈','⚡'];
+
 export default function MomentForm({ onSubmit, onClose }) {
   const [type, setType] = useState(null);
   const [subtype, setSubtype] = useState(null);
+  const [otherLabel, setOtherLabel] = useState('');
+  const [otherEmoji, setOtherEmoji] = useState('💪');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [whatHappened, setWhatHappened] = useState('');
   const [howItFelt, setHowItFelt] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
@@ -29,10 +34,14 @@ export default function MomentForm({ onSubmit, onClose }) {
 
   const handleSubmit = async () => {
     if (!type) return;
+    let finalSubtype = 'general';
+    if (type === 'ego_aside') {
+      finalSubtype = subtype === 'other' ? (otherLabel.trim() || 'other') : (subtype || 'general');
+    }
     setIsSubmitting(true);
     await onSubmit({
       type,
-      subtype: type === 'ego_aside' ? (subtype || 'general') : 'general',
+      subtype: finalSubtype,
       what_happened: whatHappened.trim(),
       how_it_felt: howItFelt.trim(),
       media_url: mediaUrl || undefined,
