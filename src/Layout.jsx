@@ -12,7 +12,10 @@ const pageVariants = {
 
 const pageTransition = { duration: 0.22, ease: 'easeInOut' };
 
+const TAB_PAGES = new Set(['Home', 'History', 'Favorites', 'Settings']);
+
 export default function Layout({ children, currentPageName }) {
+  useSystemTheme();
   const location = useLocation();
 
   return (
