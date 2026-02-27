@@ -105,7 +105,64 @@ export default function MomentForm({ onSubmit, onClose }) {
                   <span className={`text-xs font-medium ${subtype === value ? 'text-amber-700' : 'text-stone-500'}`}>{label}</span>
                 </button>
               ))}
+              {/* Other option */}
+              <button
+                onClick={() => setSubtype('other')}
+                className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all duration-200 text-left ${
+                  subtype === 'other' ? 'border-amber-300 bg-amber-50/60' : 'border-stone-150 hover:border-stone-300 bg-stone-50/50'
+                }`}
+              >
+                <span className="text-base leading-none">{otherEmoji}</span>
+                <span className={`text-xs font-medium ${subtype === 'other' ? 'text-amber-700' : 'text-stone-500'}`}>Other</span>
+              </button>
             </div>
+
+            {/* Other subtype expanded input */}
+            <AnimatePresence>
+              {subtype === 'other' && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="overflow-hidden mt-3"
+                >
+                  <div className="flex gap-2 items-center">
+                    {/* Emoji picker trigger */}
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setShowEmojiPicker(p => !p)}
+                        className="w-10 h-10 rounded-xl border border-stone-200 bg-stone-50 text-xl flex items-center justify-center hover:border-amber-300 transition-colors"
+                      >
+                        {otherEmoji}
+                      </button>
+                      {showEmojiPicker && (
+                        <div className="absolute left-0 top-12 z-20 bg-white border border-stone-200 rounded-xl shadow-lg p-2 grid grid-cols-5 gap-1 w-44">
+                          {EMOJI_OPTIONS.map(e => (
+                            <button
+                              key={e}
+                              type="button"
+                              onClick={() => { setOtherEmoji(e); setShowEmojiPicker(false); }}
+                              className="text-xl w-8 h-8 flex items-center justify-center rounded-lg hover:bg-amber-50 transition-colors"
+                            >
+                              {e}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <input
+                      type="text"
+                      value={otherLabel}
+                      onChange={e => setOtherLabel(e.target.value)}
+                      placeholder="Describe your moment..."
+                      className="flex-1 rounded-xl border border-stone-200 focus:border-amber-300 focus:outline-none px-3 py-2 text-sm text-stone-700 bg-white"
+                      style={{ userSelect: 'text', WebkitUserSelect: 'text' }}
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>
