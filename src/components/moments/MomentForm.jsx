@@ -134,6 +134,7 @@ export default function MomentForm({ onSubmit, onClose }) {
                       style={{ userSelect: 'text', WebkitUserSelect: 'text' }}
                     />
                   </div>
+
                 </motion.div>
               )}
             </AnimatePresence>
