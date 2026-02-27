@@ -25,6 +25,7 @@ export default function MomentForm({ onSubmit, onClose }) {
   const [howItFelt, setHowItFelt] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [momentDate, setMomentDate] = useState(() => toLocalDatetimeString(new Date()));
 
   const handleSubmit = async () => {
     if (!type) return;
@@ -35,7 +36,7 @@ export default function MomentForm({ onSubmit, onClose }) {
       what_happened: whatHappened.trim(),
       how_it_felt: howItFelt.trim(),
       media_url: mediaUrl || undefined,
-      date: new Date().toISOString(),
+      date: new Date(momentDate).toISOString(),
     });
     setIsSubmitting(false);
   };
