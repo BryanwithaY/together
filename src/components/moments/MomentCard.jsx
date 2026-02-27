@@ -148,12 +148,22 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
   }
 
   const isVideo = (url) => url && url.match(/\.(mp4|mov|webm|ogg)/i);
-  const deleteRevealWidth = Math.min(swipeX, SWIPE_THRESHOLD + 10);
+  const deleteRevealWidth = swipeX > 0 ? Math.min(swipeX, SWIPE_THRESHOLD + 10) : 0;
+  const editRevealWidth = swipeX < 0 ? Math.min(-swipeX, EDIT_THRESHOLD + 10) : 0;
 
   return (
     <AlertDialog open={showDeleteConfirm} onOpenChange={(open) => { setShowDeleteConfirm(open); if (!open) resetSwipe(); }}>
       <div className="relative rounded-2xl overflow-hidden">
-        {/* Delete background (owner only) */}
+        {/* Edit background — left side (owner + editable) */}
+        {isOwner && editable && (
+          <div
+            className="absolute inset-y-0 left-0 flex items-center justify-center bg-stone-700 rounded-2xl"
+            style={{ width: Math.max(editRevealWidth, 0) }}
+          >
+            <Pencil className="w-5 h-5 text-white select-none" />
+          </div>
+        )}
+        {/* Delete background — right side (owner only) */}
         {isOwner && (
           <div
             className="absolute inset-y-0 right-0 flex items-center justify-center bg-red-500 rounded-2xl"
