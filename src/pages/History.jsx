@@ -111,23 +111,29 @@ export default function History() {
     });
   }, []);
 
-  const { data: myMoments = [], isLoading: loadingMine } = useQuery({
-    queryKey: ['moments-history-mine', currentUser?.email],
-    queryFn: () => base44.entities.Moment.filter({ created_by: currentUser.email }, '-date', 1000),
-    enabled: !!currentUser,
+  const myEmail = currentUser?.email?.toLowerCase();
+
+  const { data: rawMyMoments = [], isLoading: loadingMine } = useQuery({
+    queryKey: ['moments-history-mine', myEmail],
+    queryFn: () => base44.entities.Moment.filter({ created_by: myEmail }, '-date', 1000),
+    enabled: !!myEmail,
   });
 
-  const { data: partnerMoments = [], isLoading: loadingPartner } = useQuery({
+  const { data: rawPartnerMoments = [], isLoading: loadingPartner } = useQuery({
     queryKey: ['moments-history-partner', partnerEmail],
     queryFn: () => base44.entities.Moment.filter({ created_by: partnerEmail }, '-date', 1000),
     enabled: !!partnerEmail,
   });
 
   const moments = React.useMemo(() => {
+    const myMoments = rawMyMoments.filter(m => m.created_by?.toLowerCase() === myEmail);
+    const partnerMoments = partnerEmail
+      ? rawPartnerMoments.filter(m => m.created_by?.toLowerCase() === partnerEmail)
+      : [];
     const combined = [...myMoments, ...partnerMoments];
     combined.sort((a, b) => new Date(b.date || b.created_date) - new Date(a.date || a.created_date));
     return combined;
-  }, [myMoments, partnerMoments]);
+  }, [rawMyMoments, rawPartnerMoments, myEmail, partnerEmail]);
 
   const isLoading = loadingMine || (!!partnerEmail && loadingPartner);
 
