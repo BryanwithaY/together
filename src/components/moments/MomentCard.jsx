@@ -163,8 +163,8 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
             <Pencil className="w-5 h-5 text-white select-none" />
           </div>
         )}
-        {/* Delete background — right side (owner only) */}
-        {isOwner && (
+        {/* Delete background — right side (owner + editable only) */}
+        {isOwner && editable && (
           <div
             className="absolute inset-y-0 right-0 flex items-center justify-center bg-red-500 rounded-2xl"
             style={{ width: Math.max(deleteRevealWidth, 0) }}
