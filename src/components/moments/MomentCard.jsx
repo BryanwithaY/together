@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HandHeart, Sparkles, Ear, BookOpen, Flag, Users, MessageCircle, CheckCircle, ChevronDown, Pencil, Trash2, Star, MoreHorizontal } from 'lucide-react';
+import { HandHeart, Sparkles, Ear, BookOpen, Flag, Users, MessageCircle, CheckCircle, ChevronDown, Pencil, Trash2, Star } from 'lucide-react';
 import { format, isToday, isYesterday, differenceInMinutes } from 'date-fns';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -31,10 +31,16 @@ function canEdit(createdDate) {
   return differenceInMinutes(new Date(), new Date(createdDate)) < 10;
 }
 
+const SWIPE_THRESHOLD = 80; // px to reveal delete
+const DELETE_THRESHOLD = 160; // px to auto-delete
+
 export default function MomentCard({ moment, index, currentUser, onDeleted }) {
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [swipeX, setSwipeX] = useState(0);
+  const [swiping, setSwiping] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const touchStart = useRef(null);
   const queryClient = useQueryClient();
 
   const isEgoAside = moment.type === 'ego_aside';
@@ -85,6 +91,37 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
     },
   });
 
+  // Swipe handlers (owner-only)
+  const onTouchStart = (e) => {
+    if (!isOwner) return;
+    touchStart.current = e.touches[0].clientX;
+  };
+
+  const onTouchMove = (e) => {
+    if (!isOwner || touchStart.current === null) return;
+    const delta = touchStart.current - e.touches[0].clientX;
+    if (delta > 0) {
+      setSwiping(true);
+      setSwipeX(Math.min(delta, DELETE_THRESHOLD + 10));
+    }
+  };
+
+  const onTouchEnd = () => {
+    if (!isOwner) return;
+    if (swipeX >= DELETE_THRESHOLD) {
+      setShowDeleteConfirm(true);
+      setSwipeX(SWIPE_THRESHOLD); // hold open
+    } else if (swipeX < SWIPE_THRESHOLD) {
+      setSwipeX(0);
+    } else {
+      setSwipeX(SWIPE_THRESHOLD); // snap to reveal
+    }
+    setSwiping(false);
+    touchStart.current = null;
+  };
+
+  const resetSwipe = () => setSwipeX(0);
+
   if (editing) {
     return (
       <MomentEditForm
@@ -100,160 +137,165 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
   }
 
   const isVideo = (url) => url && url.match(/\.(mp4|mov|webm|ogg)/i);
+  const deleteRevealWidth = Math.min(swipeX, SWIPE_THRESHOLD + 10);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05, duration: 0.4 }}
-      className="group relative rounded-2xl bg-white border border-stone-200/60 shadow-sm hover:shadow-md transition-shadow duration-300"
-    >
-      <div className="flex gap-4 p-4">
-        <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${
-          isEgoAside ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'
-        }`}>
-          <Icon className="w-5 h-5" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between mb-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className={`text-xs font-semibold uppercase tracking-wider ${
-                isEgoAside ? 'text-amber-600' : 'text-emerald-600'
-              }`}>
-                {isEgoAside ? subtype.label : 'Gratitude'}
-              </span>
-              <span className="text-stone-300">·</span>
-              <span className="text-xs text-stone-400">{formatDate(moment.date)}</span>
-              <span className="text-stone-300">·</span>
-              <span className="text-xs text-stone-500">{isOwner ? 'You' : 'Your Partner'}</span>
-              {isReviewed && (
-                <>
-                  <span className="text-stone-300">·</span>
-                  <div className="flex items-center gap-1 text-xs text-green-600">
-                    <CheckCircle className="w-3 h-3" />
-                    <span>Reviewed</span>
-                  </div>
-                </>
-              )}
-              {moment.is_demo && (
-                <span className="text-xs text-stone-300 italic">demo</span>
-              )}
+    <AlertDialog open={showDeleteConfirm} onOpenChange={(open) => { setShowDeleteConfirm(open); if (!open) resetSwipe(); }}>
+      <div className="relative rounded-2xl overflow-hidden">
+        {/* Delete background (owner only) */}
+        {isOwner && (
+          <div
+            className="absolute inset-y-0 right-0 flex items-center justify-center bg-red-500 rounded-2xl"
+            style={{ width: Math.max(deleteRevealWidth, 0) }}
+          >
+            <Trash2 className="w-5 h-5 text-white select-none" />
+          </div>
+        )}
+
+        {/* Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0, x: -swipeX }}
+          transition={swiping ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 40, delay: index * 0.05 }}
+          className="relative rounded-2xl bg-white border border-stone-200/60 shadow-sm"
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+          onClick={swipeX > 10 ? resetSwipe : undefined}
+        >
+          <div className="flex gap-4 p-4">
+            <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${
+              isEgoAside ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'
+            }`}>
+              <Icon className="w-5 h-5" />
             </div>
-            {/* Actions */}
-            <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-              <button
-                onClick={() => favoriteMutation.mutate()}
-                className={`p-1.5 rounded-lg transition-colors ${
-                  moment.is_favorite ? 'text-amber-400' : 'text-stone-300 hover:text-amber-400'
-                }`}
-              >
-                <Star className="w-3.5 h-3.5" fill={moment.is_favorite ? 'currentColor' : 'none'} />
-              </button>
-              {isOwner && (
-                <div className="relative">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between mb-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className={`text-xs font-semibold uppercase tracking-wider ${
+                    isEgoAside ? 'text-amber-600' : 'text-emerald-600'
+                  }`}>
+                    {isEgoAside ? subtype.label : 'Gratitude'}
+                  </span>
+                  <span className="text-stone-300">·</span>
+                  <span className="text-xs text-stone-400">{formatDate(moment.date)}</span>
+                  <span className="text-stone-300">·</span>
+                  <span className="text-xs text-stone-500">{isOwner ? 'You' : 'Your Partner'}</span>
+                  {isReviewed && (
+                    <>
+                      <span className="text-stone-300">·</span>
+                      <div className="flex items-center gap-1 text-xs text-green-600">
+                        <CheckCircle className="w-3 h-3" />
+                        <span>Reviewed</span>
+                      </div>
+                    </>
+                  )}
+                  {moment.is_demo && (
+                    <span className="text-xs text-stone-300 italic">demo</span>
+                  )}
+                </div>
+                {/* Actions */}
+                <div className="flex items-center gap-1 flex-shrink-0 ml-2">
                   <button
-                    onClick={() => setMenuOpen(!menuOpen)}
-                    className="p-1.5 rounded-lg text-stone-300 hover:text-stone-600 transition-colors"
+                    onClick={() => favoriteMutation.mutate()}
+                    className={`p-1.5 rounded-lg transition-colors select-none ${
+                      moment.is_favorite ? 'text-amber-400' : 'text-stone-300 hover:text-amber-400'
+                    }`}
                   >
-                    <MoreHorizontal className="w-3.5 h-3.5" />
+                    <Star className="w-3.5 h-3.5 select-none" fill={moment.is_favorite ? 'currentColor' : 'none'} />
                   </button>
-                  {menuOpen && (
-                    <div className="absolute right-0 top-7 bg-white border border-stone-200 rounded-xl shadow-lg z-10 py-1 min-w-[120px]" onMouseLeave={() => setMenuOpen(false)}>
-                      {editable && (
-                        <button
-                          onClick={() => { setEditing(true); setMenuOpen(false); }}
-                          className="flex items-center gap-2 w-full px-3 py-2 text-sm text-stone-600 hover:bg-stone-50"
-                        >
-                          <Pencil className="w-3.5 h-3.5" /> Edit
-                        </button>
-                      )}
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-500 hover:bg-red-50">
-                            <Trash2 className="w-3.5 h-3.5" /> Delete
-                          </button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete this moment?</AlertDialogTitle>
-                            <AlertDialogDescription>This cannot be undone.</AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => deleteMutation.mutate()} className="bg-red-600 hover:bg-red-700 text-white">Delete</AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
+                  {editable && (
+                    <button
+                      onClick={() => setEditing(true)}
+                      className="p-1.5 rounded-lg text-stone-300 hover:text-stone-600 transition-colors select-none"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {moment.what_happened && (
+                <div className="mb-2">
+                  <p className="text-xs font-semibold text-stone-500 mb-1">What happened:</p>
+                  <p className="text-sm text-stone-600 leading-relaxed">{moment.what_happened}</p>
+                </div>
+              )}
+              {moment.how_it_felt && (
+                <div className="mb-2">
+                  <p className="text-xs font-semibold text-stone-500 mb-1">How it felt:</p>
+                  <p className="text-sm text-stone-600 leading-relaxed">{moment.how_it_felt}</p>
+                </div>
+              )}
+              {!moment.what_happened && !moment.how_it_felt && (
+                <p className="text-sm text-stone-400 italic">No details added</p>
+              )}
+
+              {moment.media_url && (
+                <div className="mt-2 rounded-xl overflow-hidden border border-stone-100">
+                  {isVideo(moment.media_url) ? (
+                    <video src={moment.media_url} controls className="w-full max-h-48 object-cover" />
+                  ) : (
+                    <img src={moment.media_url} alt="moment media" className="w-full max-h-48 object-cover" />
                   )}
                 </div>
               )}
+
+              <div className="flex items-center gap-2 mt-3">
+                <button
+                  onClick={() => { if (swipeX === 0) setExpanded(!expanded); else resetSwipe(); }}
+                  className="flex items-center gap-1.5 text-xs text-stone-500 hover:text-stone-700 transition-colors select-none"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  <span>{comments.length} {comments.length === 1 ? 'comment' : 'comments'}</span>
+                  <ChevronDown className={`w-3 h-3 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+                </button>
+                {canReview && (
+                  <Button
+                    onClick={() => markReviewedMutation.mutate()}
+                    disabled={markReviewedMutation.isPending}
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-xs text-green-600 hover:text-green-700 hover:bg-green-50 select-none"
+                  >
+                    <CheckCircle className="w-3.5 h-3.5 mr-1" />
+                    Mark as Reviewed
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
 
-          {moment.what_happened && (
-            <div className="mb-2">
-              <p className="text-xs font-semibold text-stone-500 mb-1">What happened:</p>
-              <p className="text-sm text-stone-600 leading-relaxed">{moment.what_happened}</p>
-            </div>
-          )}
-          {moment.how_it_felt && (
-            <div className="mb-2">
-              <p className="text-xs font-semibold text-stone-500 mb-1">How it felt:</p>
-              <p className="text-sm text-stone-600 leading-relaxed">{moment.how_it_felt}</p>
-            </div>
-          )}
-          {!moment.what_happened && !moment.how_it_felt && (
-            <p className="text-sm text-stone-400 italic">No details added</p>
-          )}
-
-          {moment.media_url && (
-            <div className="mt-2 rounded-xl overflow-hidden border border-stone-100">
-              {isVideo(moment.media_url) ? (
-                <video src={moment.media_url} controls className="w-full max-h-48 object-cover" />
-              ) : (
-                <img src={moment.media_url} alt="moment media" className="w-full max-h-48 object-cover" />
-              )}
-            </div>
-          )}
-
-          <div className="flex items-center gap-2 mt-3">
-            <button
-              onClick={() => setExpanded(!expanded)}
-              className="flex items-center gap-1.5 text-xs text-stone-500 hover:text-stone-700 transition-colors"
-            >
-              <MessageCircle className="w-3.5 h-3.5" />
-              <span>{comments.length} {comments.length === 1 ? 'comment' : 'comments'}</span>
-              <ChevronDown className={`w-3 h-3 transition-transform ${expanded ? 'rotate-180' : ''}`} />
-            </button>
-            {canReview && (
-              <Button
-                onClick={() => markReviewedMutation.mutate()}
-                disabled={markReviewedMutation.isPending}
-                size="sm"
-                variant="ghost"
-                className="h-7 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
+          <AnimatePresence>
+            {expanded && swipeX === 0 && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden border-t border-stone-200/60"
               >
-                <CheckCircle className="w-3.5 h-3.5 mr-1" />
-                Mark as Reviewed
-              </Button>
+                <CommentThread momentId={moment.id} comments={comments} currentUser={currentUser} />
+              </motion.div>
             )}
-          </div>
-        </div>
+          </AnimatePresence>
+        </motion.div>
       </div>
 
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden border-t border-stone-200/60"
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete this moment?</AlertDialogTitle>
+          <AlertDialogDescription>This cannot be undone.</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => { deleteMutation.mutate(); setShowDeleteConfirm(false); }}
+            className="bg-red-600 hover:bg-red-700 text-white"
           >
-            <CommentThread momentId={moment.id} comments={comments} currentUser={currentUser} />
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
