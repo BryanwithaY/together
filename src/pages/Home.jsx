@@ -54,14 +54,25 @@ export default function Home() {
     queryFn: () => base44.entities.Moment.list('-created_date', 100),
   });
 
-  // Seed demo moments for brand-new accounts
+  // Seed demo moments only once for brand-new accounts
+  // Use a localStorage flag so we never re-seed after the user deletes demo data
   React.useEffect(() => {
-    if (!isLoading && moments.length === 0 && currentUser) {
-      base44.entities.Moment.bulkCreate(DEMO_MOMENTS).then(() => {
-        queryClient.invalidateQueries({ queryKey: ['moments'] });
-      });
+    if (!isLoading && currentUser) {
+      const seededKey = `demo_seeded_${currentUser.id || currentUser.email}`;
+      if (moments.length === 0 && !localStorage.getItem(seededKey)) {
+        localStorage.setItem(seededKey, '1');
+        base44.entities.Moment.bulkCreate(DEMO_MOMENTS).then(() => {
+          queryClient.invalidateQueries({ queryKey: ['moments'] });
+        });
+      } else if (moments.length > 0) {
+        // Mark as seeded so future empty state never re-seeds
+        const seededKey2 = `demo_seeded_${currentUser.id || currentUser.email}`;
+        if (!localStorage.getItem(seededKey2)) {
+          localStorage.setItem(seededKey2, '1');
+        }
+      }
     }
-  }, [isLoading, moments.length, currentUser]);
+  }, [isLoading, currentUser]);
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Moment.create(data),
