@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 
 /**
@@ -6,16 +7,7 @@ import { useEffect } from 'react';
  */
 export default function useSystemTheme() {
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-    const apply = (e) => {
-      document.documentElement.classList.toggle('dark', e.matches);
-    };
-
-    // Apply immediately
-    apply(mediaQuery);
-
-    mediaQuery.addEventListener('change', apply);
-    return () => mediaQuery.removeEventListener('change', apply);
+    // Always force light mode — the app is designed for light theme only
+    document.documentElement.classList.remove('dark');
   }, []);
 }
