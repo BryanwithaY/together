@@ -101,9 +101,13 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
   const onTouchMove = (e) => {
     if (!isOwner || touchStart.current === null) return;
     const delta = touchStart.current - e.touches[0].clientX;
+    setSwiping(true);
     if (delta > 0) {
-      setSwiping(true);
+      // left swipe → delete
       setSwipeX(Math.min(delta, DELETE_THRESHOLD + 10));
+    } else {
+      // right swipe → edit (only if editable)
+      if (editable) setSwipeX(Math.max(delta, -(EDIT_THRESHOLD + 10)));
     }
   };
 
@@ -111,11 +115,17 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
     if (!isOwner) return;
     if (swipeX >= DELETE_THRESHOLD) {
       setShowDeleteConfirm(true);
-      setSwipeX(SWIPE_THRESHOLD); // hold open
-    } else if (swipeX < SWIPE_THRESHOLD) {
+      setSwipeX(SWIPE_THRESHOLD);
+    } else if (swipeX > 0 && swipeX < SWIPE_THRESHOLD) {
       setSwipeX(0);
+    } else if (swipeX > 0) {
+      setSwipeX(SWIPE_THRESHOLD);
+    } else if (swipeX <= -EDIT_THRESHOLD && editable) {
+      // full right-swipe → open edit
+      setSwipeX(0);
+      setEditing(true);
     } else {
-      setSwipeX(SWIPE_THRESHOLD); // snap to reveal
+      setSwipeX(0);
     }
     setSwiping(false);
     touchStart.current = null;
