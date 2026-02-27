@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Heart, Settings, BarChart2, Star } from 'lucide-react';
 
@@ -11,6 +11,17 @@ const tabs = [
 ];
 
 export default function BottomTabBar({ currentPageName }) {
+  const navigate = useNavigate();
+
+  const handleTabClick = (e, page) => {
+    const active = currentPageName === page;
+    if (active) {
+      // Reset to root of this tab
+      e.preventDefault();
+      navigate(createPageUrl(page), { replace: true });
+    }
+  };
+
   return (
     <nav
       className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-t border-stone-200/60 select-none"
@@ -23,6 +34,7 @@ export default function BottomTabBar({ currentPageName }) {
             <Link
               key={page}
               to={createPageUrl(page)}
+              onClick={(e) => handleTabClick(e, page)}
               className="flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors select-none"
               draggable={false}
             >

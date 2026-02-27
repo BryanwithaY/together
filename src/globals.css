@@ -1,3 +1,4 @@
+
 @layer base {
   * {
     -webkit-tap-highlight-color: transparent;
@@ -6,6 +7,14 @@
   html, body {
     overscroll-behavior: none;
     -webkit-overflow-scrolling: touch;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Re-enable text selection for readable content */
+  p, article, .selectable {
+    user-select: text;
+    -webkit-user-select: text;
   }
 }
 
