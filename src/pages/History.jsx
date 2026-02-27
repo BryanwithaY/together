@@ -109,10 +109,25 @@ export default function History() {
     });
   }, []);
 
-  const { data: moments = [], isLoading } = useQuery({
-    queryKey: ['moments-history'],
-    queryFn: () => base44.entities.Moment.list('-date', 1000),
+  const { data: myMoments = [], isLoading: loadingMine } = useQuery({
+    queryKey: ['moments-history-mine', currentUser?.email],
+    queryFn: () => base44.entities.Moment.filter({ created_by: currentUser.email }, '-date', 1000),
+    enabled: !!currentUser,
   });
+
+  const { data: partnerMoments = [], isLoading: loadingPartner } = useQuery({
+    queryKey: ['moments-history-partner', partnerEmail],
+    queryFn: () => base44.entities.Moment.filter({ created_by: partnerEmail }, '-date', 1000),
+    enabled: !!partnerEmail,
+  });
+
+  const moments = React.useMemo(() => {
+    const combined = [...myMoments, ...partnerMoments];
+    combined.sort((a, b) => new Date(b.date || b.created_date) - new Date(a.date || a.created_date));
+    return combined;
+  }, [myMoments, partnerMoments]);
+
+  const isLoading = loadingMine || (!!partnerEmail && loadingPartner);
 
   // Group moments by month
   const monthGroups = React.useMemo(() => {
