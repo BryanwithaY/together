@@ -2,6 +2,7 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import BottomTabBar from './components/BottomTabBar';
+import useSystemTheme from './components/hooks/useSystemTheme';
 
 const pageVariants = {
   initial: { opacity: 0, x: 24 },
