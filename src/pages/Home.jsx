@@ -54,10 +54,13 @@ export default function Home() {
 
   React.useEffect(() => {
     if (!currentUser) return;
-    base44.entities.PartnerInvitation.filter({ inviter_email: currentUser.email, status: 'accepted' }).then(sent => {
-      if (sent.length > 0) { setPartnerEmail(sent[0].invitee_email); setPartnerLoaded(true); return; }
-      base44.entities.PartnerInvitation.filter({ invitee_email: currentUser.email, status: 'accepted' }).then(received => {
-        if (received.length > 0) setPartnerEmail(received[0].inviter_email);
+    const myEmail = currentUser.email.toLowerCase();
+    base44.entities.PartnerInvitation.filter({ inviter_email: myEmail, status: 'accepted' }).then(sent => {
+      const exact = sent.find(i => i.inviter_email?.toLowerCase() === myEmail && i.status === 'accepted');
+      if (exact) { setPartnerEmail(exact.invitee_email?.toLowerCase()); setPartnerLoaded(true); return; }
+      base44.entities.PartnerInvitation.filter({ invitee_email: myEmail, status: 'accepted' }).then(received => {
+        const exactR = received.find(i => i.invitee_email?.toLowerCase() === myEmail && i.status === 'accepted');
+        if (exactR) setPartnerEmail(exactR.inviter_email?.toLowerCase());
         setPartnerLoaded(true);
       });
     });
