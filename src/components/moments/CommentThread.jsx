@@ -121,10 +121,27 @@ export default function CommentThread({ momentId, comments, currentUser }) {
       content: newComment.trim(),
       media_url: mediaUrl || undefined,
     }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['comments', momentId] });
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ['comments', momentId] });
+      const prev = queryClient.getQueryData(['comments', momentId]);
+      const optimistic = {
+        id: `optimistic-${Date.now()}`,
+        moment_id: momentId,
+        content: newComment.trim(),
+        media_url: mediaUrl || undefined,
+        created_date: new Date().toISOString(),
+        created_by: '__optimistic__',
+      };
+      queryClient.setQueryData(['comments', momentId], (old) => [optimistic, ...(old || [])]);
       setNewComment('');
       setMediaUrl('');
+      return { prev };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.prev) queryClient.setQueryData(['comments', momentId], context.prev);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['comments', momentId] });
     },
   });
 
