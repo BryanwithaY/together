@@ -153,7 +153,8 @@ export default function MomentForm({ onSubmit, onClose }) {
                 value={whatHappened}
                 onChange={e => setWhatHappened(e.target.value)}
                 placeholder={type === 'ego_aside' ? "Describe the situation..." : "What are you grateful for?"}
-                className="resize-none rounded-xl border-stone-200 focus:border-stone-400 min-h-[70px] text-sm"
+                className="resize-none rounded-xl border-stone-200 focus:border-stone-400 min-h-[120px] text-base"
+                style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
               />
             </div>
             <div>
