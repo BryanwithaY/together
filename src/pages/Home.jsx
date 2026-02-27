@@ -72,18 +72,18 @@ export default function Home() {
   });
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-stone-50 flex flex-col">
       {/* Header */}
-      <div className="bg-white border-b border-stone-200/60">
+      <div className="bg-white border-b border-stone-200/60 flex-shrink-0">
         <div className="max-w-2xl mx-auto px-4 py-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-stone-800 tracking-tight">Together</h1>
-              <p className="text-sm text-stone-500 mt-1">Growing closer, one moment at a time</p>
+              <h1 className="text-2xl font-bold text-stone-800 tracking-tight select-none">Together</h1>
+              <p className="text-sm text-stone-500 mt-1 select-none">Growing closer, one moment at a time</p>
             </div>
             <Button
               onClick={() => setShowForm(!showForm)}
-              className="rounded-xl bg-stone-800 hover:bg-stone-900 text-white shadow-sm h-10 px-4"
+              className="rounded-xl bg-stone-800 hover:bg-stone-900 text-white shadow-sm h-10 px-4 select-none"
             >
               <Plus className="w-4 h-4 mr-1.5" />
               New Moment
@@ -92,48 +92,50 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-        {/* Stats */}
-        <StatsOverview moments={moments} />
+      <PullToRefresh onRefresh={() => queryClient.invalidateQueries({ queryKey: ['moments'] })}>
+        <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+          {/* Stats */}
+          <StatsOverview moments={moments} />
 
-        {/* Form */}
-        <AnimatePresence>
-          {showForm && (
-            <MomentForm
-              onSubmit={(data) => createMutation.mutate(data)}
-              onClose={() => setShowForm(false)}
-            />
-          )}
-        </AnimatePresence>
+          {/* Form */}
+          <AnimatePresence>
+            {showForm && (
+              <MomentForm
+                onSubmit={(data) => createMutation.mutate(data)}
+                onClose={() => setShowForm(false)}
+              />
+            )}
+          </AnimatePresence>
 
-        {/* Filter + List */}
-        <div>
-          <div className="mb-4">
-            <h2 className="text-lg font-semibold text-stone-800 mb-4">Your Moments</h2>
-            <FilterTabs 
-              activeType={typeFilter} 
-              activeOwner={ownerFilter}
-              onTypeChange={setTypeFilter}
-              onOwnerChange={setOwnerFilter}
-            />
-          </div>
-
-          {isLoading ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="h-20 rounded-2xl bg-white border border-stone-200/60 animate-pulse" />
-              ))}
+          {/* Filter + List */}
+          <div>
+            <div className="mb-4">
+              <h2 className="text-lg font-semibold text-stone-800 mb-4 select-none">Your Moments</h2>
+              <FilterTabs
+                activeType={typeFilter}
+                activeOwner={ownerFilter}
+                onTypeChange={setTypeFilter}
+                onOwnerChange={setOwnerFilter}
+              />
             </div>
-          ) : (
-            <MomentsList 
-              moments={moments} 
-              typeFilter={typeFilter} 
-              ownerFilter={ownerFilter}
-              currentUser={currentUser} 
-            />
-          )}
+
+            {isLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="h-20 rounded-2xl bg-white border border-stone-200/60 animate-pulse" />
+                ))}
+              </div>
+            ) : (
+              <MomentsList
+                moments={moments}
+                typeFilter={typeFilter}
+                ownerFilter={ownerFilter}
+                currentUser={currentUser}
+              />
+            )}
+          </div>
         </div>
-      </div>
+      </PullToRefresh>
     </div>
   );
 }
