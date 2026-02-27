@@ -125,32 +125,6 @@ export default function MomentForm({ onSubmit, onClose }) {
                   className="overflow-hidden mt-3"
                 >
                   <div className="flex gap-2 items-center">
-                    {/* Emoji picker trigger */}
-                    <div className="relative">
-                      <button
-                        type="button"
-                        onClick={() => setShowEmojiPicker(p => !p)}
-                        className="w-10 h-10 rounded-xl border border-stone-200 bg-stone-50 text-xl flex items-center justify-center hover:border-amber-300 transition-colors flex-shrink-0"
-                      >
-                        {otherEmoji}
-                      </button>
-                      {showEmojiPicker && (
-                        <div className="absolute left-0 top-12 z-20 bg-white border border-stone-200 rounded-xl shadow-lg p-3 w-64 max-h-52 overflow-y-auto">
-                          <div className="grid grid-cols-7 gap-1">
-                            {EMOJI_OPTIONS.map((e, i) => (
-                              <button
-                                key={`${e}-${i}`}
-                                type="button"
-                                onClick={() => { setOtherEmoji(e); setShowEmojiPicker(false); }}
-                                className={`text-xl w-8 h-8 flex items-center justify-center rounded-lg hover:bg-amber-50 transition-colors ${otherEmoji === e ? 'bg-amber-100' : ''}`}
-                              >
-                                {e}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
                     <input
                       type="text"
                       value={otherLabel}
