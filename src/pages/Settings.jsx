@@ -22,6 +22,7 @@ import AppearanceSettings from '../components/settings/AppearanceSettings';
 import PartnerConnection from '../components/settings/PartnerConnection';
 
 export default function Settings() {
+  const navigate = useNavigate();
   const { data: user, isLoading } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
