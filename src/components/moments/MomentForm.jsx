@@ -18,20 +18,7 @@ const subtypes = [
   { value: 'let_partner_lead', icon: Users, label: 'Let Partner Lead' },
 ];
 
-const EMOJI_OPTIONS = [
-  // Feelings & People
-  '😊','😌','🥰','😤','😤','🥺','😢','😂','🤩','😎','🤗','🧘','🥳','😇','🤔',
-  // Hands & Gestures
-  '💪','🙌','👏','🤝','🫶','🙏','✌️','👍','✋','🫂',
-  // Hearts & Symbols
-  '❤️','🧡','💛','💚','💙','💜','🖤','🤍','💕','✨','⭐','🌟','💫','🔥','⚡','🌈',
-  // Nature & Growth
-  '🌱','🌸','🌺','🌻','🌊','🍃','🌿','🌙','☀️','🌤️',
-  // Objects & Activities
-  '🎯','💡','🎁','🏆','🎉','🎊','📖','🗝️','🔑','🛡️',
-  // Animals
-  '🦁','🕊️','🦋','🐝','🌊','🐬','🦅','🌿',
-];
+
 
 export default function MomentForm({ onSubmit, onClose }) {
   const [type, setType] = useState(null);
