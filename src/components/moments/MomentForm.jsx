@@ -127,6 +127,19 @@ export default function MomentForm({ onSubmit, onClose }) {
               />
             </div>
             <MediaUpload currentUrl={mediaUrl} onUpload={setMediaUrl} onClear={() => setMediaUrl('')} />
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-2 flex items-center gap-1.5">
+                <Clock className="w-3 h-3" /> When did it happen?
+              </p>
+              <input
+                type="datetime-local"
+                value={momentDate}
+                max={toLocalDatetimeString(new Date())}
+                onChange={e => setMomentDate(e.target.value)}
+                className="w-full rounded-xl border border-stone-200 focus:border-stone-400 focus:outline-none px-3 py-2 text-sm text-stone-700 bg-white"
+                style={{ userSelect: 'text', WebkitUserSelect: 'text' }}
+              />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
