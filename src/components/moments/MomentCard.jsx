@@ -233,7 +233,7 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
                       <Pencil className="w-3.5 h-3.5" />
                     </button>
                   )}
-                  {isOwner && (
+                  {isOwner && editable && (
                     <button
                       onClick={() => setShowDeleteConfirm(true)}
                       className="p-1.5 rounded-lg text-stone-300 hover:text-red-500 transition-colors select-none"
