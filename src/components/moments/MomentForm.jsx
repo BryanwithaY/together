@@ -110,7 +110,7 @@ export default function MomentForm({ onSubmit, onClose }) {
                   subtype === 'other' ? 'border-amber-300 bg-amber-50/60' : 'border-stone-150 hover:border-stone-300 bg-stone-50/50'
                 }`}
               >
-                <span className="text-base leading-none">{otherEmoji}</span>
+                <MoreHorizontal className={`w-4 h-4 ${subtype === 'other' ? 'text-amber-600' : 'text-stone-400'}`} />
                 <span className={`text-xs font-medium ${subtype === 'other' ? 'text-amber-700' : 'text-stone-500'}`}>Other</span>
               </button>
             </div>
