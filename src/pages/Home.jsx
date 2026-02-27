@@ -49,10 +49,39 @@ export default function Home() {
     base44.auth.me().then(setCurrentUser).catch(() => {});
   }, []);
 
-  const { data: moments = [], isLoading } = useQuery({
-    queryKey: ['moments'],
-    queryFn: () => base44.entities.Moment.list('-created_date', 100),
+  const [partnerEmail, setPartnerEmail] = useState(null);
+  const [partnerLoaded, setPartnerLoaded] = useState(false);
+
+  React.useEffect(() => {
+    if (!currentUser) return;
+    base44.entities.PartnerInvitation.filter({ inviter_email: currentUser.email, status: 'accepted' }).then(sent => {
+      if (sent.length > 0) { setPartnerEmail(sent[0].invitee_email); setPartnerLoaded(true); return; }
+      base44.entities.PartnerInvitation.filter({ invitee_email: currentUser.email, status: 'accepted' }).then(received => {
+        if (received.length > 0) setPartnerEmail(received[0].inviter_email);
+        setPartnerLoaded(true);
+      });
+    });
+  }, [currentUser]);
+
+  const { data: myMoments = [], isLoading: loadingMine } = useQuery({
+    queryKey: ['moments-mine', currentUser?.email],
+    queryFn: () => base44.entities.Moment.filter({ created_by: currentUser.email }, '-created_date', 200),
+    enabled: !!currentUser,
   });
+
+  const { data: partnerMoments = [], isLoading: loadingPartner } = useQuery({
+    queryKey: ['moments-partner', partnerEmail],
+    queryFn: () => base44.entities.Moment.filter({ created_by: partnerEmail }, '-created_date', 200),
+    enabled: !!partnerEmail,
+  });
+
+  const moments = React.useMemo(() => {
+    const combined = [...myMoments, ...partnerMoments];
+    combined.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+    return combined;
+  }, [myMoments, partnerMoments]);
+
+  const isLoading = loadingMine || (!!partnerEmail && loadingPartner) || !partnerLoaded;
 
   // Seed demo moments only once for brand-new accounts
   // Use a localStorage flag so we never re-seed after the user deletes demo data
