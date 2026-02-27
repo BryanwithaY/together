@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { HandHeart, Sparkles, Ear, BookOpen, Flag, Users, X, Send } from 'lucide-react';
+import MediaUpload from './MediaUpload';
 
 const subtypes = [
   { value: 'listened', icon: Ear, label: 'Listened' },
@@ -16,6 +17,7 @@ export default function MomentForm({ onSubmit, onClose }) {
   const [subtype, setSubtype] = useState(null);
   const [whatHappened, setWhatHappened] = useState('');
   const [howItFelt, setHowItFelt] = useState('');
+  const [mediaUrl, setMediaUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
@@ -26,6 +28,7 @@ export default function MomentForm({ onSubmit, onClose }) {
       subtype: type === 'ego_aside' ? (subtype || 'general') : 'general',
       what_happened: whatHappened.trim(),
       how_it_felt: howItFelt.trim(),
+      media_url: mediaUrl || undefined,
       date: new Date().toISOString(),
     });
     setIsSubmitting(false);
@@ -45,48 +48,33 @@ export default function MomentForm({ onSubmit, onClose }) {
         </button>
       </div>
 
-      {/* Type Selection */}
       <div className="mb-5">
         <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-3">What kind of moment?</p>
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={() => { setType('ego_aside'); setSubtype(null); }}
             className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all duration-200 ${
-              type === 'ego_aside'
-                ? 'border-amber-400 bg-amber-50 shadow-sm'
-                : 'border-stone-200 hover:border-stone-300 bg-white'
+              type === 'ego_aside' ? 'border-amber-400 bg-amber-50 shadow-sm' : 'border-stone-200 hover:border-stone-300 bg-white'
             }`}
           >
             <HandHeart className={`w-5 h-5 ${type === 'ego_aside' ? 'text-amber-600' : 'text-stone-400'}`} />
-            <span className={`text-sm font-medium ${type === 'ego_aside' ? 'text-amber-800' : 'text-stone-600'}`}>
-              Ego Aside
-            </span>
+            <span className={`text-sm font-medium ${type === 'ego_aside' ? 'text-amber-800' : 'text-stone-600'}`}>Ego Aside</span>
           </button>
           <button
             onClick={() => { setType('gratitude'); setSubtype(null); }}
             className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all duration-200 ${
-              type === 'gratitude'
-                ? 'border-emerald-400 bg-emerald-50 shadow-sm'
-                : 'border-stone-200 hover:border-stone-300 bg-white'
+              type === 'gratitude' ? 'border-emerald-400 bg-emerald-50 shadow-sm' : 'border-stone-200 hover:border-stone-300 bg-white'
             }`}
           >
             <Sparkles className={`w-5 h-5 ${type === 'gratitude' ? 'text-emerald-600' : 'text-stone-400'}`} />
-            <span className={`text-sm font-medium ${type === 'gratitude' ? 'text-emerald-800' : 'text-stone-600'}`}>
-              Gratitude
-            </span>
+            <span className={`text-sm font-medium ${type === 'gratitude' ? 'text-emerald-800' : 'text-stone-600'}`}>Gratitude</span>
           </button>
         </div>
       </div>
 
-      {/* Subtype Selection for Ego Aside */}
       <AnimatePresence>
         {type === 'ego_aside' && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="mb-5 overflow-hidden"
-          >
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mb-5 overflow-hidden">
             <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-3">How did you show up?</p>
             <div className="grid grid-cols-2 gap-2">
               {subtypes.map(({ value, icon: Icon, label }) => (
@@ -94,15 +82,11 @@ export default function MomentForm({ onSubmit, onClose }) {
                   key={value}
                   onClick={() => setSubtype(value)}
                   className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all duration-200 text-left ${
-                    subtype === value
-                      ? 'border-amber-300 bg-amber-50/60'
-                      : 'border-stone-150 hover:border-stone-300 bg-stone-50/50'
+                    subtype === value ? 'border-amber-300 bg-amber-50/60' : 'border-stone-150 hover:border-stone-300 bg-stone-50/50'
                   }`}
                 >
                   <Icon className={`w-4 h-4 ${subtype === value ? 'text-amber-600' : 'text-stone-400'}`} />
-                  <span className={`text-xs font-medium ${subtype === value ? 'text-amber-700' : 'text-stone-500'}`}>
-                    {label}
-                  </span>
+                  <span className={`text-xs font-medium ${subtype === value ? 'text-amber-700' : 'text-stone-500'}`}>{label}</span>
                 </button>
               ))}
             </div>
@@ -110,25 +94,18 @@ export default function MomentForm({ onSubmit, onClose }) {
         )}
       </AnimatePresence>
 
-      {/* What Happened & How It Felt */}
       <AnimatePresence>
         {type && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mb-5 space-y-4"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-5 space-y-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-3">
                 What happened? <span className="text-stone-400 font-normal">(optional)</span>
               </p>
               <Textarea
                 value={whatHappened}
-                onChange={(e) => setWhatHappened(e.target.value)}
-                placeholder={type === 'ego_aside' 
-                  ? "Describe the situation..." 
-                  : "What are you grateful for?"}
-                className="resize-none rounded-xl border-stone-200 focus:border-stone-400 focus:ring-stone-400/20 min-h-[70px] text-sm"
+                onChange={e => setWhatHappened(e.target.value)}
+                placeholder={type === 'ego_aside' ? "Describe the situation..." : "What are you grateful for?"}
+                className="resize-none rounded-xl border-stone-200 focus:border-stone-400 min-h-[70px] text-sm"
               />
             </div>
             <div>
@@ -137,22 +114,22 @@ export default function MomentForm({ onSubmit, onClose }) {
               </p>
               <Textarea
                 value={howItFelt}
-                onChange={(e) => setHowItFelt(e.target.value)}
+                onChange={e => setHowItFelt(e.target.value)}
                 placeholder="Share your emotions and reflections..."
-                className="resize-none rounded-xl border-stone-200 focus:border-stone-400 focus:ring-stone-400/20 min-h-[70px] text-sm"
+                className="resize-none rounded-xl border-stone-200 focus:border-stone-400 min-h-[70px] text-sm"
               />
             </div>
+            <MediaUpload currentUrl={mediaUrl} onUpload={setMediaUrl} onClear={() => setMediaUrl('')} />
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Submit */}
       {type && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           <Button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="w-full rounded-xl h-11 bg-stone-800 hover:bg-stone-900 text-white font-medium transition-all"
+            className="w-full rounded-xl h-11 bg-stone-800 hover:bg-stone-900 text-white font-medium"
           >
             <Send className="w-4 h-4 mr-2" />
             {isSubmitting ? 'Saving...' : 'Save Moment'}

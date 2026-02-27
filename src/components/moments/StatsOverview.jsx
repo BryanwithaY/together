@@ -1,5 +1,5 @@
-import React from 'react';
-import { Heart, HandHeart, Sparkles, TrendingUp } from 'lucide-react';
+import React, { useRef } from 'react';
+import { Heart, HandHeart, Sparkles, TrendingUp, Share2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 function StatCard({ icon: Icon, label, value, color, delay }) {
@@ -8,7 +8,7 @@ function StatCard({ icon: Icon, label, value, color, delay }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.5, ease: "easeOut" }}
-      className={`relative overflow-hidden rounded-2xl border border-stone-200/60 bg-white p-5 shadow-sm`}
+      className="relative overflow-hidden rounded-2xl border border-stone-200/60 bg-white p-5 shadow-sm"
     >
       <div className={`absolute top-0 right-0 w-24 h-24 -mr-6 -mt-6 rounded-full opacity-[0.07] ${color}`} />
       <div className="flex items-center gap-3">
@@ -29,32 +29,44 @@ export default function StatsOverview({ moments }) {
   const gratitude = moments.filter(m => m.type === 'gratitude').length;
   const total = moments.length;
 
-  // Calculate streak (consecutive days with at least one moment)
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   let streak = 0;
   let checkDate = new Date(today);
-
   while (true) {
     const dayStr = checkDate.toISOString().split('T')[0];
-    const hasMoment = moments.some(m => {
-      const mDate = new Date(m.date).toISOString().split('T')[0];
-      return mDate === dayStr;
-    });
-    if (hasMoment) {
-      streak++;
-      checkDate.setDate(checkDate.getDate() - 1);
-    } else {
-      break;
-    }
+    const hasMoment = moments.some(m => new Date(m.date).toISOString().split('T')[0] === dayStr);
+    if (hasMoment) { streak++; checkDate.setDate(checkDate.getDate() - 1); }
+    else break;
   }
 
+  const handleShare = async () => {
+    const text = `Together App Stats 💑\n✨ ${total} moments logged\n🤝 ${egoAside} ego aside\n💛 ${gratitude} gratitude\n🔥 ${streak} day streak`;
+    if (navigator.share) {
+      await navigator.share({ title: 'My Together Stats', text });
+    } else {
+      await navigator.clipboard.writeText(text);
+      alert('Stats copied to clipboard!');
+    }
+  };
+
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-      <StatCard icon={Heart} label="Total Moments" value={total} color="bg-rose-400" delay={0} />
-      <StatCard icon={HandHeart} label="Ego Aside" value={egoAside} color="bg-amber-500" delay={0.1} />
-      <StatCard icon={Sparkles} label="Gratitude" value={gratitude} color="bg-emerald-500" delay={0.2} />
-      <StatCard icon={TrendingUp} label="Day Streak" value={streak} color="bg-violet-500" delay={0.3} />
+    <div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <StatCard icon={Heart} label="Total Moments" value={total} color="bg-rose-400" delay={0} />
+        <StatCard icon={HandHeart} label="Ego Aside" value={egoAside} color="bg-amber-500" delay={0.1} />
+        <StatCard icon={Sparkles} label="Gratitude" value={gratitude} color="bg-emerald-500" delay={0.2} />
+        <StatCard icon={TrendingUp} label="Day Streak" value={streak} color="bg-violet-500" delay={0.3} />
+      </div>
+      <div className="mt-2 flex justify-end">
+        <button
+          onClick={handleShare}
+          className="flex items-center gap-1.5 text-xs text-stone-400 hover:text-stone-600 transition-colors"
+        >
+          <Share2 className="w-3.5 h-3.5" />
+          Share my stats
+        </button>
+      </div>
     </div>
   );
 }
