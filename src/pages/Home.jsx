@@ -106,7 +106,8 @@ export default function Home() {
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Moment.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['moments'] });
+      queryClient.invalidateQueries({ queryKey: ['moments-mine'] });
+      queryClient.invalidateQueries({ queryKey: ['moments-partner'] });
       setShowForm(false);
     },
   });
