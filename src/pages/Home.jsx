@@ -66,17 +66,25 @@ export default function Home() {
     });
   }, [currentUser]);
 
-  const { data: myMoments = [], isLoading: loadingMine } = useQuery({
-    queryKey: ['moments-mine', currentUser?.email],
-    queryFn: () => base44.entities.Moment.filter({ created_by: currentUser.email }, '-created_date', 200),
-    enabled: !!currentUser,
+  const myEmail = currentUser?.email?.toLowerCase();
+
+  const { data: rawMyMoments = [], isLoading: loadingMine } = useQuery({
+    queryKey: ['moments-mine', myEmail],
+    queryFn: () => base44.entities.Moment.filter({ created_by: myEmail }, '-created_date', 200),
+    enabled: !!myEmail,
   });
 
-  const { data: partnerMoments = [], isLoading: loadingPartner } = useQuery({
+  const { data: rawPartnerMoments = [], isLoading: loadingPartner } = useQuery({
     queryKey: ['moments-partner', partnerEmail],
     queryFn: () => base44.entities.Moment.filter({ created_by: partnerEmail }, '-created_date', 200),
     enabled: !!partnerEmail,
   });
+
+  // Strict email filtering to prevent cross-account data leakage
+  const myMoments = rawMyMoments.filter(m => m.created_by?.toLowerCase() === myEmail);
+  const partnerMoments = partnerEmail
+    ? rawPartnerMoments.filter(m => m.created_by?.toLowerCase() === partnerEmail)
+    : [];
 
   const moments = React.useMemo(() => {
     const combined = [...myMoments, ...partnerMoments];
