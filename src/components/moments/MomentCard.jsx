@@ -31,13 +31,14 @@ function canEdit(createdDate) {
   return differenceInMinutes(new Date(), new Date(createdDate)) < 10;
 }
 
-const SWIPE_THRESHOLD = 80; // px to reveal delete
-const DELETE_THRESHOLD = 160; // px to auto-delete
+const SWIPE_THRESHOLD = 80;
+const DELETE_THRESHOLD = 160;
+const EDIT_THRESHOLD = 80; // px right-swipe to reveal edit
 
 export default function MomentCard({ moment, index, currentUser, onDeleted }) {
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [swipeX, setSwipeX] = useState(0);
+  const [swipeX, setSwipeX] = useState(0); // positive = left swipe (delete), negative = right swipe (edit)
   const [swiping, setSwiping] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const touchStart = useRef(null);
