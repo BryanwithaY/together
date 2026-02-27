@@ -1,10 +1,11 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Heart, Settings } from 'lucide-react';
+import { Heart, Settings, BarChart2 } from 'lucide-react';
 
 const tabs = [
   { label: 'Moments', icon: Heart, page: 'Home' },
+  { label: 'History', icon: BarChart2, page: 'History' },
   { label: 'Settings', icon: Settings, page: 'Settings' },
 ];
 
