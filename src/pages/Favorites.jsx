@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Star } from 'lucide-react';
 import MomentCard from '../components/moments/MomentCard';
-import MomentsList from '../components/moments/MomentsList';
+import PullToRefresh from '../components/PullToRefresh';
 
 export default function Favorites() {
   const [currentUser, setCurrentUser] = useState(null);

@@ -9,6 +9,7 @@ import StatsOverview from '../components/moments/StatsOverview';
 import MomentForm from '../components/moments/MomentForm';
 import MomentsList from '../components/moments/MomentsList';
 import FilterTabs from '../components/moments/FilterTabs';
+import PullToRefresh from '../components/PullToRefresh';
 
 const DEMO_MOMENTS = [
   {
