@@ -13,10 +13,39 @@ export default function Favorites() {
     base44.auth.me().then(setCurrentUser).catch(() => {});
   }, []);
 
-  const { data: moments = [], isLoading } = useQuery({
-    queryKey: ['favorites'],
-    queryFn: () => base44.entities.Moment.filter({ is_favorite: true }, '-created_date', 100),
+  const [partnerEmail, setPartnerEmail] = useState(null);
+  const [partnerLoaded, setPartnerLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!currentUser) return;
+    base44.entities.PartnerInvitation.filter({ inviter_email: currentUser.email, status: 'accepted' }).then(sent => {
+      if (sent.length > 0) { setPartnerEmail(sent[0].invitee_email); setPartnerLoaded(true); return; }
+      base44.entities.PartnerInvitation.filter({ invitee_email: currentUser.email, status: 'accepted' }).then(received => {
+        if (received.length > 0) setPartnerEmail(received[0].inviter_email);
+        setPartnerLoaded(true);
+      });
+    });
+  }, [currentUser]);
+
+  const { data: myFaves = [], isLoading: loadingMine } = useQuery({
+    queryKey: ['favorites-mine', currentUser?.email],
+    queryFn: () => base44.entities.Moment.filter({ created_by: currentUser.email, is_favorite: true }, '-created_date', 100),
+    enabled: !!currentUser,
   });
+
+  const { data: partnerFaves = [], isLoading: loadingPartner } = useQuery({
+    queryKey: ['favorites-partner', partnerEmail],
+    queryFn: () => base44.entities.Moment.filter({ created_by: partnerEmail, is_favorite: true }, '-created_date', 100),
+    enabled: !!partnerEmail,
+  });
+
+  const moments = React.useMemo(() => {
+    const combined = [...myFaves, ...partnerFaves];
+    combined.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+    return combined;
+  }, [myFaves, partnerFaves]);
+
+  const isLoading = loadingMine || (!!partnerEmail && loadingPartner) || !partnerLoaded;
 
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col">
