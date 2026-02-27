@@ -130,8 +130,8 @@ export default function MomentForm({ onSubmit, onClose }) {
                       value={otherLabel}
                       onChange={e => setOtherLabel(e.target.value)}
                       placeholder="Describe your moment..."
-                      className="flex-1 rounded-xl border border-stone-200 focus:border-amber-300 focus:outline-none px-3 py-2 text-sm text-stone-700 bg-white"
-                      style={{ userSelect: 'text', WebkitUserSelect: 'text' }}
+                      className="flex-1 rounded-xl border border-stone-200 focus:border-amber-300 focus:outline-none px-3 py-3 text-stone-700 bg-white"
+                      style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
                     />
                   </div>
 
