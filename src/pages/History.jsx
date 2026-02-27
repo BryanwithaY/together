@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { format, parseISO, startOfMonth, isSameMonth } from 'date-fns';
-import { Heart, Smile, Users, ChevronDown, ChevronUp } from 'lucide-react';
+import { Heart, Smile, Users, ChevronDown, ChevronUp, BarChart2 } from 'lucide-react';
 
 function StatPill({ label, value, color = 'stone' }) {
   const colors = {
