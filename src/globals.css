@@ -1,0 +1,26 @@
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body {
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+.main-content {
+  flex: 1;
+  padding-bottom: calc(56px + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  overscroll-behavior-y: none;
+}
