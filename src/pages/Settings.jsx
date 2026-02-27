@@ -2,7 +2,18 @@ import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
-import { LogOut, ArrowLeft } from 'lucide-react';
+import { LogOut, ArrowLeft, Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -18,6 +29,13 @@ export default function Settings() {
   });
 
   const handleLogout = () => {
+    base44.auth.logout();
+  };
+
+  const handleDeleteAccount = async () => {
+    await base44.entities.Moment.list('-created_date', 500).then(async (moments) => {
+      await Promise.all(moments.map(m => base44.entities.Moment.delete(m.id)));
+    });
     base44.auth.logout();
   };
 
@@ -76,8 +94,8 @@ export default function Settings() {
           <AppearanceSettings user={user} />
         </div>
 
-        {/* Logout */}
-        <div className="bg-white rounded-2xl border border-stone-200/60 shadow-sm p-6">
+        {/* Logout + Delete */}
+        <div className="bg-white rounded-2xl border border-stone-200/60 shadow-sm p-6 space-y-3">
           <Button
             onClick={handleLogout}
             variant="outline"
@@ -86,7 +104,38 @@ export default function Settings() {
             <LogOut className="w-4 h-4 mr-2" />
             Log Out
           </Button>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                className="w-full text-stone-400 hover:text-red-500 hover:bg-red-50 text-sm"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Account
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete your account and all your logged moments. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteAccount}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Yes, delete my account
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
+
+        <div className="h-2" />
       </div>
     </div>
   );
