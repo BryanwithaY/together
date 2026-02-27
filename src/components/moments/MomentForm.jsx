@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { HandHeart, Sparkles, Ear, BookOpen, Flag, Users, X, Send, Clock } from 'lucide-react';
+import { HandHeart, Sparkles, Ear, BookOpen, Flag, Users, X, Send, Clock, MoreHorizontal } from 'lucide-react';
 import MediaUpload from './MediaUpload';
 
 // Format a Date to "yyyy-MM-ddTHH:mm" for datetime-local input
