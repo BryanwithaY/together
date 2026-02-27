@@ -2,8 +2,14 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { HandHeart, Sparkles, Ear, BookOpen, Flag, Users, X, Send } from 'lucide-react';
+import { HandHeart, Sparkles, Ear, BookOpen, Flag, Users, X, Send, Clock } from 'lucide-react';
 import MediaUpload from './MediaUpload';
+
+// Format a Date to "yyyy-MM-ddTHH:mm" for datetime-local input
+function toLocalDatetimeString(date) {
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
 
 const subtypes = [
   { value: 'listened', icon: Ear, label: 'Listened' },
