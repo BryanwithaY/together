@@ -58,7 +58,19 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
 
   const favoriteMutation = useMutation({
     mutationFn: () => base44.entities.Moment.update(moment.id, { is_favorite: !moment.is_favorite }),
-    onSuccess: () => {
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ['moments'] });
+      await queryClient.cancelQueries({ queryKey: ['favorites'] });
+      const prev = queryClient.getQueryData(['moments']);
+      queryClient.setQueryData(['moments'], (old) =>
+        old ? old.map(m => m.id === moment.id ? { ...m, is_favorite: !m.is_favorite } : m) : old
+      );
+      return { prev };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.prev) queryClient.setQueryData(['moments'], context.prev);
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['moments'] });
       queryClient.invalidateQueries({ queryKey: ['favorites'] });
     },

@@ -22,7 +22,7 @@ export default function FilterTabs({ activeType, activeOwner, onTypeChange, onOw
           <button
             key={value}
             onClick={() => onOwnerChange(value)}
-            className="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200"
+            className="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 select-none"
           >
             {activeOwner === value && (
               <motion.div
