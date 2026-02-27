@@ -30,23 +30,29 @@ export default function Favorites() {
     });
   }, [currentUser]);
 
-  const { data: myFaves = [], isLoading: loadingMine } = useQuery({
-    queryKey: ['favorites-mine', currentUser?.email],
-    queryFn: () => base44.entities.Moment.filter({ created_by: currentUser.email, is_favorite: true }, '-created_date', 100),
-    enabled: !!currentUser,
+  const myEmail = currentUser?.email?.toLowerCase();
+
+  const { data: rawMyFaves = [], isLoading: loadingMine } = useQuery({
+    queryKey: ['favorites-mine', myEmail],
+    queryFn: () => base44.entities.Moment.filter({ created_by: myEmail, is_favorite: true }, '-created_date', 100),
+    enabled: !!myEmail,
   });
 
-  const { data: partnerFaves = [], isLoading: loadingPartner } = useQuery({
+  const { data: rawPartnerFaves = [], isLoading: loadingPartner } = useQuery({
     queryKey: ['favorites-partner', partnerEmail],
     queryFn: () => base44.entities.Moment.filter({ created_by: partnerEmail, is_favorite: true }, '-created_date', 100),
     enabled: !!partnerEmail,
   });
 
   const moments = React.useMemo(() => {
+    const myFaves = rawMyFaves.filter(m => m.created_by?.toLowerCase() === myEmail);
+    const partnerFaves = partnerEmail
+      ? rawPartnerFaves.filter(m => m.created_by?.toLowerCase() === partnerEmail)
+      : [];
     const combined = [...myFaves, ...partnerFaves];
     combined.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
     return combined;
-  }, [myFaves, partnerFaves]);
+  }, [rawMyFaves, rawPartnerFaves, myEmail, partnerEmail]);
 
   const isLoading = loadingMine || (!!partnerEmail && loadingPartner) || !partnerLoaded;
 
