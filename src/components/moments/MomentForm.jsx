@@ -24,8 +24,6 @@ export default function MomentForm({ onSubmit, onClose }) {
   const [type, setType] = useState(null);
   const [subtype, setSubtype] = useState(null);
   const [otherLabel, setOtherLabel] = useState('');
-  const [otherEmoji, setOtherEmoji] = useState('💪');
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [whatHappened, setWhatHappened] = useState('');
   const [howItFelt, setHowItFelt] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
