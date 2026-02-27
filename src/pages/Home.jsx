@@ -10,6 +10,33 @@ import MomentForm from '../components/moments/MomentForm';
 import MomentsList from '../components/moments/MomentsList';
 import FilterTabs from '../components/moments/FilterTabs';
 
+const DEMO_MOMENTS = [
+  {
+    type: 'ego_aside',
+    subtype: 'listened',
+    what_happened: "My partner was venting about work and I resisted jumping in with solutions. I just listened and asked how they were feeling.",
+    how_it_felt: "It felt uncomfortable at first but I could see how much they appreciated it. Really proud of this one.",
+    date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    is_demo: true,
+  },
+  {
+    type: 'gratitude',
+    subtype: 'general',
+    what_happened: "They made my favourite meal after a long day without me even mentioning I was tired.",
+    how_it_felt: "Felt so seen and loved. Small gestures mean everything.",
+    date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    is_demo: true,
+  },
+  {
+    type: 'ego_aside',
+    subtype: 'admitted_mistake',
+    what_happened: "I acknowledged I was wrong about a disagreement we had last week. Said sorry properly.",
+    how_it_felt: "Hard to do but it cleared the air instantly. We both felt lighter.",
+    date: new Date().toISOString(),
+    is_demo: true,
+  },
+];
+
 export default function Home() {
   const [showForm, setShowForm] = useState(false);
   const [typeFilter, setTypeFilter] = useState('all');
@@ -25,6 +52,15 @@ export default function Home() {
     queryKey: ['moments'],
     queryFn: () => base44.entities.Moment.list('-created_date', 100),
   });
+
+  // Seed demo moments for brand-new accounts
+  React.useEffect(() => {
+    if (!isLoading && moments.length === 0 && currentUser) {
+      base44.entities.Moment.bulkCreate(DEMO_MOMENTS).then(() => {
+        queryClient.invalidateQueries({ queryKey: ['moments'] });
+      });
+    }
+  }, [isLoading, moments.length, currentUser]);
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Moment.create(data),
