@@ -165,7 +165,8 @@ export default function MomentForm({ onSubmit, onClose }) {
                 value={howItFelt}
                 onChange={e => setHowItFelt(e.target.value)}
                 placeholder="Share your emotions and reflections..."
-                className="resize-none rounded-xl border-stone-200 focus:border-stone-400 min-h-[70px] text-sm"
+                className="resize-none rounded-xl border-stone-200 focus:border-stone-400 min-h-[120px] text-base"
+                style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
               />
             </div>
             <MediaUpload currentUrl={mediaUrl} onUpload={setMediaUrl} onClear={() => setMediaUrl('')} />
