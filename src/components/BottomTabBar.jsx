@@ -26,7 +26,7 @@ export default function BottomTabBar({ currentPageName }) {
             >
               <Icon
                 className={`w-5 h-5 ${active ? 'text-stone-800' : 'text-stone-400'}`}
-                fill={active && label === 'Moments' ? 'currentColor' : 'none'}
+                fill={active && (label === 'Moments' || label === 'Favorites') ? 'currentColor' : 'none'}
                 strokeWidth={active ? 2.5 : 2}
               />
               <span className={`text-[10px] font-medium ${active ? 'text-stone-800' : 'text-stone-400'}`}>
