@@ -323,6 +323,18 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
                     Mark as Reviewed
                   </Button>
                 )}
+                {isReflection && isOwner && isPrivate && (
+                  <Button
+                    onClick={() => shareWithPartnerMutation.mutate()}
+                    disabled={shareWithPartnerMutation.isPending}
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-xs text-violet-600 hover:text-violet-700 hover:bg-violet-50 select-none"
+                  >
+                    <Share2 className="w-3.5 h-3.5 mr-1" />
+                    Share with Partner
+                  </Button>
+                )}
               </div>
             </div>
           </div>
