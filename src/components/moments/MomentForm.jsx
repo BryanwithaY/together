@@ -34,6 +34,8 @@ export default function MomentForm({ onSubmit, onClose }) {
   const [otherLabel, setOtherLabel] = useState('');
   const [whatHappened, setWhatHappened] = useState('');
   const [howItFelt, setHowItFelt] = useState('');
+  const [couldHaveDoneBetter, setCouldHaveDoneBetter] = useState('');
+  const [showUpNextTime, setShowUpNextTime] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [momentDate, setMomentDate] = useState(() => toLocalDatetimeString(new Date()));
