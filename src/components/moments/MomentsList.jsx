@@ -1,14 +1,21 @@
 import React from 'react';
 import MomentCard from './MomentCard';
 import { motion } from 'framer-motion';
-import { Heart } from 'lucide-react';
+import { Heart, Lock } from 'lucide-react';
 
-export default function MomentsList({ moments, typeFilter, ownerFilter, currentUser }) {
-  const filtered = moments.filter(m => {
-    // Filter by type
+export default function MomentsList({ moments, privateReflections = [], typeFilter, ownerFilter, currentUser }) {
+  // When filtering for self_reflection, include private ones that belong to the current user
+  const displayMoments = typeFilter === 'self_reflection'
+    ? [
+        ...moments.filter(m => m.type === 'self_reflection'),
+        ...privateReflections,
+      ].sort((a, b) => new Date(b.created_date) - new Date(a.created_date))
+    : moments;
+
+  const filtered = displayMoments.filter(m => {
     const typeMatch = typeFilter === 'all' || m.type === typeFilter;
     
-    // Filter by owner
+    // Don't apply owner filter to private reflections shown in reflection tab
     let ownerMatch = true;
     if (ownerFilter === 'mine') {
       ownerMatch = m.created_by === currentUser?.email;
