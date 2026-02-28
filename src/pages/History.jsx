@@ -155,6 +155,7 @@ export default function History() {
   // All-time totals
   const totalEgo = moments.filter(m => m.type === 'ego_aside').length;
   const totalGratitude = moments.filter(m => m.type === 'gratitude').length;
+  const totalReflections = moments.filter(m => m.type === 'self_reflection').length;
 
   return (
     <div className="min-h-screen bg-stone-50">
