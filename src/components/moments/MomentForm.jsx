@@ -42,6 +42,8 @@ export default function MomentForm({ onSubmit, onClose }) {
     let finalSubtype = 'general';
     if (type === 'ego_aside') {
       finalSubtype = subtype === 'other' ? (otherLabel.trim() || 'other') : (subtype || 'general');
+    } else if (type === 'self_reflection') {
+      finalSubtype = subtype === 'other' ? (otherLabel.trim() || 'other') : (subtype || 'other');
     }
     setIsSubmitting(true);
     await onSubmit({
@@ -51,6 +53,8 @@ export default function MomentForm({ onSubmit, onClose }) {
       how_it_felt: howItFelt.trim(),
       media_url: mediaUrl || undefined,
       date: new Date(momentDate).toISOString(),
+      is_private: type === 'self_reflection',
+      shared_with_partner: false,
     });
     setIsSubmitting(false);
   };
