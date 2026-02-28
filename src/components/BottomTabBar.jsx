@@ -40,7 +40,7 @@ export default function BottomTabBar({ currentPageName }) {
             >
               <Icon
                 className={`w-5 h-5 select-none ${active ? 'text-stone-800' : 'text-stone-400'}`}
-                fill={active && (label === 'Moments' || label === 'Favorites') ? 'currentColor' : 'none'}
+                fill={active && (label === 'Moments' || label === 'Saved') ? 'currentColor' : 'none'}
                 strokeWidth={active ? 2.5 : 2}
               />
               <span className={`text-[10px] font-medium select-none ${active ? 'text-stone-800' : 'text-stone-400'}`}>
