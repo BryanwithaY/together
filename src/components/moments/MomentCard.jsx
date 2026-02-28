@@ -246,6 +246,16 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
                 </div>
                 {/* Actions */}
                 <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+                  {isReflection ? (
+                    <button
+                      onClick={() => saveMutation.mutate()}
+                      className={`p-1.5 rounded-lg transition-colors select-none ${
+                        moment.is_saved ? 'text-violet-500' : 'text-stone-300 hover:text-violet-400'
+                      }`}
+                    >
+                      <Bookmark className="w-3.5 h-3.5 select-none" fill={moment.is_saved ? 'currentColor' : 'none'} />
+                    </button>
+                  ) : (
                   <button
                     onClick={() => favoriteMutation.mutate()}
                     className={`p-1.5 rounded-lg transition-colors select-none ${
@@ -254,6 +264,7 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
                   >
                     <Star className="w-3.5 h-3.5 select-none" fill={moment.is_favorite ? 'currentColor' : 'none'} />
                   </button>
+                  )}
                   {editable && (
                     <button
                       onClick={() => setEditing(true)}
