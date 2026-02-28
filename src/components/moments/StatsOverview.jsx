@@ -53,11 +53,12 @@ export default function StatsOverview({ moments, privateReflections = [] }) {
 
   return (
     <div>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatCard icon={Heart} label="Total Moments" value={total} color="bg-rose-400" delay={0} />
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+        <StatCard icon={Heart} label="Total" value={total} color="bg-rose-400" delay={0} />
         <StatCard icon={HandHeart} label="Ego Aside" value={egoAside} color="bg-amber-500" delay={0.1} />
         <StatCard icon={Sparkles} label="Gratitude" value={gratitude} color="bg-emerald-500" delay={0.2} />
-        <StatCard icon={TrendingUp} label="Day Streak" value={streak} color="bg-violet-500" delay={0.3} />
+        <StatCard icon={ShieldAlert} label="Reflections" value={reflections} color="bg-violet-500" delay={0.3} />
+        <StatCard icon={TrendingUp} label="Day Streak" value={streak} color="bg-sky-500" delay={0.4} />
       </div>
       <div className="mt-2 flex justify-end">
         <button
