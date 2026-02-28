@@ -192,7 +192,7 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
         >
           <div className="flex gap-4 p-4">
             <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${
-              isEgoAside ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'
+              isEgoAside ? 'bg-amber-50 text-amber-600' : isReflection ? 'bg-violet-50 text-violet-600' : 'bg-emerald-50 text-emerald-600'
             }`}>
               <Icon className="w-5 h-5" />
             </div>
