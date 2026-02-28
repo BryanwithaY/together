@@ -208,6 +208,24 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
                   <span className="text-xs text-stone-400">{formatDate(moment.date)}</span>
                   <span className="text-stone-300">·</span>
                   <span className="text-xs text-stone-500">{isOwner ? 'You' : 'Your Partner'}</span>
+                  {isReflection && isPrivate && isOwner && (
+                    <>
+                      <span className="text-stone-300">·</span>
+                      <div className="flex items-center gap-1 text-xs text-violet-500">
+                        <Lock className="w-3 h-3" />
+                        <span>Private</span>
+                      </div>
+                    </>
+                  )}
+                  {isReflection && moment.shared_with_partner && (
+                    <>
+                      <span className="text-stone-300">·</span>
+                      <div className="flex items-center gap-1 text-xs text-violet-600">
+                        <Share2 className="w-3 h-3" />
+                        <span>Shared</span>
+                      </div>
+                    </>
+                  )}
                   {isReviewed && (
                     <>
                       <span className="text-stone-300">·</span>
