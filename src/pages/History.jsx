@@ -52,10 +52,11 @@ function MonthBlock({ monthLabel, moments, currentUserEmail, partnerEmail }) {
               <Users className="w-3.5 h-3.5 text-stone-400" />
               <span className="text-xs font-semibold text-stone-500 uppercase tracking-wide">Together</span>
             </div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               <StatPill label="Total" value={moments.length} color="stone" />
               <StatPill label="Ego Aside" value={byType(moments, 'ego_aside')} color="sky" />
               <StatPill label="Gratitude" value={byType(moments, 'gratitude')} color="amber" />
+              <StatPill label="Reflections" value={byType(moments, 'self_reflection')} color="rose" />
             </div>
           </div>
 
@@ -65,10 +66,11 @@ function MonthBlock({ monthLabel, moments, currentUserEmail, partnerEmail }) {
               <Heart className="w-3.5 h-3.5 text-rose-400" fill="currentColor" />
               <span className="text-xs font-semibold text-stone-500 uppercase tracking-wide">{myName}</span>
             </div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               <StatPill label="Total" value={myMoments.length} color="stone" />
               <StatPill label="Ego Aside" value={byType(myMoments, 'ego_aside')} color="sky" />
               <StatPill label="Gratitude" value={byType(myMoments, 'gratitude')} color="amber" />
+              <StatPill label="Reflections" value={byType(myMoments, 'self_reflection')} color="rose" />
             </div>
           </div>
 
@@ -79,10 +81,11 @@ function MonthBlock({ monthLabel, moments, currentUserEmail, partnerEmail }) {
                 <Smile className="w-3.5 h-3.5 text-violet-400" />
                 <span className="text-xs font-semibold text-stone-500 uppercase tracking-wide">{partnerName}</span>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 <StatPill label="Total" value={partnerMoments.length} color="stone" />
                 <StatPill label="Ego Aside" value={byType(partnerMoments, 'ego_aside')} color="sky" />
                 <StatPill label="Gratitude" value={byType(partnerMoments, 'gratitude')} color="amber" />
+                <StatPill label="Reflections" value={byType(partnerMoments, 'self_reflection')} color="rose" />
               </div>
             </div>
           )}
