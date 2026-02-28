@@ -18,6 +18,10 @@ const subtypeConfig = {
   admitted_mistake: { icon: Flag, label: 'Admitted a Mistake' },
   let_partner_lead: { icon: Users, label: 'Let Partner Lead' },
   general: { icon: HandHeart, label: 'Ego Aside' },
+  reacted_poorly: { icon: Zap, label: 'Reacted Poorly' },
+  was_dismissive: { icon: VolumeX, label: 'Was Dismissive' },
+  not_present: { icon: PhoneOff, label: "Wasn't Present" },
+  unkind: { icon: Frown, label: 'Was Unkind' },
 };
 
 function formatDate(dateStr) {
