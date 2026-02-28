@@ -2,7 +2,7 @@ import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
-import { LogOut, ArrowLeft, Trash2 } from 'lucide-react';
+import { LogOut, ArrowLeft, Trash2, HelpCircle } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
