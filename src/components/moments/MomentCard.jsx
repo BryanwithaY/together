@@ -48,7 +48,7 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
   const subtype = subtypeConfig[moment.subtype] || subtypeConfig.general;
   const Icon = isEgoAside ? subtype.icon : Sparkles;
   const isOwner = moment.created_by === currentUser?.email;
-  const isReviewed = moment.reviewed_by === currentUser?.email;
+  const isReviewed = !!moment.reviewed_by;
   const canReview = !isOwner && !isReviewed;
   const editable = isOwner && canEdit(moment.created_date);
 
