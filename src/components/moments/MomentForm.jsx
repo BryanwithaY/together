@@ -54,6 +54,8 @@ export default function MomentForm({ onSubmit, onClose }) {
       subtype: finalSubtype,
       what_happened: whatHappened.trim(),
       how_it_felt: howItFelt.trim(),
+      could_have_done_better: couldHaveDoneBetter.trim() || undefined,
+      show_up_next_time: showUpNextTime.trim() || undefined,
       media_url: mediaUrl || undefined,
       date: new Date(momentDate).toISOString(),
       is_private: type === 'self_reflection',
