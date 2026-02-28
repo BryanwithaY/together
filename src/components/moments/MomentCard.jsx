@@ -200,9 +200,9 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
               <div className="flex items-start justify-between mb-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className={`text-xs font-semibold uppercase tracking-wider ${
-                    isEgoAside ? 'text-amber-600' : 'text-emerald-600'
+                    isEgoAside ? 'text-amber-600' : isReflection ? 'text-violet-600' : 'text-emerald-600'
                   }`}>
-                    {isEgoAside ? subtype.label : 'Gratitude'}
+                    {isEgoAside ? subtype.label : isReflection ? (subtypeConfig[moment.subtype]?.label || 'Self Reflection') : 'Gratitude'}
                   </span>
                   <span className="text-stone-300">·</span>
                   <span className="text-xs text-stone-400">{formatDate(moment.date)}</span>
