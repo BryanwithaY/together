@@ -5,6 +5,7 @@ const typeFilters = [
   { value: 'all', label: 'All' },
   { value: 'ego_aside', label: 'Ego Aside' },
   { value: 'gratitude', label: 'Gratitude' },
+  { value: 'self_reflection', label: 'Reflections' },
 ];
 
 const ownerFilters = [
