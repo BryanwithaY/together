@@ -75,26 +75,41 @@ export default function MomentForm({ onSubmit, onClose }) {
 
       <div className="mb-5">
         <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-3">What kind of moment?</p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-2">
           <button
             onClick={() => { setType('ego_aside'); setSubtype(null); }}
-            className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all duration-200 ${
+            className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 ${
               type === 'ego_aside' ? 'border-amber-400 bg-amber-50 shadow-sm' : 'border-stone-200 hover:border-stone-300 bg-white'
             }`}
           >
             <HandHeart className={`w-5 h-5 ${type === 'ego_aside' ? 'text-amber-600' : 'text-stone-400'}`} />
-            <span className={`text-sm font-medium ${type === 'ego_aside' ? 'text-amber-800' : 'text-stone-600'}`}>Ego Aside</span>
+            <span className={`text-xs font-medium text-center ${type === 'ego_aside' ? 'text-amber-800' : 'text-stone-600'}`}>Ego Aside</span>
           </button>
           <button
             onClick={() => { setType('gratitude'); setSubtype(null); }}
-            className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all duration-200 ${
+            className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 ${
               type === 'gratitude' ? 'border-emerald-400 bg-emerald-50 shadow-sm' : 'border-stone-200 hover:border-stone-300 bg-white'
             }`}
           >
             <Sparkles className={`w-5 h-5 ${type === 'gratitude' ? 'text-emerald-600' : 'text-stone-400'}`} />
-            <span className={`text-sm font-medium ${type === 'gratitude' ? 'text-emerald-800' : 'text-stone-600'}`}>Gratitude</span>
+            <span className={`text-xs font-medium text-center ${type === 'gratitude' ? 'text-emerald-800' : 'text-stone-600'}`}>Gratitude</span>
+          </button>
+          <button
+            onClick={() => { setType('self_reflection'); setSubtype(null); }}
+            className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 ${
+              type === 'self_reflection' ? 'border-violet-400 bg-violet-50 shadow-sm' : 'border-stone-200 hover:border-stone-300 bg-white'
+            }`}
+          >
+            <ShieldAlert className={`w-5 h-5 ${type === 'self_reflection' ? 'text-violet-600' : 'text-stone-400'}`} />
+            <span className={`text-xs font-medium text-center ${type === 'self_reflection' ? 'text-violet-800' : 'text-stone-600'}`}>Self Reflection</span>
           </button>
         </div>
+        {type === 'self_reflection' && (
+          <p className="text-xs text-violet-600 mt-2 flex items-center gap-1.5">
+            <ShieldAlert className="w-3 h-3" />
+            Private to you — share with your partner when you're ready.
+          </p>
+        )}
       </div>
 
       <AnimatePresence>
