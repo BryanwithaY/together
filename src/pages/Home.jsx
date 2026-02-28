@@ -81,9 +81,13 @@ export default function Home() {
   });
 
   // Strict email filtering to prevent cross-account data leakage
-  const myMoments = rawMyMoments.filter(m => m.created_by?.toLowerCase() === myEmail);
+  const allMyMoments = rawMyMoments.filter(m => m.created_by?.toLowerCase() === myEmail);
+  // Private self-reflections not yet shared — only visible to the owner
+  const privateReflections = allMyMoments.filter(m => m.is_private && !m.shared_with_partner);
+  // Moments visible in the shared feed
+  const myMoments = allMyMoments.filter(m => !m.is_private || m.shared_with_partner);
   const partnerMoments = partnerEmail
-    ? rawPartnerMoments.filter(m => m.created_by?.toLowerCase() === partnerEmail)
+    ? rawPartnerMoments.filter(m => m.created_by?.toLowerCase() === partnerEmail && (!m.is_private || m.shared_with_partner))
     : [];
 
   const moments = React.useMemo(() => {
@@ -91,6 +95,13 @@ export default function Home() {
     combined.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
     return combined;
   }, [myMoments, partnerMoments]);
+
+  // All my moments including private ones (for stats)
+  const allMomentsForStats = React.useMemo(() => {
+    const combined = [...allMyMoments, ...partnerMoments];
+    combined.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+    return combined;
+  }, [allMyMoments, partnerMoments]);
 
   const isLoading = loadingMine || (!!partnerEmail && loadingPartner) || !partnerLoaded;
 
