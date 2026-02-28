@@ -19,10 +19,10 @@ const egoSubtypes = [
 ];
 
 const reflectionSubtypes = [
-  { value: 'shut_down', icon: VolumeX, label: 'Shut Down' },
+  { value: 'shut_down', icon: Power, label: 'Shut Down' },
   { value: 'reacted_poorly', icon: Zap, label: 'Reacted Poorly' },
-  { value: 'was_dismissive', icon: PhoneOff, label: 'Was Dismissive' },
-  { value: 'not_present', icon: Frown, label: "Wasn't Present" },
+  { value: 'was_dismissive', icon: VolumeX, label: 'Was Dismissive' },
+  { value: 'not_present', icon: PhoneOff, label: "Wasn't Present" },
   { value: 'unkind', icon: Frown, label: 'Was Unkind' },
 ];
 
