@@ -117,7 +117,7 @@ export default function MomentForm({ onSubmit, onClose }) {
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mb-5 overflow-hidden">
             <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-3">How did you show up?</p>
             <div className="grid grid-cols-2 gap-2">
-              {subtypes.map(({ value, icon: Icon, label }) => (
+              {egoSubtypes.map(({ value, icon: Icon, label }) => (
                 <button
                   key={value}
                   onClick={() => setSubtype(value)}
@@ -129,7 +129,6 @@ export default function MomentForm({ onSubmit, onClose }) {
                   <span className={`text-xs font-medium ${subtype === value ? 'text-amber-700' : 'text-stone-500'}`}>{label}</span>
                 </button>
               ))}
-              {/* Other option */}
               <button
                 onClick={() => setSubtype('other')}
                 className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all duration-200 text-left ${
@@ -140,27 +139,62 @@ export default function MomentForm({ onSubmit, onClose }) {
                 <span className={`text-xs font-medium ${subtype === 'other' ? 'text-amber-700' : 'text-stone-500'}`}>Other</span>
               </button>
             </div>
-
-            {/* Other subtype expanded input */}
             <AnimatePresence>
               {subtype === 'other' && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden mt-3"
-                >
-                  <div className="flex gap-2 items-center">
-                    <input
-                      type="text"
-                      value={otherLabel}
-                      onChange={e => setOtherLabel(e.target.value)}
-                      placeholder="Describe your moment..."
-                      className="flex-1 rounded-xl border border-stone-200 focus:border-amber-300 focus:outline-none px-3 py-3 text-stone-700 bg-white"
-                      style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
-                    />
-                  </div>
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden mt-3">
+                  <input
+                    type="text"
+                    value={otherLabel}
+                    onChange={e => setOtherLabel(e.target.value)}
+                    placeholder="Describe your moment..."
+                    className="w-full rounded-xl border border-stone-200 focus:border-amber-300 focus:outline-none px-3 py-3 text-stone-700 bg-white"
+                    style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
+      <AnimatePresence>
+        {type === 'self_reflection' && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mb-5 overflow-hidden">
+            <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-3">What happened?</p>
+            <div className="grid grid-cols-2 gap-2">
+              {reflectionSubtypes.map(({ value, icon: Icon, label }) => (
+                <button
+                  key={value}
+                  onClick={() => setSubtype(value)}
+                  className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all duration-200 text-left ${
+                    subtype === value ? 'border-violet-300 bg-violet-50/60' : 'border-stone-150 hover:border-stone-300 bg-stone-50/50'
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 ${subtype === value ? 'text-violet-600' : 'text-stone-400'}`} />
+                  <span className={`text-xs font-medium ${subtype === value ? 'text-violet-700' : 'text-stone-500'}`}>{label}</span>
+                </button>
+              ))}
+              <button
+                onClick={() => setSubtype('other')}
+                className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all duration-200 text-left ${
+                  subtype === 'other' ? 'border-violet-300 bg-violet-50/60' : 'border-stone-150 hover:border-stone-300 bg-stone-50/50'
+                }`}
+              >
+                <MoreHorizontal className={`w-4 h-4 ${subtype === 'other' ? 'text-violet-600' : 'text-stone-400'}`} />
+                <span className={`text-xs font-medium ${subtype === 'other' ? 'text-violet-700' : 'text-stone-500'}`}>Other</span>
+              </button>
+            </div>
+            <AnimatePresence>
+              {subtype === 'other' && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden mt-3">
+                  <input
+                    type="text"
+                    value={otherLabel}
+                    onChange={e => setOtherLabel(e.target.value)}
+                    placeholder="Briefly describe what happened..."
+                    className="w-full rounded-xl border border-stone-200 focus:border-violet-300 focus:outline-none px-3 py-3 text-stone-700 bg-white"
+                    style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
+                  />
                 </motion.div>
               )}
             </AnimatePresence>
