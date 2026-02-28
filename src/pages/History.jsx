@@ -126,9 +126,11 @@ export default function History() {
   });
 
   const moments = React.useMemo(() => {
+    // My moments: include all (private reflections show in my own history)
     const myMoments = rawMyMoments.filter(m => m.created_by?.toLowerCase() === myEmail);
+    // Partner moments: exclude private unshared reflections
     const partnerMoments = partnerEmail
-      ? rawPartnerMoments.filter(m => m.created_by?.toLowerCase() === partnerEmail)
+      ? rawPartnerMoments.filter(m => m.created_by?.toLowerCase() === partnerEmail && (!m.is_private || m.shared_with_partner))
       : [];
     const combined = [...myMoments, ...partnerMoments];
     combined.sort((a, b) => new Date(b.date || b.created_date) - new Date(a.date || a.created_date));
