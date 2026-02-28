@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { HandHeart, Sparkles, Ear, BookOpen, Flag, Users, X, Send, Clock, MoreHorizontal } from 'lucide-react';
+import { HandHeart, Sparkles, Ear, BookOpen, Flag, Users, X, Send, Clock, MoreHorizontal, ShieldAlert, Frown, VolumeX, PhoneOff, Zap } from 'lucide-react';
 import MediaUpload from './MediaUpload';
 
 // Format a Date to "yyyy-MM-ddTHH:mm" for datetime-local input
@@ -11,11 +11,18 @@ function toLocalDatetimeString(date) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
-const subtypes = [
+const egoSubtypes = [
   { value: 'listened', icon: Ear, label: 'Listened' },
   { value: 'learned', icon: BookOpen, label: 'Learned' },
   { value: 'admitted_mistake', icon: Flag, label: 'Admitted a Mistake' },
   { value: 'let_partner_lead', icon: Users, label: 'Let Partner Lead' },
+];
+
+const reflectionSubtypes = [
+  { value: 'reacted_poorly', icon: Zap, label: 'Reacted Poorly' },
+  { value: 'was_dismissive', icon: VolumeX, label: 'Was Dismissive' },
+  { value: 'not_present', icon: PhoneOff, label: "Wasn't Present" },
+  { value: 'unkind', icon: Frown, label: 'Was Unkind' },
 ];
 
 
