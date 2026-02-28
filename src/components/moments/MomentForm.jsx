@@ -234,6 +234,31 @@ export default function MomentForm({ onSubmit, onClose }) {
                 style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
               />
             </div>
+            {type === 'self_reflection' && (
+              <div className="space-y-4 border border-violet-100 bg-violet-50/40 rounded-xl p-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-violet-600">Follow-up</p>
+                <div>
+                  <p className="text-xs font-semibold text-stone-500 mb-2">What could you have done better? <span className="text-stone-400 font-normal">(optional)</span></p>
+                  <Textarea
+                    value={couldHaveDoneBetter}
+                    onChange={e => setCouldHaveDoneBetter(e.target.value)}
+                    placeholder="Be honest and specific with yourself..."
+                    className="resize-none rounded-xl border-violet-200 focus:border-violet-400 min-h-[90px] text-base bg-white"
+                    style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
+                  />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-stone-500 mb-2">How do you hope to show up next time? <span className="text-stone-400 font-normal">(optional)</span></p>
+                  <Textarea
+                    value={showUpNextTime}
+                    onChange={e => setShowUpNextTime(e.target.value)}
+                    placeholder="What intention do you want to set for similar situations?"
+                    className="resize-none rounded-xl border-violet-200 focus:border-violet-400 min-h-[90px] text-base bg-white"
+                    style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
+                  />
+                </div>
+              </div>
+            )}
             <MediaUpload currentUrl={mediaUrl} onUpload={setMediaUrl} onClear={() => setMediaUrl('')} />
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-2 flex items-center gap-1.5">
