@@ -191,6 +191,7 @@ export default function Home() {
             ) : (
               <MomentsList
                 moments={moments}
+                privateReflections={privateReflections}
                 typeFilter={typeFilter}
                 ownerFilter={ownerFilter}
                 currentUser={currentUser}
