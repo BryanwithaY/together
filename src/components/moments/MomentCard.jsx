@@ -282,6 +282,7 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
                     </button>
                   )}
                 </div>
+
               </div>
 
               {moment.what_happened && (
