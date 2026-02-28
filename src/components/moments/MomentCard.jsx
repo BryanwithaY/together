@@ -297,8 +297,26 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
                   <p className="text-sm text-stone-600 leading-relaxed">{moment.how_it_felt}</p>
                 </div>
               )}
-              {!moment.what_happened && !moment.how_it_felt && (
+              {!moment.what_happened && !moment.how_it_felt && !moment.could_have_done_better && !moment.show_up_next_time && (
                 <p className="text-sm text-stone-400 italic">No details added</p>
+              )}
+
+              {isReflection && (moment.could_have_done_better || moment.show_up_next_time) && (
+                <div className="mt-2 border border-violet-100 bg-violet-50/40 rounded-xl p-3 space-y-2">
+                  <p className="text-xs font-semibold text-violet-600 uppercase tracking-wider">Follow-up</p>
+                  {moment.could_have_done_better && (
+                    <div>
+                      <p className="text-xs font-semibold text-stone-500 mb-1">Could have done better:</p>
+                      <p className="text-sm text-stone-600 leading-relaxed">{moment.could_have_done_better}</p>
+                    </div>
+                  )}
+                  {moment.show_up_next_time && (
+                    <div>
+                      <p className="text-xs font-semibold text-stone-500 mb-1">Next time:</p>
+                      <p className="text-sm text-stone-600 leading-relaxed">{moment.show_up_next_time}</p>
+                    </div>
+                  )}
+                </div>
               )}
 
               {moment.media_url && (
