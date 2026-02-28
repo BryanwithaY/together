@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Star } from 'lucide-react';
+import { Star, Bookmark } from 'lucide-react';
 import MomentCard from '../components/moments/MomentCard';
 import PullToRefresh from '../components/PullToRefresh';
 
 export default function Favorites() {
   const [currentUser, setCurrentUser] = useState(null);
+  const [tab, setTab] = useState('favorites'); // 'favorites' | 'saved'
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -32,43 +33,84 @@ export default function Favorites() {
 
   const myEmail = currentUser?.email?.toLowerCase();
 
-  const { data: rawMyFaves = [], isLoading: loadingMine } = useQuery({
+  // Favorites queries
+  const { data: rawMyFaves = [], isLoading: loadingMineFaves } = useQuery({
     queryKey: ['favorites-mine', myEmail],
     queryFn: () => base44.entities.Moment.filter({ created_by: myEmail, is_favorite: true }, '-created_date', 100),
     enabled: !!myEmail,
   });
 
-  const { data: rawPartnerFaves = [], isLoading: loadingPartner } = useQuery({
+  const { data: rawPartnerFaves = [], isLoading: loadingPartnerFaves } = useQuery({
     queryKey: ['favorites-partner', partnerEmail],
     queryFn: () => base44.entities.Moment.filter({ created_by: partnerEmail, is_favorite: true }, '-created_date', 100),
     enabled: !!partnerEmail,
   });
 
-  const moments = React.useMemo(() => {
+  // Saved (self-reflections) queries
+  const { data: rawSaved = [], isLoading: loadingSaved } = useQuery({
+    queryKey: ['saved', myEmail],
+    queryFn: () => base44.entities.Moment.filter({ created_by: myEmail, is_saved: true }, '-created_date', 100),
+    enabled: !!myEmail,
+  });
+
+  const favorites = useMemo(() => {
     const myFaves = rawMyFaves.filter(m => m.created_by?.toLowerCase() === myEmail);
     const partnerFaves = partnerEmail
-      ? rawPartnerFaves.filter(m => m.created_by?.toLowerCase() === partnerEmail)
+      ? rawPartnerFaves.filter(m => m.created_by?.toLowerCase() === partnerEmail && (!m.is_private || m.shared_with_partner))
       : [];
     const combined = [...myFaves, ...partnerFaves];
     combined.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
     return combined;
   }, [rawMyFaves, rawPartnerFaves, myEmail, partnerEmail]);
 
-  const isLoading = loadingMine || (!!partnerEmail && loadingPartner) || !partnerLoaded;
+  const saved = useMemo(() => {
+    return rawSaved.filter(m => m.created_by?.toLowerCase() === myEmail);
+  }, [rawSaved, myEmail]);
+
+  const isLoading =
+    tab === 'favorites'
+      ? loadingMineFaves || (!!partnerEmail && loadingPartnerFaves) || !partnerLoaded
+      : loadingSaved;
+
+  const moments = tab === 'favorites' ? favorites : saved;
 
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col">
       <div className="bg-white border-b border-stone-200/60 flex-shrink-0">
-        <div className="max-w-2xl mx-auto px-4 py-8">
-          <h1 className="text-2xl font-bold text-stone-800 tracking-tight flex items-center gap-2 select-none">
-            <Star className="w-6 h-6 text-amber-400" fill="currentColor" />
-            Favorites
-          </h1>
-          <p className="text-sm text-stone-500 mt-1 select-none">Moments you've saved to remember</p>
+        <div className="max-w-2xl mx-auto px-4 pt-8 pb-0">
+          <h1 className="text-2xl font-bold text-stone-800 tracking-tight select-none mb-4">Saved</h1>
+          {/* Tabs */}
+          <div className="flex border-b border-stone-200">
+            <button
+              onClick={() => setTab('favorites')}
+              className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                tab === 'favorites'
+                  ? 'border-amber-400 text-amber-600'
+                  : 'border-transparent text-stone-500 hover:text-stone-700'
+              }`}
+            >
+              <Star className="w-3.5 h-3.5" fill={tab === 'favorites' ? 'currentColor' : 'none'} />
+              Favorites
+            </button>
+            <button
+              onClick={() => setTab('saved')}
+              className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                tab === 'saved'
+                  ? 'border-violet-500 text-violet-600'
+                  : 'border-transparent text-stone-500 hover:text-stone-700'
+              }`}
+            >
+              <Bookmark className="w-3.5 h-3.5" fill={tab === 'saved' ? 'currentColor' : 'none'} />
+              Reflections
+            </button>
+          </div>
         </div>
       </div>
 
-      <PullToRefresh onRefresh={() => queryClient.invalidateQueries({ queryKey: ['favorites'] })}>
+      <PullToRefresh onRefresh={() => {
+        queryClient.invalidateQueries({ queryKey: ['favorites'] });
+        queryClient.invalidateQueries({ queryKey: ['saved'] });
+      }}>
         <div className="max-w-2xl mx-auto px-4 py-6">
           {isLoading ? (
             <div className="space-y-3">
@@ -78,9 +120,19 @@ export default function Favorites() {
             </div>
           ) : moments.length === 0 ? (
             <div className="text-center py-20 text-stone-400">
-              <Star className="w-10 h-10 mx-auto mb-3 opacity-30" />
-              <p className="text-sm font-medium select-none">No favorites yet</p>
-              <p className="text-xs mt-1 select-none">Tap the ★ on any moment to save it here</p>
+              {tab === 'favorites' ? (
+                <>
+                  <Star className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                  <p className="text-sm font-medium select-none">No favorites yet</p>
+                  <p className="text-xs mt-1 select-none">Tap the ★ on any moment to save it here</p>
+                </>
+              ) : (
+                <>
+                  <Bookmark className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                  <p className="text-sm font-medium select-none">No saved reflections yet</p>
+                  <p className="text-xs mt-1 select-none">Tap the bookmark on a self-reflection to save it here</p>
+                </>
+              )}
             </div>
           ) : (
             <div className="space-y-3">
