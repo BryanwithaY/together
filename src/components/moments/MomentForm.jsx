@@ -224,7 +224,7 @@ export default function MomentForm({ onSubmit, onClose }) {
               <Textarea
                 value={howItFelt}
                 onChange={e => setHowItFelt(e.target.value)}
-                placeholder="Share your emotions and reflections..."
+                placeholder={type === 'self_reflection' ? "What would you do differently? What can you learn from this?" : "Share your emotions and reflections..."}
                 className="resize-none rounded-xl border-stone-200 focus:border-stone-400 min-h-[120px] text-base"
                 style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
               />
