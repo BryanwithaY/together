@@ -156,6 +156,7 @@ export default function Home() {
         </div>
       </div>
 
+      <NewUserWelcome />
       <PullToRefresh onRefresh={() => queryClient.invalidateQueries({ queryKey: ['moments'] })}>
         <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
           {/* Stats */}
