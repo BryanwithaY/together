@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Heart, HandHeart, Sparkles, TrendingUp, Share2 } from 'lucide-react';
+import { Heart, HandHeart, Sparkles, TrendingUp, Share2, ShieldAlert } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 function StatCard({ icon: Icon, label, value, color, delay }) {
@@ -24,10 +24,11 @@ function StatCard({ icon: Icon, label, value, color, delay }) {
   );
 }
 
-export default function StatsOverview({ moments }) {
+export default function StatsOverview({ moments, privateReflections = [] }) {
   const egoAside = moments.filter(m => m.type === 'ego_aside').length;
   const gratitude = moments.filter(m => m.type === 'gratitude').length;
-  const total = moments.length;
+  const reflections = [...moments.filter(m => m.type === 'self_reflection'), ...privateReflections].length;
+  const total = moments.length + privateReflections.length;
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
