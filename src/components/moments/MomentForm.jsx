@@ -212,7 +212,7 @@ export default function MomentForm({ onSubmit, onClose }) {
               <Textarea
                 value={whatHappened}
                 onChange={e => setWhatHappened(e.target.value)}
-                placeholder={type === 'ego_aside' ? "Describe the situation..." : "What are you grateful for?"}
+                placeholder={type === 'ego_aside' ? "Describe the situation..." : type === 'self_reflection' ? "What did you do or say? Be honest with yourself..." : "What are you grateful for?"}
                 className="resize-none rounded-xl border-stone-200 focus:border-stone-400 min-h-[120px] text-base"
                 style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
               />
