@@ -172,7 +172,7 @@ export default function History() {
         {moments.length > 0 && (
           <div className="bg-stone-800 rounded-2xl p-5 text-white">
             <p className="text-xs font-semibold uppercase tracking-widest text-stone-400 mb-4">All Time</p>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-4 gap-3">
               <div className="flex flex-col items-center">
                 <span className="text-3xl font-bold">{moments.length}</span>
                 <span className="text-[11px] text-stone-400 mt-1">Total</span>
@@ -184,6 +184,10 @@ export default function History() {
               <div className="flex flex-col items-center">
                 <span className="text-3xl font-bold">{totalGratitude}</span>
                 <span className="text-[11px] text-stone-400 mt-1">Gratitude</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-3xl font-bold">{totalReflections}</span>
+                <span className="text-[11px] text-stone-400 mt-1">Reflections</span>
               </div>
             </div>
             <p className="text-xs text-stone-500 mt-4 text-center">
