@@ -49,11 +49,13 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
   const queryClient = useQueryClient();
 
   const isEgoAside = moment.type === 'ego_aside';
+  const isReflection = moment.type === 'self_reflection';
   const subtype = subtypeConfig[moment.subtype] || subtypeConfig.general;
-  const Icon = isEgoAside ? subtype.icon : Sparkles;
+  const Icon = isEgoAside ? subtype.icon : isReflection ? ShieldAlert : Sparkles;
   const isOwner = moment.created_by === currentUser?.email;
   const isReviewed = !!moment.reviewed_by;
-  const canReview = !isOwner && !isReviewed;
+  const canReview = !isOwner && !isReviewed && !isReflection;
+  const isPrivate = moment.is_private && !moment.shared_with_partner;
   const editable = isOwner && canEdit(moment.created_date);
 
   const { data: comments = [] } = useQuery({
