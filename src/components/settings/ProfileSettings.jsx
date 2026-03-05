@@ -118,24 +118,24 @@ export default function ProfileSettings({ user }) {
       </div>
 
       <div>
-         <h3 className="text-sm font-semibold text-stone-700 mb-3">Display Name</h3>
-         <div className="flex gap-2">
-           <Input
-             value={displayName}
-             onChange={(e) => setDisplayName(e.target.value)}
-             placeholder="Your name"
-             className="max-w-xs"
-           />
-           <Button
-             onClick={handleNameSave}
-             disabled={updateProfileMutation.isPending || displayName === user?.display_name}
-             className="bg-stone-800 hover:bg-stone-900"
-           >
-             Save
-           </Button>
-         </div>
-         <p className="text-xs text-stone-500 mt-2">Email: {user?.email}</p>
-       </div>
+        <h3 className="text-sm font-semibold text-stone-700 mb-3">Display Name</h3>
+        <div className="flex gap-2">
+          <Input
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            placeholder="Your name"
+            className="max-w-xs"
+          />
+          <Button
+            onClick={handleNameSave}
+            disabled={updateProfileMutation.isPending || displayName === user?.display_name}
+            className="bg-stone-800 hover:bg-stone-900"
+          >
+            Save
+          </Button>
+        </div>
+        <p className="text-xs text-stone-500 mt-2">Email: {user?.email}</p>
+      </div>
 
        <div>
          <h3 className="text-sm font-semibold text-stone-700 mb-3">Timezone</h3>
@@ -143,7 +143,7 @@ export default function ProfileSettings({ user }) {
            <div className="flex-1 max-w-xs">
              <Select value={timezone} onValueChange={setTimezone}>
                <SelectTrigger>
-                 <SelectValue />
+                 <SelectValue placeholder="Select timezone" />
                </SelectTrigger>
                <SelectContent className="max-h-80">
                  {TIMEZONES.map(tz => (
@@ -161,7 +161,7 @@ export default function ProfileSettings({ user }) {
            </Button>
          </div>
          <p className="text-xs text-stone-500 mt-2">Used for reminders and scheduled notifications</p>
-         </div>
-         </div>
-         );
-         }
+       </div>
+       </div>
+       );
+       }
