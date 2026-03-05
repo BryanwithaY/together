@@ -125,7 +125,7 @@ export default function Settings() {
             Log Out
           </Button>
 
-          <AlertDialog>
+          <AlertDialog open={deleteDialogOpen} onOpenChange={(open) => { setDeleteDialogOpen(open); if (!open) setDeleteConfirmText(''); }}>
             <AlertDialogTrigger asChild>
               <Button
                 variant="ghost"
@@ -142,14 +142,24 @@ export default function Settings() {
                   This will permanently delete your account and all your logged moments. This action cannot be undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
+              <div className="px-1 py-2">
+                <p className="text-sm text-stone-600 mb-2">Type <strong>delete</strong> to confirm:</p>
+                <Input
+                  value={deleteConfirmText}
+                  onChange={e => setDeleteConfirmText(e.target.value)}
+                  placeholder="delete"
+                  autoComplete="off"
+                />
+              </div>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
+                <Button
                   onClick={handleDeleteAccount}
-                  className="bg-red-600 hover:bg-red-700 text-white"
+                  disabled={deleteConfirmText.toLowerCase() !== 'delete'}
+                  className="bg-red-600 hover:bg-red-700 text-white disabled:opacity-40"
                 >
                   Yes, delete my account
-                </AlertDialogAction>
+                </Button>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
