@@ -163,5 +163,6 @@ export default function ProfileSettings({ user }) {
          <p className="text-xs text-stone-500 mt-2">Used for reminders and scheduled notifications</p>
        </div>
       </div>
+      </div>
       );
       }
