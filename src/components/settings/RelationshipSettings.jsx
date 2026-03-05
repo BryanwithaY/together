@@ -288,14 +288,14 @@ export default function RelationshipSettings() {
         </Button>
       )}
 
-      {/* Delete relationship (owner only) */}
+      {/* Delete relationship (owner only) — low-prominence */}
       {isOwner && (
         <AlertDialog open={deleteSpaceOpen} onOpenChange={(open) => { setDeleteSpaceOpen(open); if (!open) setDeleteSpaceConfirmText(''); }}>
           <AlertDialogTrigger asChild>
-            <Button variant="ghost" className="w-full text-stone-400 hover:text-red-500 hover:bg-red-50 text-sm">
-              <Trash2 className="w-4 h-4 mr-2" />
-              Delete this Space
-            </Button>
+            <button className="w-full text-xs text-stone-300 hover:text-red-500 transition-colors flex items-center justify-center gap-1.5 py-1">
+              <Trash2 className="w-3 h-3" />
+              Delete this space
+            </button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
