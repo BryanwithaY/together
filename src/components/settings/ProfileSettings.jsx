@@ -3,7 +3,6 @@ import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Upload, User, Loader2 } from 'lucide-react';
 import { detectTimezone } from '@/components/utils/detectTimezone';
 
