@@ -90,23 +90,6 @@ Deno.serve(async (req) => {
         });
       }
 
-      // In-app: store a notification record on the user
-      if (viaInapp) {
-        const existing = user.pending_notifications || [];
-        await base44.asServiceRole.entities.User.update(user.id, {
-          pending_notifications: [
-            ...existing.slice(-19), // keep last 19 + this new one = max 20
-            {
-              id: `reminder-${Date.now()}`,
-              type: 'reminder',
-              message: "Time to log a moment",
-              created_at: new Date().toISOString(),
-              read: false,
-            }
-          ]
-        });
-      }
-
       fired++;
     }
   }
