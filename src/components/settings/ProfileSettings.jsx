@@ -161,8 +161,7 @@ export default function ProfileSettings({ user }) {
            </Button>
          </div>
          <p className="text-xs text-stone-500 mt-2">Used for reminders and scheduled notifications</p>
-       </div>
-      </div>
-      </div>
-      );
-      }
+         </div>
+         </div>
+         );
+         }
