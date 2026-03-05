@@ -161,7 +161,12 @@ export default function NotificationSettings({ user }) {
   });
 
   const handleToggle = (key, value) => {
-    updateSettingMutation.mutate({ [key]: value });
+    const update = { [key]: value };
+    // When enabling reminders, ensure the flag is set
+    if (key === 'notification_daily_reminder' && value) {
+      update.notification_daily_reminder = true;
+    }
+    updateSettingMutation.mutate(update);
   };
 
   const saveReminders = (updated) => {
