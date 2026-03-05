@@ -1,6 +1,6 @@
 import React from 'react';
 import { Crown, Shield, User, Eye } from 'lucide-react';
-import { ROLE_LABELS } from '@/lib/permissions';
+import { ROLE_LABELS } from '../lib/permissions';
 
 const config = {
   owner:     { icon: Crown,  className: 'text-amber-600 bg-amber-50 border-amber-200' },

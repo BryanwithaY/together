@@ -5,7 +5,8 @@ import {
   AlertDialog, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Trash2, EyeOff, Archive } from 'lucide-react';
+import { Trash2, EyeOff, ArchiveIcon } from 'lucide-react';
+const Archive = ArchiveIcon;
 
 const OPTIONS = [
   {
