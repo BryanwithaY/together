@@ -45,12 +45,10 @@ export default function ProfileSettings({ user }) {
   const [uploading, setUploading] = useState(false);
   const queryClient = useQueryClient();
 
-  // Auto-detect timezone on component mount
+  // Auto-detect timezone on component mount and set initial state
   useEffect(() => {
-    if (!user?.timezone) {
-      const detectedTz = detectTimezone();
-      setTimezone(detectedTz);
-    }
+    const tz = user?.timezone || detectTimezone() || 'UTC';
+    setTimezone(tz);
   }, [user?.timezone]);
 
   const updateProfileMutation = useMutation({
@@ -141,9 +139,9 @@ export default function ProfileSettings({ user }) {
          <h3 className="text-sm font-semibold text-stone-700 mb-3">Timezone</h3>
          <div className="flex gap-2 items-end">
            <div className="flex-1 max-w-xs">
-             <Select value={timezone} onValueChange={setTimezone}>
+             <Select value={timezone || 'UTC'} onValueChange={setTimezone}>
                <SelectTrigger>
-                 <SelectValue placeholder="Select timezone" />
+                 <SelectValue placeholder={TIMEZONES.find(t => t.value === timezone)?.label || 'Select timezone'} />
                </SelectTrigger>
                <SelectContent className="max-h-80">
                  {TIMEZONES.map(tz => (
