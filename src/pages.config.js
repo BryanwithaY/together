@@ -49,9 +49,6 @@
  */
 import Help from './pages/Help';
 import Settings from './pages/Settings';
-import Favorites from './pages/Favorites';
-import History from './pages/History';
-import Home from './pages/Home';
 import RelationshipSetup from './pages/RelationshipSetup';
 import __Layout from './Layout.jsx';
 
@@ -59,14 +56,11 @@ import __Layout from './Layout.jsx';
 export const PAGES = {
     "Help": Help,
     "Settings": Settings,
-    "Favorites": Favorites,
-    "History": History,
-    "Home": Home,
     "RelationshipSetup": RelationshipSetup,
 }
 
 export const pagesConfig = {
-    mainPage: "Home",
+    mainPage: "Help",
     Pages: PAGES,
     Layout: __Layout,
 };
