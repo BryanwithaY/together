@@ -3,10 +3,20 @@ import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Upload, User, Loader2 } from 'lucide-react';
+
+const TIMEZONES = [
+  'UTC', 'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
+  'America/Anchorage', 'Pacific/Honolulu', 'Canada/Eastern', 'Canada/Central', 'Canada/Mountain',
+  'Canada/Pacific', 'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Europe/Moscow',
+  'Asia/Dubai', 'Asia/Kolkata', 'Asia/Bangkok', 'Asia/Singapore', 'Asia/Hong_Kong',
+  'Asia/Tokyo', 'Australia/Sydney', 'Australia/Melbourne', 'Pacific/Auckland'
+];
 
 export default function ProfileSettings({ user }) {
   const [displayName, setDisplayName] = useState(user?.display_name || '');
+  const [timezone, setTimezone] = useState(user?.timezone || 'UTC');
   const [uploading, setUploading] = useState(false);
   const queryClient = useQueryClient();
 
