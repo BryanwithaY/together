@@ -7,7 +7,8 @@ export function RelationshipProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [activeRelationship, setActiveRelationshipState] = useState(null);
   const [myRelationships, setMyRelationships] = useState([]);
-  const [members, setMembers] = useState([]); // members of active relationship
+  const [members, setMembers] = useState([]);
+  const [myMembership, setMyMembership] = useState(null); // current user's own RelationshipMember record
   const [loading, setLoading] = useState(true);
 
   const loadUser = useCallback(async () => {
@@ -22,15 +23,12 @@ export function RelationshipProvider({ children }) {
 
   const loadRelationships = useCallback(async (user) => {
     if (!user) return [];
-    // Find all memberships for this user
     const memberships = await base44.entities.RelationshipMember.filter({
       user_email: user.email.toLowerCase(),
       status: 'active',
     });
     if (!memberships.length) return [];
-
     const relIds = memberships.map(m => m.relationship_id);
-    // Fetch each relationship
     const allRels = await Promise.all(
       relIds.map(id => base44.entities.Relationship.filter({ id }).then(r => r[0]).catch(() => null))
     );
@@ -42,17 +40,21 @@ export function RelationshipProvider({ children }) {
     return base44.entities.RelationshipMember.filter({ relationship_id: relationshipId, status: 'active' });
   }, []);
 
-  const setActiveRelationship = useCallback(async (rel) => {
+  const setActiveRelationship = useCallback(async (rel, userEmail) => {
     setActiveRelationshipState(rel);
     if (rel) {
       localStorage.setItem('active_relationship_id', rel.id);
       const m = await loadMembers(rel.id);
       setMembers(m);
+      const email = (userEmail || currentUser?.email || '').toLowerCase();
+      const mine = m.find(mb => mb.user_email?.toLowerCase() === email) || null;
+      setMyMembership(mine);
     } else {
       localStorage.removeItem('active_relationship_id');
       setMembers([]);
+      setMyMembership(null);
     }
-  }, [loadMembers]);
+  }, [loadMembers, currentUser]);
 
   useEffect(() => {
     (async () => {
@@ -69,6 +71,8 @@ export function RelationshipProvider({ children }) {
         setActiveRelationshipState(preferred);
         const m = await loadMembers(preferred.id);
         setMembers(m);
+        const email = user.email.toLowerCase();
+        setMyMembership(m.find(mb => mb.user_email?.toLowerCase() === email) || null);
       }
       setLoading(false);
     })();
@@ -78,13 +82,18 @@ export function RelationshipProvider({ children }) {
     if (!currentUser) return;
     const rels = await loadRelationships(currentUser);
     setMyRelationships(rels);
-    // If active relationship was deleted, clear it
     if (activeRelationship && !rels.find(r => r.id === activeRelationship.id)) {
       setActiveRelationshipState(null);
       localStorage.removeItem('active_relationship_id');
       setMembers([]);
+      setMyMembership(null);
+    } else if (activeRelationship) {
+      const m = await loadMembers(activeRelationship.id);
+      setMembers(m);
+      const email = currentUser.email.toLowerCase();
+      setMyMembership(m.find(mb => mb.user_email?.toLowerCase() === email) || null);
     }
-  }, [currentUser, activeRelationship, loadRelationships]);
+  }, [currentUser, activeRelationship, loadRelationships, loadMembers]);
 
   return (
     <RelationshipContext.Provider value={{
@@ -92,6 +101,7 @@ export function RelationshipProvider({ children }) {
       activeRelationship,
       myRelationships,
       members,
+      myMembership,
       loading,
       setActiveRelationship,
       refreshRelationships,
