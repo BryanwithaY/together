@@ -46,6 +46,10 @@ export default function ProfileSettings({ user }) {
     updateProfileMutation.mutate({ display_name: displayName });
   };
 
+  const handleTimezoneSave = () => {
+    updateProfileMutation.mutate({ timezone });
+  };
+
   return (
     <div className="space-y-6">
       <div>
