@@ -115,17 +115,34 @@ function ReminderItem({ reminder, onChange, onRemove }) {
   );
 }
 
-function NotificationRow({ icon: Icon, title, description, checked, onChange }) {
+function NotificationRow({ icon: Icon, title, description, checked, onChange, emailChecked, onEmailChange }) {
   return (
-    <div className="flex items-start gap-4 py-4">
-      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-stone-100 flex items-center justify-center mt-0.5">
-        <Icon className="w-5 h-5 text-stone-600" />
+    <div className="py-4">
+      <div className="flex items-start gap-4">
+        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-stone-100 flex items-center justify-center mt-0.5">
+          <Icon className="w-5 h-5 text-stone-600" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h4 className="text-sm font-medium text-stone-800">{title}</h4>
+          <p className="text-xs text-stone-500 mt-0.5">{description}</p>
+        </div>
+        <Switch checked={checked} onCheckedChange={onChange} />
       </div>
-      <div className="flex-1 min-w-0">
-        <h4 className="text-sm font-medium text-stone-800">{title}</h4>
-        <p className="text-xs text-stone-500 mt-0.5">{description}</p>
-      </div>
-      <Switch checked={checked} onCheckedChange={onChange} />
+      {checked && onEmailChange !== undefined && (
+        <div className="ml-14 mt-2 flex items-center gap-2">
+          <span className="text-xs text-stone-500 w-20">Notify via</span>
+          <button
+            onClick={() => onEmailChange(!emailChecked)}
+            className={`flex items-center gap-1.5 text-xs px-3 py-1 rounded-full font-medium border transition-colors ${
+              emailChecked
+                ? 'bg-stone-800 text-white border-stone-800'
+                : 'bg-white text-stone-500 border-stone-200 hover:bg-stone-50'
+            }`}
+          >
+            <Mail className="w-3 h-3" /> Email
+          </button>
+        </div>
+      )}
     </div>
   );
 }
