@@ -73,21 +73,25 @@ function MonthBlock({ monthLabel, moments, currentUserEmail, memberEmails = [] }
             </div>
           </div>
 
-          {/* Partner */}
-          {partnerEmail && (
-            <div>
-              <div className="flex items-center gap-1.5 mb-3">
-                <Smile className="w-3.5 h-3.5 text-violet-400" />
-                <span className="text-xs font-semibold text-stone-500 uppercase tracking-wide">{partnerName}</span>
+          {/* Other members */}
+          {otherMembers.map(email => {
+            const memberMoments = moments.filter(m => m.created_by?.toLowerCase() === email.toLowerCase());
+            const name = email.split('@')[0];
+            return (
+              <div key={email}>
+                <div className="flex items-center gap-1.5 mb-3">
+                  <Smile className="w-3.5 h-3.5 text-violet-400" />
+                  <span className="text-xs font-semibold text-stone-500 uppercase tracking-wide">{name}</span>
+                </div>
+                <div className="grid grid-cols-4 gap-2">
+                  <StatPill label="Total" value={memberMoments.length} color="stone" />
+                  <StatPill label="Ego Aside" value={byType(memberMoments, 'ego_aside')} color="sky" />
+                  <StatPill label="Gratitude" value={byType(memberMoments, 'gratitude')} color="amber" />
+                  <StatPill label="Reflections" value={byType(memberMoments, 'self_reflection')} color="rose" />
+                </div>
               </div>
-              <div className="grid grid-cols-4 gap-2">
-                <StatPill label="Total" value={partnerMoments.length} color="stone" />
-                <StatPill label="Ego Aside" value={byType(partnerMoments, 'ego_aside')} color="sky" />
-                <StatPill label="Gratitude" value={byType(partnerMoments, 'gratitude')} color="amber" />
-                <StatPill label="Reflections" value={byType(partnerMoments, 'self_reflection')} color="rose" />
-              </div>
-            </div>
-          )}
+            );
+          })}
         </div>
       )}
     </div>
