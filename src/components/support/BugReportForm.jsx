@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, CheckCircle2, Send } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Send, Upload, X } from 'lucide-react';
 
 export default function BugReportForm() {
   const [title, setTitle] = useState('');
@@ -10,6 +10,31 @@ export default function BugReportForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
+  const [files, setFiles] = useState([]);
+  const [uploadingFiles, setUploadingFiles] = useState(false);
+
+  const handleFileSelect = async (e) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    if (selectedFiles.length === 0) return;
+
+    setUploadingFiles(true);
+    try {
+      const uploadedFiles = [];
+      for (const file of selectedFiles) {
+        const response = await base44.integrations.Core.UploadFile({ file });
+        uploadedFiles.push({ name: file.name, url: response.file_url });
+      }
+      setFiles(prev => [...prev, ...uploadedFiles]);
+    } catch (err) {
+      setError('Failed to upload file: ' + err.message);
+    } finally {
+      setUploadingFiles(false);
+    }
+  };
+
+  const removeFile = (index) => {
+    setFiles(prev => prev.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,12 +45,14 @@ export default function BugReportForm() {
       await base44.functions.invoke('submitBugReport', {
         title,
         description,
-        type
+        type,
+        attachments: files
       });
       setSubmitted(true);
       setTitle('');
       setDescription('');
       setType('bug');
+      setFiles([]);
       setTimeout(() => setSubmitted(false), 4000);
     } catch (err) {
       setError(err.message || 'Failed to submit report');
@@ -91,13 +118,47 @@ export default function BugReportForm() {
           />
         </div>
 
+        <div>
+          <label className="block text-sm font-medium text-stone-700 mb-2">Attachments (Optional)</label>
+          <p className="text-xs text-stone-500 mb-3">Screenshots, screen recordings, or files to help explain the issue</p>
+          <label className="border-2 border-dashed border-stone-300 rounded-lg p-4 cursor-pointer hover:border-stone-400 transition-colors flex items-center justify-center gap-2">
+            <Upload className="w-4 h-4 text-stone-500" />
+            <span className="text-sm text-stone-600">Click to upload files</span>
+            <input
+              type="file"
+              multiple
+              onChange={handleFileSelect}
+              disabled={uploadingFiles}
+              className="hidden"
+              accept="image/*,video/*,.pdf,.doc,.docx"
+            />
+          </label>
+
+          {files.length > 0 && (
+            <div className="mt-3 space-y-2">
+              {files.map((file, idx) => (
+                <div key={idx} className="flex items-center justify-between bg-stone-50 p-2 rounded border border-stone-200">
+                  <span className="text-sm text-stone-700 truncate">{file.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeFile(idx)}
+                    className="p-1 hover:bg-stone-200 rounded transition-colors"
+                  >
+                    <X className="w-4 h-4 text-stone-500" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <Button
           type="submit"
-          disabled={isSubmitting || !title.trim() || !description.trim()}
+          disabled={isSubmitting || uploadingFiles || !title.trim() || !description.trim()}
           className="w-full bg-stone-900 hover:bg-stone-800 text-white flex items-center justify-center gap-2"
         >
           <Send className="w-4 h-4" />
-          {isSubmitting ? 'Sending...' : 'Send Report'}
+          {isSubmitting ? 'Sending...' : uploadingFiles ? 'Uploading files...' : 'Send Report'}
         </Button>
       </form>
     </div>
