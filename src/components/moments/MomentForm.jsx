@@ -31,7 +31,7 @@ const reflectionSubtypes = [
 
 
 
-export default function MomentForm({ onSubmit, onClose }) {
+export default function MomentForm({ onSubmit, onClose, relationship, currentUser }) {
   const [type, setType] = useState(null);
   const [subtype, setSubtype] = useState(null);
   const [otherLabel, setOtherLabel] = useState('');
@@ -42,6 +42,28 @@ export default function MomentForm({ onSubmit, onClose }) {
   const [mediaUrl, setMediaUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [momentDate, setMomentDate] = useState(() => toLocalDatetimeString(new Date()));
+  const [taggedEmails, setTaggedEmails] = useState([]);
+  const [visibility, setVisibility] = useState('group');
+
+  const myEmail = currentUser?.email?.toLowerCase();
+  const members = (relationship?.member_emails || []).filter(e => e.toLowerCase() !== myEmail);
+  const isGroupRel = (relationship?.member_emails || []).length > 2;
+
+  // Get display names for members
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => base44.entities.User.list(),
+    enabled: isGroupRel,
+  });
+
+  const getUserName = (email) => {
+    const u = allUsers.find(u => u.email?.toLowerCase() === email?.toLowerCase());
+    return u?.full_name || u?.display_name || email?.split('@')[0] || email;
+  };
+
+  const toggleTag = (email) => {
+    setTaggedEmails(prev => prev.includes(email) ? prev.filter(e => e !== email) : [...prev, email]);
+  };
 
   const handleSubmit = async () => {
     if (!type) return;
