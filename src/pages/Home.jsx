@@ -11,6 +11,9 @@ import MomentsList from '../components/moments/MomentsList';
 import FilterTabs from '../components/moments/FilterTabs';
 import PullToRefresh from '../components/PullToRefresh';
 import NewUserWelcome from '../components/help/NewUserWelcome';
+import RelationshipGate from '../components/relationship/RelationshipGate';
+import RelationshipSwitcher from '../components/relationship/RelationshipSwitcher';
+import { useRelationship } from '../components/relationship/RelationshipContext';
 
 const DEMO_MOMENTS = [
   {
@@ -39,98 +42,70 @@ const DEMO_MOMENTS = [
   },
 ];
 
-export default function Home() {
+function HomeContent() {
   const [showForm, setShowForm] = useState(false);
   const [typeFilter, setTypeFilter] = useState('all');
   const [ownerFilter, setOwnerFilter] = useState('all');
-  const [currentUser, setCurrentUser] = useState(null);
   const queryClient = useQueryClient();
 
-  React.useEffect(() => {
-    base44.auth.me().then(setCurrentUser).catch(() => {});
-  }, []);
-
-  const [partnerEmail, setPartnerEmail] = useState(null);
-  const [partnerLoaded, setPartnerLoaded] = useState(false);
-
-  React.useEffect(() => {
-    if (!currentUser) return;
-    const myEmail = currentUser.email.toLowerCase();
-    base44.entities.PartnerInvitation.filter({ inviter_email: myEmail, status: 'accepted' }).then(sent => {
-      const exact = sent.find(i => i.inviter_email?.toLowerCase() === myEmail && i.status === 'accepted');
-      if (exact) { setPartnerEmail(exact.invitee_email?.toLowerCase()); setPartnerLoaded(true); return; }
-      base44.entities.PartnerInvitation.filter({ invitee_email: myEmail, status: 'accepted' }).then(received => {
-        const exactR = received.find(i => i.invitee_email?.toLowerCase() === myEmail && i.status === 'accepted');
-        if (exactR) setPartnerEmail(exactR.inviter_email?.toLowerCase());
-        setPartnerLoaded(true);
-      });
-    });
-  }, [currentUser]);
-
+  const { currentUser, activeRelationship, members } = useRelationship();
+  const relId = activeRelationship?.id;
   const myEmail = currentUser?.email?.toLowerCase();
 
-  const { data: rawMyMoments = [], isLoading: loadingMine } = useQuery({
-    queryKey: ['moments-mine', myEmail],
-    queryFn: () => base44.entities.Moment.filter({ created_by: myEmail }, '-created_date', 200),
-    enabled: !!myEmail,
+  // All member emails except mine
+  const memberEmails = members
+    .map(m => m.user_email?.toLowerCase())
+    .filter(e => e && e !== myEmail);
+
+  // Fetch all moments for this relationship
+  const { data: rawMoments = [], isLoading } = useQuery({
+    queryKey: ['moments', relId],
+    queryFn: () => base44.entities.Moment.filter({ relationship_id: relId }, '-created_date', 500),
+    enabled: !!relId,
   });
 
-  const { data: rawPartnerMoments = [], isLoading: loadingPartner } = useQuery({
-    queryKey: ['moments-partner', partnerEmail],
-    queryFn: () => base44.entities.Moment.filter({ created_by: partnerEmail }, '-created_date', 200),
-    enabled: !!partnerEmail,
-  });
-
-  // Strict email filtering to prevent cross-account data leakage
-  const allMyMoments = rawMyMoments.filter(m => m.created_by?.toLowerCase() === myEmail);
-  // Private self-reflections not yet shared — only visible to the owner
+  // My moments
+  const allMyMoments = rawMoments.filter(m => m.created_by?.toLowerCase() === myEmail);
   const privateReflections = allMyMoments.filter(m => m.is_private && !m.shared_with_partner);
-  // Moments visible in the shared feed
   const myMoments = allMyMoments.filter(m => !m.is_private || m.shared_with_partner);
-  const partnerMoments = partnerEmail
-    ? rawPartnerMoments.filter(m => m.created_by?.toLowerCase() === partnerEmail && (!m.is_private || m.shared_with_partner))
-    : [];
+
+  // Other members' moments (exclude private unshared)
+  const otherMoments = rawMoments.filter(m => {
+    const creator = m.created_by?.toLowerCase();
+    return creator !== myEmail && (!m.is_private || m.shared_with_partner);
+  });
 
   const moments = React.useMemo(() => {
-    const combined = [...myMoments, ...partnerMoments];
+    const combined = [...myMoments, ...otherMoments];
     combined.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
     return combined;
-  }, [myMoments, partnerMoments]);
+  }, [myMoments, otherMoments]);
 
-  // All my moments including private ones (for stats)
   const allMomentsForStats = React.useMemo(() => {
-    const combined = [...allMyMoments, ...partnerMoments];
+    const combined = [...allMyMoments, ...otherMoments];
     combined.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
     return combined;
-  }, [allMyMoments, partnerMoments]);
+  }, [allMyMoments, otherMoments]);
 
-  const isLoading = loadingMine || (!!partnerEmail && loadingPartner) || !partnerLoaded;
-
-  // Seed demo moments only once for brand-new accounts
-  // Use a localStorage flag so we never re-seed after the user deletes demo data
+  // Seed demo moments for new relationship
   React.useEffect(() => {
-    if (!isLoading && currentUser) {
-      const seededKey = `demo_seeded_${currentUser.id || currentUser.email}`;
+    if (!isLoading && currentUser && relId) {
+      const seededKey = `demo_seeded_${currentUser.id || currentUser.email}_${relId}`;
       if (moments.length === 0 && !localStorage.getItem(seededKey)) {
         localStorage.setItem(seededKey, '1');
-        base44.entities.Moment.bulkCreate(DEMO_MOMENTS).then(() => {
-          queryClient.invalidateQueries({ queryKey: ['moments'] });
+        base44.entities.Moment.bulkCreate(DEMO_MOMENTS.map(m => ({ ...m, relationship_id: relId }))).then(() => {
+          queryClient.invalidateQueries({ queryKey: ['moments', relId] });
         });
-      } else if (moments.length > 0) {
-        // Mark as seeded so future empty state never re-seeds
-        const seededKey2 = `demo_seeded_${currentUser.id || currentUser.email}`;
-        if (!localStorage.getItem(seededKey2)) {
-          localStorage.setItem(seededKey2, '1');
-        }
+      } else if (moments.length > 0 && !localStorage.getItem(seededKey)) {
+        localStorage.setItem(seededKey, '1');
       }
     }
-  }, [isLoading, currentUser]);
+  }, [isLoading, currentUser, relId]);
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Moment.create(data),
+    mutationFn: (data) => base44.entities.Moment.create({ ...data, relationship_id: relId }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['moments-mine'] });
-      queryClient.invalidateQueries({ queryKey: ['moments-partner'] });
+      queryClient.invalidateQueries({ queryKey: ['moments', relId] });
       setShowForm(false);
     },
   });
@@ -139,30 +114,25 @@ export default function Home() {
     <div className="min-h-screen bg-stone-50 flex flex-col">
       {/* Header */}
       <div className="bg-white border-b border-stone-200/60 flex-shrink-0">
-        <div className="max-w-2xl mx-auto px-4 py-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-stone-800 tracking-tight select-none">Together</h1>
-              <p className="text-sm text-stone-500 mt-1 select-none">Growing closer, one moment at a time</p>
-            </div>
+        <div className="max-w-2xl mx-auto px-4 py-5">
+          <div className="flex items-center justify-between gap-3">
+            <RelationshipSwitcher />
             <Button
               onClick={() => setShowForm(!showForm)}
-              className="rounded-xl bg-stone-800 hover:bg-stone-900 text-white shadow-sm h-10 px-4 select-none"
+              className="rounded-xl bg-stone-800 hover:bg-stone-900 text-white shadow-sm h-9 px-3 select-none flex-shrink-0"
             >
-              <Plus className="w-4 h-4 mr-1.5" />
-              New Moment
+              <Plus className="w-4 h-4 mr-1" />
+              New
             </Button>
           </div>
         </div>
       </div>
 
       <NewUserWelcome />
-      <PullToRefresh onRefresh={() => queryClient.invalidateQueries({ queryKey: ['moments'] })}>
+      <PullToRefresh onRefresh={() => queryClient.invalidateQueries({ queryKey: ['moments', relId] })}>
         <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-          {/* Stats */}
           <StatsOverview moments={allMomentsForStats} privateReflections={privateReflections} />
 
-          {/* Form */}
           <AnimatePresence>
             {showForm && (
               <MomentForm
@@ -172,10 +142,9 @@ export default function Home() {
             )}
           </AnimatePresence>
 
-          {/* Filter + List */}
           <div>
             <div className="mb-4">
-              <h2 className="text-lg font-semibold text-stone-800 mb-4 select-none">Your Moments</h2>
+              <h2 className="text-lg font-semibold text-stone-800 mb-4 select-none">Moments</h2>
               <FilterTabs
                 activeType={typeFilter}
                 activeOwner={ownerFilter}
@@ -203,5 +172,13 @@ export default function Home() {
         </div>
       </PullToRefresh>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <RelationshipGate>
+      <HomeContent />
+    </RelationshipGate>
   );
 }
