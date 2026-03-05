@@ -171,7 +171,10 @@ export default function NotificationSettings({ user }) {
 
   const saveReminders = (updated) => {
     setReminders(updated);
-    updateSettingMutation.mutate({ notification_reminders: updated });
+    updateSettingMutation.mutate({ 
+      notification_reminders: updated,
+      notification_daily_reminder: updated.length > 0 // Auto-enable flag if reminders exist
+    });
   };
 
   const handleAddReminder = () => {
