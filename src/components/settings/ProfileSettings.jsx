@@ -41,14 +41,15 @@ const TIMEZONES = [
 
 export default function ProfileSettings({ user }) {
   const [displayName, setDisplayName] = useState(user?.display_name || '');
-  const [timezone, setTimezone] = useState(user?.timezone || '');
+  const [timezone, setTimezone] = useState(() => user?.timezone || detectTimezone());
   const [uploading, setUploading] = useState(false);
   const queryClient = useQueryClient();
 
-  // Auto-detect timezone on component mount and set initial state
+  // Update timezone if user data changes
   useEffect(() => {
-    const tz = user?.timezone || detectTimezone() || 'UTC';
-    setTimezone(tz);
+    if (user?.timezone) {
+      setTimezone(user.timezone);
+    }
   }, [user?.timezone]);
 
   const updateProfileMutation = useMutation({
