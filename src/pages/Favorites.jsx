@@ -53,7 +53,27 @@ export default function Favorites() {
     <div className="min-h-screen bg-stone-50 flex flex-col">
       <div className="bg-white border-b border-stone-200/60 flex-shrink-0">
         <div className="max-w-2xl mx-auto px-4 pt-8 pb-0">
-          <h1 className="text-2xl font-bold text-stone-800 tracking-tight select-none mb-4">Saved</h1>
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold text-stone-800 tracking-tight select-none">Saved</h1>
+            {activeRel && <span className="text-xs text-stone-400 font-medium">{activeRel.name}</span>}
+          </div>
+          {allRelationships.length > 1 && (
+            <div className="flex gap-2 mb-3 overflow-x-auto pb-1">
+              {allRelationships.map(rel => (
+                <button
+                  key={rel.id}
+                  onClick={() => setActiveRel(rel)}
+                  className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors border ${
+                    activeRel?.id === rel.id
+                      ? 'bg-stone-800 text-white border-stone-800'
+                      : 'bg-white text-stone-600 border-stone-200 hover:border-stone-400'
+                  }`}
+                >
+                  {rel.name}
+                </button>
+              ))}
+            </div>
+          )}
           {/* Tabs */}
           <div className="flex border-b border-stone-200">
             <button
