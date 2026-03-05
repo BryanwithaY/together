@@ -139,16 +139,19 @@ export default function ProfileSettings({ user }) {
         <h3 className="text-sm font-semibold text-stone-700 mb-3">Timezone</h3>
         <div className="flex gap-2 items-end">
           <div className="flex-1 max-w-xs">
-            <Select value={timezone} onValueChange={setTimezone}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="max-h-80">
-                {TIMEZONES.map(tz => (
-                  <SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <input
+              type="text"
+              value={timezone}
+              onChange={(e) => setTimezone(e.target.value)}
+              placeholder="e.g., America/Vancouver"
+              list="timezones"
+              className="w-full px-3 py-2 border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-800"
+            />
+            <datalist id="timezones">
+              {TIMEZONES.map(tz => (
+                <option key={tz.value} value={tz.value}>{tz.label}</option>
+              ))}
+            </datalist>
           </div>
           <Button
             onClick={handleTimezoneSave}
@@ -158,7 +161,7 @@ export default function ProfileSettings({ user }) {
             Save
           </Button>
         </div>
-        <p className="text-xs text-stone-500 mt-2">Current: {TIMEZONES.find(t => t.value === timezone)?.label || 'Loading...'}</p>
+        <p className="text-xs text-stone-500 mt-2">Current: {timezone || 'Not set'}</p>
       </div>
     </div>
   );
