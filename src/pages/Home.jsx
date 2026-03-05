@@ -26,6 +26,7 @@ function HomeContent() {
       is_private: false,
     }, '-date', 200),
     enabled: !!activeRelationship?.id,
+    staleTime: 30_000,
   });
 
   const { data: privateReflections = [] } = useQuery({
@@ -36,6 +37,7 @@ function HomeContent() {
       created_by: currentUser.email,
     }, '-date', 100),
     enabled: !!activeRelationship?.id && !!currentUser?.email,
+    staleTime: 30_000,
   });
 
   const createMutation = useMutation({

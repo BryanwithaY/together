@@ -28,16 +28,16 @@ export function RelationshipProvider({ children }) {
       status: 'active',
     });
     if (!memberships.length) return [];
-    const relIds = memberships.map(m => m.relationship_id);
-    const allRels = await Promise.all(
-      relIds.map(id => base44.entities.Relationship.filter({ id }).then(r => r[0]).catch(() => null))
-    );
-    return allRels.filter(r => r && !r.is_deleted).sort((a, b) => {
-      // archived go last
-      if (a.is_archived && !b.is_archived) return 1;
-      if (!a.is_archived && b.is_archived) return -1;
-      return 0;
-    });
+    // Fetch all relationships in a single list call, then filter client-side
+    const allRels = await base44.entities.Relationship.list();
+    const relIds = new Set(memberships.map(m => m.relationship_id));
+    return allRels
+      .filter(r => relIds.has(r.id) && !r.is_deleted)
+      .sort((a, b) => {
+        if (a.is_archived && !b.is_archived) return 1;
+        if (!a.is_archived && b.is_archived) return -1;
+        return 0;
+      });
   }, []);
 
   const loadMembers = useCallback(async (relationshipId) => {

@@ -67,7 +67,7 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
 
   const markReviewedMutation = useMutation({
     mutationFn: () => base44.entities.Moment.update(moment.id, { reviewed_by: currentUser.email }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['moments'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['moments', moment.relationship_id] }),
   });
 
   const shareWithPartnerMutation = useMutation({

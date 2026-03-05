@@ -69,8 +69,6 @@ Deno.serve(async (req) => {
   const allUsers = await base44.asServiceRole.entities.User.list();
   const usersWithReminders = allUsers.filter(u => u.notification_daily_reminder && u.notification_reminders?.length);
 
-  const now = new Date();
-  const nowMinute = now.getUTCMinutes(); // fallback minute for timezone detection
   let fired = 0;
 
   for (const user of usersWithReminders) {
