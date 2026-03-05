@@ -152,7 +152,7 @@ export default function RelationshipSettings() {
         <div className="bg-stone-50 rounded-xl border border-stone-100 p-4 space-y-3">
           <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider flex items-center gap-1.5"><Settings2 className="w-3.5 h-3.5" /> Space Settings</p>
           {[
-            { key: 'allow_private_moments', label: 'Allow private moments', desc: 'Members can post moments visible only to tagged users' },
+            ...(activeMembers.length > 2 ? [{ key: 'allow_private_moments', label: 'Allow private moments', desc: 'Members can post moments visible only to tagged users' }] : []),
             { key: 'allow_export', label: 'Allow data export', desc: 'Members can export their moments and data' },
           ].map(({ key, label, desc }) => (
             <div key={key} className="flex items-start justify-between gap-4">
