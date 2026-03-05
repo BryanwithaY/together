@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Clock, MessageCircle, CheckCircle, FileText, Plus, X, Mail } from 'lucide-react';
+import { Clock, MessageCircle, CheckCircle, FileText, Plus, X, Mail, ChevronDown } from 'lucide-react';
 
 const FREQ_OPTIONS = [
   { value: 'hourly', label: 'Hourly', timeLabel: 'At minute' },
