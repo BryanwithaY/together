@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+// React hooks (useContext, useState, useEffect) are accessed via React.* namespace above
 import * as SelectPrimitive from "@radix-ui/react-select"
 import { Check, ChevronDown, ChevronUp } from "lucide-react"
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
