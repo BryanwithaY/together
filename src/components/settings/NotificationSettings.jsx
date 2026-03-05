@@ -227,6 +227,8 @@ export default function NotificationSettings({ user }) {
         description="Get notified when your partner records a new moment"
         checked={user?.notification_partner_logs ?? true}
         onChange={(checked) => handleToggle('notification_partner_logs', checked)}
+        emailChecked={user?.notification_partner_logs_email ?? true}
+        onEmailChange={(checked) => handleToggle('notification_partner_logs_email', checked)}
       />
 
       <NotificationRow
@@ -235,6 +237,8 @@ export default function NotificationSettings({ user }) {
         description="Get notified when your partner leaves a comment"
         checked={user?.notification_partner_comments ?? true}
         onChange={(checked) => handleToggle('notification_partner_comments', checked)}
+        emailChecked={user?.notification_partner_comments_email ?? true}
+        onEmailChange={(checked) => handleToggle('notification_partner_comments_email', checked)}
       />
 
       <NotificationRow
@@ -243,6 +247,8 @@ export default function NotificationSettings({ user }) {
         description="Get notified when your partner marks an entry as reviewed"
         checked={user?.notification_partner_reviews ?? true}
         onChange={(checked) => handleToggle('notification_partner_reviews', checked)}
+        emailChecked={user?.notification_partner_reviews_email ?? true}
+        onEmailChange={(checked) => handleToggle('notification_partner_reviews_email', checked)}
       />
     </div>
   );
