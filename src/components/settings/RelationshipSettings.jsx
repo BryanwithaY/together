@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { UserPlus, Camera, Users, Clock, ChevronDown, Settings2, Trash2 } from 'lucide-react';
+import { UserPlus, Camera, Users, Clock, ChevronDown, Settings2, Trash2, Archive, ArchiveRestore } from 'lucide-react';
 import { useRelationship } from '../relationship/RelationshipContext';
 import MemberRoleBadge from '../relationship/MemberRoleBadge';
 import RemoveMemberDialog from '../relationship/RemoveMemberDialog';
