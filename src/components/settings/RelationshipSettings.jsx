@@ -275,6 +275,18 @@ export default function RelationshipSettings() {
         </div>
       )}
 
+      {/* Archive / Unarchive (owner only) */}
+      {isOwner && !activeRelationship.is_archived && (
+        <Button
+          variant="ghost"
+          onClick={handleArchive}
+          className="w-full text-stone-400 hover:text-stone-700 hover:bg-stone-100 text-sm"
+        >
+          <Archive className="w-4 h-4 mr-2" />
+          Archive this Space
+        </Button>
+      )}
+
       {/* Delete relationship (owner only) */}
       {isOwner && (
         <AlertDialog open={deleteSpaceOpen} onOpenChange={(open) => { setDeleteSpaceOpen(open); if (!open) setDeleteSpaceConfirmText(''); }}>
