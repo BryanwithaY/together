@@ -136,9 +136,9 @@ export default function ProfileSettings({ user }) {
                <SelectTrigger>
                  <SelectValue />
                </SelectTrigger>
-               <SelectContent>
+               <SelectContent className="max-h-80">
                  {TIMEZONES.map(tz => (
-                   <SelectItem key={tz} value={tz}>{tz}</SelectItem>
+                   <SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>
                  ))}
                </SelectContent>
              </Select>
