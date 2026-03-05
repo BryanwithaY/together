@@ -7,11 +7,35 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Upload, User, Loader2 } from 'lucide-react';
 
 const TIMEZONES = [
-  'UTC', 'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
-  'America/Anchorage', 'Pacific/Honolulu', 'Canada/Eastern', 'Canada/Central', 'Canada/Mountain',
-  'Canada/Pacific', 'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Europe/Moscow',
-  'Asia/Dubai', 'Asia/Kolkata', 'Asia/Bangkok', 'Asia/Singapore', 'Asia/Hong_Kong',
-  'Asia/Tokyo', 'Australia/Sydney', 'Australia/Melbourne', 'Pacific/Auckland'
+  // North America - Organized by region
+  { label: 'America/New_York (EST/EDT)', value: 'America/New_York' },
+  { label: 'America/Chicago (CST/CDT)', value: 'America/Chicago' },
+  { label: 'America/Denver (MST/MDT)', value: 'America/Denver' },
+  { label: 'America/Los_Angeles (PST/PDT)', value: 'America/Los_Angeles' },
+  { label: 'America/Anchorage (AKST/AKDT)', value: 'America/Anchorage' },
+  { label: 'Pacific/Honolulu (HST)', value: 'Pacific/Honolulu' },
+  { label: 'Canada/Eastern (EST/EDT)', value: 'Canada/Eastern' },
+  { label: 'Canada/Central (CST/CDT)', value: 'Canada/Central' },
+  { label: 'Canada/Mountain (MST/MDT)', value: 'Canada/Mountain' },
+  { label: 'Canada/Pacific (PST/PDT)', value: 'Canada/Pacific' },
+  // Europe
+  { label: 'Europe/London (GMT/BST)', value: 'Europe/London' },
+  { label: 'Europe/Paris (CET/CEST)', value: 'Europe/Paris' },
+  { label: 'Europe/Berlin (CET/CEST)', value: 'Europe/Berlin' },
+  { label: 'Europe/Moscow (MSK)', value: 'Europe/Moscow' },
+  // Asia
+  { label: 'Asia/Dubai (GST)', value: 'Asia/Dubai' },
+  { label: 'Asia/Kolkata (IST)', value: 'Asia/Kolkata' },
+  { label: 'Asia/Bangkok (ICT)', value: 'Asia/Bangkok' },
+  { label: 'Asia/Singapore (SGT)', value: 'Asia/Singapore' },
+  { label: 'Asia/Hong_Kong (HKT)', value: 'Asia/Hong_Kong' },
+  { label: 'Asia/Tokyo (JST)', value: 'Asia/Tokyo' },
+  // Oceania
+  { label: 'Australia/Sydney (AEST/AEDT)', value: 'Australia/Sydney' },
+  { label: 'Australia/Melbourne (AEST/AEDT)', value: 'Australia/Melbourne' },
+  { label: 'Pacific/Auckland (NZST/NZDT)', value: 'Pacific/Auckland' },
+  // UTC
+  { label: 'UTC', value: 'UTC' }
 ];
 
 export default function ProfileSettings({ user }) {
