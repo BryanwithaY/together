@@ -382,7 +382,7 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden border-t border-stone-200/60"
               >
-                <CommentThread momentId={moment.id} comments={comments} currentUser={currentUser} />
+                <CommentThread momentId={moment.id} comments={comments} currentUser={currentUser} moment={moment} />
               </motion.div>
             )}
           </AnimatePresence>

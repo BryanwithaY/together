@@ -45,10 +45,19 @@ function HomeContent() {
       ...data,
       relationship_id: activeRelationship.id,
     }),
-    onSuccess: () => {
+    onSuccess: (created) => {
       queryClient.invalidateQueries({ queryKey: ['moments', activeRelationship?.id] });
       queryClient.invalidateQueries({ queryKey: ['moments-private', activeRelationship?.id] });
       setShowForm(false);
+      // Notify partners (fire-and-forget)
+      if (!created?.is_private) {
+        base44.functions.invoke('sendEventNotification', {
+          event_type: 'partner_logs',
+          relationship_id: activeRelationship.id,
+          actor_email: currentUser.email,
+          context: created?.what_happened || created?.how_it_felt || '',
+        }).catch(() => {});
+      }
     },
   });
 
