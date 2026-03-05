@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LogOut, ArrowLeft, Trash2, HelpCircle } from 'lucide-react';
+import { LogOut, ArrowLeft, Trash2, HelpCircle, ChevronDown } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogCancel,
