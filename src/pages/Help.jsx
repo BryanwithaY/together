@@ -88,7 +88,9 @@ const features = [
 
 export default function Help() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [tourOpen, setTourOpen] = useState(false);
+  const canGoBack = location.key !== 'default';
 
   return (
     <div className="min-h-screen bg-stone-50">
