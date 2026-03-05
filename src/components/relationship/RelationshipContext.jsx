@@ -32,7 +32,12 @@ export function RelationshipProvider({ children }) {
     const allRels = await Promise.all(
       relIds.map(id => base44.entities.Relationship.filter({ id }).then(r => r[0]).catch(() => null))
     );
-    return allRels.filter(r => r && !r.is_deleted);
+    return allRels.filter(r => r && !r.is_deleted).sort((a, b) => {
+      // archived go last
+      if (a.is_archived && !b.is_archived) return 1;
+      if (!a.is_archived && b.is_archived) return -1;
+      return 0;
+    });
   }, []);
 
   const loadMembers = useCallback(async (relationshipId) => {
