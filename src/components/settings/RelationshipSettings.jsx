@@ -248,9 +248,10 @@ export default function RelationshipSettings() {
 
       {/* Delete relationship (owner only) */}
       {isOwner && (
-        <AlertDialog>
+        <AlertDialog open={deleteSpaceOpen} onOpenChange={(open) => { setDeleteSpaceOpen(open); if (!open) setDeleteSpaceConfirmText(''); }}>
           <AlertDialogTrigger asChild>
             <Button variant="ghost" className="w-full text-stone-400 hover:text-red-500 hover:bg-red-50 text-sm">
+              <Trash2 className="w-4 h-4 mr-2" />
               Delete this Space
             </Button>
           </AlertDialogTrigger>
@@ -261,11 +262,24 @@ export default function RelationshipSettings() {
                 This will archive the relationship for all members. Moments will no longer be accessible. This cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
+            <div className="px-1 py-2">
+              <p className="text-sm text-stone-600 mb-2">Type <strong>delete</strong> to confirm:</p>
+              <Input
+                value={deleteSpaceConfirmText}
+                onChange={e => setDeleteSpaceConfirmText(e.target.value)}
+                placeholder="delete"
+                autoComplete="off"
+              />
+            </div>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDeleteRelationship} className="bg-red-600 hover:bg-red-700 text-white">
+              <Button
+                onClick={handleDeleteRelationship}
+                disabled={deleteSpaceConfirmText.toLowerCase() !== 'delete'}
+                className="bg-red-600 hover:bg-red-700 text-white disabled:opacity-40"
+              >
                 Delete Space
-              </AlertDialogAction>
+              </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
