@@ -38,9 +38,10 @@ export default function RelationshipSettings() {
 
   if (!activeRelationship) return null;
 
+  const isArchived = !!activeRelationship.is_archived;
   const isOwner = checkOwner(myMembership);
-  const isAdmin = checkAdmin(myMembership);
-  const canInvite = checkCanInvite(myMembership);
+  const isAdmin = checkAdmin(myMembership) && !isArchived;
+  const canInvite = checkCanInvite(myMembership) && !isArchived;
   const canRemove = canRemoveMembers(myMembership);
   const maxMembers = activeRelationship.max_members || 10;
   const activeMembers = members.filter(m => m.status === 'active');
