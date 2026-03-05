@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { format, parseISO, startOfMonth, isSameMonth } from 'date-fns';
+import { format, parseISO, startOfMonth } from 'date-fns';
 import { Heart, Smile, Users, ChevronDown, ChevronUp, BarChart2 } from 'lucide-react';
+import RelationshipGate from '../components/relationship/RelationshipGate';
+import { useRelationship } from '../components/relationship/RelationshipContext';
 
 function StatPill({ label, value, color = 'stone' }) {
   const colors = {
@@ -19,20 +21,12 @@ function StatPill({ label, value, color = 'stone' }) {
   );
 }
 
-function MonthBlock({ monthLabel, moments, currentUserEmail, partnerEmail }) {
+function MonthBlock({ monthLabel, moments, currentUserEmail, members }) {
   const [open, setOpen] = useState(false);
-
-  const myMoments = moments.filter(m => m.created_by === currentUserEmail);
-  const partnerMoments = moments.filter(m => m.created_by === partnerEmail);
-
   const byType = (list, type) => list.filter(m => m.type === type).length;
-
-  const myName = 'You';
-  const partnerName = partnerEmail ? partnerEmail.split('@')[0] : 'Partner';
 
   return (
     <div className="bg-white rounded-2xl border border-stone-200/60 shadow-sm overflow-hidden">
-      {/* Header */}
       <button
         className="w-full flex items-center justify-between px-5 py-4"
         onClick={() => setOpen(o => !o)}
@@ -60,89 +54,50 @@ function MonthBlock({ monthLabel, moments, currentUserEmail, partnerEmail }) {
             </div>
           </div>
 
-          {/* You */}
-          <div>
-            <div className="flex items-center gap-1.5 mb-3">
-              <Heart className="w-3.5 h-3.5 text-rose-400" fill="currentColor" />
-              <span className="text-xs font-semibold text-stone-500 uppercase tracking-wide">{myName}</span>
-            </div>
-            <div className="grid grid-cols-4 gap-2">
-              <StatPill label="Total" value={myMoments.length} color="stone" />
-              <StatPill label="Ego Aside" value={byType(myMoments, 'ego_aside')} color="sky" />
-              <StatPill label="Gratitude" value={byType(myMoments, 'gratitude')} color="amber" />
-              <StatPill label="Reflections" value={byType(myMoments, 'self_reflection')} color="rose" />
-            </div>
-          </div>
-
-          {/* Partner */}
-          {partnerEmail && (
-            <div>
-              <div className="flex items-center gap-1.5 mb-3">
-                <Smile className="w-3.5 h-3.5 text-violet-400" />
-                <span className="text-xs font-semibold text-stone-500 uppercase tracking-wide">{partnerName}</span>
+          {/* Per member breakdown */}
+          {members.filter(m => m.user_email).map((member) => {
+            const email = member.user_email.toLowerCase();
+            const name = email === currentUserEmail?.toLowerCase()
+              ? 'You'
+              : (member.display_name || email.split('@')[0]);
+            const memberMoments = moments.filter(m => m.created_by?.toLowerCase() === email);
+            if (memberMoments.length === 0) return null;
+            return (
+              <div key={email}>
+                <div className="flex items-center gap-1.5 mb-3">
+                  <Heart className="w-3.5 h-3.5 text-rose-400" fill="currentColor" />
+                  <span className="text-xs font-semibold text-stone-500 uppercase tracking-wide">{name}</span>
+                </div>
+                <div className="grid grid-cols-4 gap-2">
+                  <StatPill label="Total" value={memberMoments.length} color="stone" />
+                  <StatPill label="Ego Aside" value={byType(memberMoments, 'ego_aside')} color="sky" />
+                  <StatPill label="Gratitude" value={byType(memberMoments, 'gratitude')} color="amber" />
+                  <StatPill label="Reflections" value={byType(memberMoments, 'self_reflection')} color="rose" />
+                </div>
               </div>
-              <div className="grid grid-cols-4 gap-2">
-                <StatPill label="Total" value={partnerMoments.length} color="stone" />
-                <StatPill label="Ego Aside" value={byType(partnerMoments, 'ego_aside')} color="sky" />
-                <StatPill label="Gratitude" value={byType(partnerMoments, 'gratitude')} color="amber" />
-                <StatPill label="Reflections" value={byType(partnerMoments, 'self_reflection')} color="rose" />
-              </div>
-            </div>
-          )}
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
 
-export default function History() {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [partnerEmail, setPartnerEmail] = useState(null);
-
-  useEffect(() => {
-    base44.auth.me().then(user => {
-      setCurrentUser(user);
-      const myEmail = user.email.toLowerCase();
-      base44.entities.PartnerInvitation.filter({ inviter_email: myEmail, status: 'accepted' }).then(sent => {
-        const exact = sent.find(i => i.inviter_email?.toLowerCase() === myEmail && i.status === 'accepted');
-        if (exact) { setPartnerEmail(exact.invitee_email?.toLowerCase()); return; }
-        base44.entities.PartnerInvitation.filter({ invitee_email: myEmail, status: 'accepted' }).then(received => {
-          const exactR = received.find(i => i.invitee_email?.toLowerCase() === myEmail && i.status === 'accepted');
-          if (exactR) setPartnerEmail(exactR.inviter_email?.toLowerCase());
-        });
-      });
-    });
-  }, []);
-
+function HistoryContent() {
+  const { currentUser, activeRelationship, members } = useRelationship();
+  const relId = activeRelationship?.id;
   const myEmail = currentUser?.email?.toLowerCase();
 
-  const { data: rawMyMoments = [], isLoading: loadingMine } = useQuery({
-    queryKey: ['moments-history-mine', myEmail],
-    queryFn: () => base44.entities.Moment.filter({ created_by: myEmail }, '-date', 1000),
-    enabled: !!myEmail,
-  });
-
-  const { data: rawPartnerMoments = [], isLoading: loadingPartner } = useQuery({
-    queryKey: ['moments-history-partner', partnerEmail],
-    queryFn: () => base44.entities.Moment.filter({ created_by: partnerEmail }, '-date', 1000),
-    enabled: !!partnerEmail,
+  const { data: rawMoments = [], isLoading } = useQuery({
+    queryKey: ['moments-history', relId],
+    queryFn: () => base44.entities.Moment.filter({ relationship_id: relId }, '-date', 1000),
+    enabled: !!relId,
   });
 
   const moments = React.useMemo(() => {
-    // My moments: include all (private reflections show in my own history)
-    const myMoments = rawMyMoments.filter(m => m.created_by?.toLowerCase() === myEmail);
-    // Partner moments: exclude private unshared reflections
-    const partnerMoments = partnerEmail
-      ? rawPartnerMoments.filter(m => m.created_by?.toLowerCase() === partnerEmail && (!m.is_private || m.shared_with_partner))
-      : [];
-    const combined = [...myMoments, ...partnerMoments];
-    combined.sort((a, b) => new Date(b.date || b.created_date) - new Date(a.date || a.created_date));
-    return combined;
-  }, [rawMyMoments, rawPartnerMoments, myEmail, partnerEmail]);
+    return rawMoments.filter(m => !m.is_private || m.shared_with_partner || m.created_by?.toLowerCase() === myEmail);
+  }, [rawMoments, myEmail]);
 
-  const isLoading = loadingMine || (!!partnerEmail && loadingPartner);
-
-  // Group moments by month
   const monthGroups = React.useMemo(() => {
     const map = new Map();
     moments.forEach(m => {
@@ -151,18 +106,15 @@ export default function History() {
       if (!map.has(key)) map.set(key, []);
       map.get(key).push(m);
     });
-    // Sort newest first
     return Array.from(map.entries()).sort((a, b) => b[0].localeCompare(a[0]));
   }, [moments]);
 
-  // All-time totals
   const totalEgo = moments.filter(m => m.type === 'ego_aside').length;
   const totalGratitude = moments.filter(m => m.type === 'gratitude').length;
   const totalReflections = moments.filter(m => m.type === 'self_reflection').length;
 
   return (
     <div className="min-h-screen bg-stone-50">
-      {/* Header */}
       <div className="bg-white border-b border-stone-200/60">
         <div className="max-w-2xl mx-auto px-4 py-8">
           <h1 className="text-2xl font-bold text-stone-800 tracking-tight">History</h1>
@@ -171,7 +123,6 @@ export default function History() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
-        {/* All-time summary */}
         {moments.length > 0 && (
           <div className="bg-stone-800 rounded-2xl p-5 text-white">
             <p className="text-xs font-semibold uppercase tracking-widest text-stone-400 mb-4">All Time</p>
@@ -217,11 +168,19 @@ export default function History() {
               monthLabel={format(parseISO(key + '-01'), 'MMMM yyyy')}
               moments={moms}
               currentUserEmail={currentUser?.email}
-              partnerEmail={partnerEmail}
+              members={members}
             />
           ))
         )}
       </div>
     </div>
+  );
+}
+
+export default function History() {
+  return (
+    <RelationshipGate>
+      <HistoryContent />
+    </RelationshipGate>
   );
 }
