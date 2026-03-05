@@ -78,10 +78,10 @@ export default function Settings() {
           <ProfileSettings user={user} />
         </div>
 
-        {/* Partner Connection */}
+        {/* Relationship Settings */}
         <div className="bg-white rounded-2xl border border-stone-200/60 shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-stone-800 mb-4">Partner</h2>
-          <PartnerConnection user={user} />
+          <h2 className="text-lg font-semibold text-stone-800 mb-4">Relationship Space</h2>
+          <RelationshipSettings />
         </div>
 
         {/* Notification Settings */}
