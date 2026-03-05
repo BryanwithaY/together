@@ -102,6 +102,26 @@ export default function RelationshipSettings() {
 
   return (
     <div className="space-y-6">
+
+      {/* Archived banner */}
+      {activeRelationship.is_archived && (
+        <div className="bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 flex items-center gap-3">
+          <Archive className="w-4 h-4 text-stone-400 flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-stone-600">This space is archived</p>
+            <p className="text-xs text-stone-400">It's locked and read-only. Unarchive to make it active again.</p>
+          </div>
+          {isOwner && (
+            <button
+              onClick={handleUnarchive}
+              className="flex items-center gap-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 bg-white border border-stone-200 rounded-lg px-3 py-1.5 transition-colors flex-shrink-0"
+            >
+              <ArchiveRestore className="w-3.5 h-3.5" /> Unarchive
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Relationship identity */}
       <div className="flex items-center gap-4">
         <div className="relative">
