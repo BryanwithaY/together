@@ -110,7 +110,7 @@ function CommentItem({ comment, currentUser, momentId }) {
   );
 }
 
-export default function CommentThread({ momentId, comments, currentUser }) {
+export default function CommentThread({ momentId, comments, currentUser, moment }) {
   const [newComment, setNewComment] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
   const queryClient = useQueryClient();

@@ -67,7 +67,15 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
 
   const markReviewedMutation = useMutation({
     mutationFn: () => base44.entities.Moment.update(moment.id, { reviewed_by: currentUser.email }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['moments', moment.relationship_id] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['moments', moment.relationship_id] });
+      base44.functions.invoke('sendEventNotification', {
+        event_type: 'partner_reviews',
+        relationship_id: moment.relationship_id,
+        actor_email: currentUser.email,
+        context: moment.what_happened || moment.how_it_felt || '',
+      }).catch(() => {});
+    },
   });
 
   const shareWithPartnerMutation = useMutation({
