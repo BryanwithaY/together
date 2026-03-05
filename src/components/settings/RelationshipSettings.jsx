@@ -80,9 +80,8 @@ export default function RelationshipSettings() {
   };
 
   const handleToggleSetting = async (key) => {
-    await base44.entities.Relationship.update(activeRelationship.id, {
-      [key]: !activeRelationship[key],
-    });
+    const newValue = activeRelationship[key] === false ? true : !activeRelationship[key];
+    await base44.entities.Relationship.update(activeRelationship.id, { [key]: newValue });
     await refreshRelationships();
   };
 
