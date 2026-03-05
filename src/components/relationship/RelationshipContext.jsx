@@ -93,6 +93,8 @@ export function RelationshipProvider({ children }) {
       setMembers([]);
       setMyMembership(null);
     } else if (activeRelationship) {
+      const updated = rels.find(r => r.id === activeRelationship.id);
+      if (updated) setActiveRelationshipState(updated);
       const m = await loadMembers(activeRelationship.id);
       setMembers(m);
       const email = currentUser.email.toLowerCase();
