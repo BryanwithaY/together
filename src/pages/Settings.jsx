@@ -2,7 +2,7 @@ import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
-import { LogOut, ArrowLeft, Trash2, HelpCircle } from 'lucide-react';
+import { LogOut, ArrowLeft, Trash2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,13 +14,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useNavigate, Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
+import { useNavigate } from 'react-router-dom';
 
 import ProfileSettings from '../components/settings/ProfileSettings';
 import NotificationSettings from '../components/settings/NotificationSettings';
 import AppearanceSettings from '../components/settings/AppearanceSettings';
-import RelationshipsPanel from '../components/settings/RelationshipsPanel';
+import PartnerConnection from '../components/settings/PartnerConnection';
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -78,9 +77,10 @@ export default function Settings() {
           <ProfileSettings user={user} />
         </div>
 
-        {/* Relationships */}
+        {/* Partner Connection */}
         <div className="bg-white rounded-2xl border border-stone-200/60 shadow-sm p-6">
-          <RelationshipsPanel user={user} />
+          <h2 className="text-lg font-semibold text-stone-800 mb-4">Partner</h2>
+          <PartnerConnection user={user} />
         </div>
 
         {/* Notification Settings */}
@@ -94,21 +94,6 @@ export default function Settings() {
           <h2 className="text-lg font-semibold text-stone-800 mb-6">Appearance</h2>
           <AppearanceSettings user={user} />
         </div>
-
-        {/* Help */}
-        <Link
-          to={createPageUrl('Help')}
-          className="bg-white rounded-2xl border border-stone-200/60 shadow-sm p-5 flex items-center gap-4 hover:bg-stone-50 transition-colors"
-        >
-          <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center flex-shrink-0">
-            <HelpCircle className="w-5 h-5 text-stone-600" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-stone-800 text-sm">Help & Philosophy</p>
-            <p className="text-xs text-stone-500 mt-0.5">App guide, philosophy, and feature tour</p>
-          </div>
-          <svg className="w-4 h-4 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-        </Link>
 
         {/* Logout + Delete */}
         <div className="bg-white rounded-2xl border border-stone-200/60 shadow-sm p-6 space-y-3">

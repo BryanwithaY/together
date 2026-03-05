@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { format, parseISO, startOfMonth, isSameMonth } from 'date-fns';
@@ -19,15 +19,16 @@ function StatPill({ label, value, color = 'stone' }) {
   );
 }
 
-function MonthBlock({ monthLabel, moments, currentUserEmail, memberEmails = [] }) {
+function MonthBlock({ monthLabel, moments, currentUserEmail, partnerEmail }) {
   const [open, setOpen] = useState(false);
 
-  const myMoments = moments.filter(m => m.created_by?.toLowerCase() === currentUserEmail?.toLowerCase());
-  const otherMembers = (memberEmails || []).filter(e => e.toLowerCase() !== currentUserEmail?.toLowerCase());
+  const myMoments = moments.filter(m => m.created_by === currentUserEmail);
+  const partnerMoments = moments.filter(m => m.created_by === partnerEmail);
 
   const byType = (list, type) => list.filter(m => m.type === type).length;
 
   const myName = 'You';
+  const partnerName = partnerEmail ? partnerEmail.split('@')[0] : 'Partner';
 
   return (
     <div className="bg-white rounded-2xl border border-stone-200/60 shadow-sm overflow-hidden">
@@ -73,25 +74,21 @@ function MonthBlock({ monthLabel, moments, currentUserEmail, memberEmails = [] }
             </div>
           </div>
 
-          {/* Other members */}
-          {otherMembers.map(email => {
-            const memberMoments = moments.filter(m => m.created_by?.toLowerCase() === email.toLowerCase());
-            const name = email.split('@')[0];
-            return (
-              <div key={email}>
-                <div className="flex items-center gap-1.5 mb-3">
-                  <Smile className="w-3.5 h-3.5 text-violet-400" />
-                  <span className="text-xs font-semibold text-stone-500 uppercase tracking-wide">{name}</span>
-                </div>
-                <div className="grid grid-cols-4 gap-2">
-                  <StatPill label="Total" value={memberMoments.length} color="stone" />
-                  <StatPill label="Ego Aside" value={byType(memberMoments, 'ego_aside')} color="sky" />
-                  <StatPill label="Gratitude" value={byType(memberMoments, 'gratitude')} color="amber" />
-                  <StatPill label="Reflections" value={byType(memberMoments, 'self_reflection')} color="rose" />
-                </div>
+          {/* Partner */}
+          {partnerEmail && (
+            <div>
+              <div className="flex items-center gap-1.5 mb-3">
+                <Smile className="w-3.5 h-3.5 text-violet-400" />
+                <span className="text-xs font-semibold text-stone-500 uppercase tracking-wide">{partnerName}</span>
               </div>
-            );
-          })}
+              <div className="grid grid-cols-4 gap-2">
+                <StatPill label="Total" value={partnerMoments.length} color="stone" />
+                <StatPill label="Ego Aside" value={byType(partnerMoments, 'ego_aside')} color="sky" />
+                <StatPill label="Gratitude" value={byType(partnerMoments, 'gratitude')} color="amber" />
+                <StatPill label="Reflections" value={byType(partnerMoments, 'self_reflection')} color="rose" />
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -100,41 +97,50 @@ function MonthBlock({ monthLabel, moments, currentUserEmail, memberEmails = [] }
 
 export default function History() {
   const [currentUser, setCurrentUser] = useState(null);
-  const [activeRel, setActiveRel] = useState(null);
-  const [allRelationships, setAllRelationships] = useState([]);
+  const [partnerEmail, setPartnerEmail] = useState(null);
 
   useEffect(() => {
     base44.auth.me().then(user => {
       setCurrentUser(user);
       const myEmail = user.email.toLowerCase();
-      base44.entities.Relationship.list('-created_date', 200).then(all => {
-        const mine = all.filter(r => (r.member_emails || []).some(e => e.toLowerCase() === myEmail));
-        setAllRelationships(mine);
-        if (mine.length > 0) setActiveRel(mine[0]);
+      base44.entities.PartnerInvitation.filter({ inviter_email: myEmail, status: 'accepted' }).then(sent => {
+        const exact = sent.find(i => i.inviter_email?.toLowerCase() === myEmail && i.status === 'accepted');
+        if (exact) { setPartnerEmail(exact.invitee_email?.toLowerCase()); return; }
+        base44.entities.PartnerInvitation.filter({ invitee_email: myEmail, status: 'accepted' }).then(received => {
+          const exactR = received.find(i => i.invitee_email?.toLowerCase() === myEmail && i.status === 'accepted');
+          if (exactR) setPartnerEmail(exactR.inviter_email?.toLowerCase());
+        });
       });
     });
   }, []);
 
   const myEmail = currentUser?.email?.toLowerCase();
-  const relId = activeRel?.id;
 
-  const { data: rawMoments = [], isLoading } = useQuery({
-    queryKey: ['moments-history-rel', relId],
-    queryFn: () => base44.entities.Moment.filter({ relationship_id: relId }, '-date', 1000),
-    enabled: !!relId,
+  const { data: rawMyMoments = [], isLoading: loadingMine } = useQuery({
+    queryKey: ['moments-history-mine', myEmail],
+    queryFn: () => base44.entities.Moment.filter({ created_by: myEmail }, '-date', 1000),
+    enabled: !!myEmail,
+  });
+
+  const { data: rawPartnerMoments = [], isLoading: loadingPartner } = useQuery({
+    queryKey: ['moments-history-partner', partnerEmail],
+    queryFn: () => base44.entities.Moment.filter({ created_by: partnerEmail }, '-date', 1000),
+    enabled: !!partnerEmail,
   });
 
   const moments = React.useMemo(() => {
-    if (!myEmail) return [];
-    return rawMoments.filter(m => {
-      if (m.created_by?.toLowerCase() === myEmail) return true;
-      if (m.is_private && !m.shared_with_partner) return false;
-      if (m.visibility === 'private' || m.visibility === 'tagged_only') return false;
-      return true;
-    });
-  }, [rawMoments, myEmail]);
+    // My moments: include all (private reflections show in my own history)
+    const myMoments = rawMyMoments.filter(m => m.created_by?.toLowerCase() === myEmail);
+    // Partner moments: exclude private unshared reflections
+    const partnerMoments = partnerEmail
+      ? rawPartnerMoments.filter(m => m.created_by?.toLowerCase() === partnerEmail && (!m.is_private || m.shared_with_partner))
+      : [];
+    const combined = [...myMoments, ...partnerMoments];
+    combined.sort((a, b) => new Date(b.date || b.created_date) - new Date(a.date || a.created_date));
+    return combined;
+  }, [rawMyMoments, rawPartnerMoments, myEmail, partnerEmail]);
 
-  const memberEmails = activeRel?.member_emails || [];
+  const isLoading = loadingMine || (!!partnerEmail && loadingPartner);
 
   // Group moments by month
   const monthGroups = React.useMemo(() => {
@@ -160,25 +166,7 @@ export default function History() {
       <div className="bg-white border-b border-stone-200/60">
         <div className="max-w-2xl mx-auto px-4 py-8">
           <h1 className="text-2xl font-bold text-stone-800 tracking-tight">History</h1>
-          {activeRel && <p className="text-sm text-stone-500 mt-1">{activeRel.name} · month by month</p>}
-          {/* Relationship tabs */}
-          {allRelationships.length > 1 && (
-            <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
-              {allRelationships.map(rel => (
-                <button
-                  key={rel.id}
-                  onClick={() => setActiveRel(rel)}
-                  className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors border ${
-                    activeRel?.id === rel.id
-                      ? 'bg-stone-800 text-white border-stone-800'
-                      : 'bg-white text-stone-600 border-stone-200 hover:border-stone-400'
-                  }`}
-                >
-                  {rel.name}
-                </button>
-              ))}
-            </div>
-          )}
+          <p className="text-sm text-stone-500 mt-1">Your journey together, month by month</p>
         </div>
       </div>
 
@@ -229,7 +217,7 @@ export default function History() {
               monthLabel={format(parseISO(key + '-01'), 'MMMM yyyy')}
               moments={moms}
               currentUserEmail={currentUser?.email}
-              memberEmails={memberEmails}
+              partnerEmail={partnerEmail}
             />
           ))
         )}

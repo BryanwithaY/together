@@ -212,19 +212,7 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
                   <span className="text-stone-300">·</span>
                   <span className="text-xs text-stone-400">{formatDate(moment.date)}</span>
                   <span className="text-stone-300">·</span>
-                  <span className="text-xs text-stone-500">{isOwner ? 'You' : (moment.created_by?.split('@')[0] || 'Member')}</span>
-                  {moment.tagged_member_emails?.length > 0 && (
-                    <>
-                      <span className="text-stone-300">→</span>
-                      <span className="text-xs text-stone-500">{moment.tagged_member_emails.map(e => e.split('@')[0]).join(', ')}</span>
-                    </>
-                  )}
-                  {moment.visibility === 'tagged_only' && (
-                    <>
-                      <span className="text-stone-300">·</span>
-                      <span className="text-xs text-violet-500">Private to tagged</span>
-                    </>
-                  )}
+                  <span className="text-xs text-stone-500">{isOwner ? 'You' : 'Your Partner'}</span>
                   {isReflection && isPrivate && isOwner && (
                     <>
                       <span className="text-stone-300">·</span>

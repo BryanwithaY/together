@@ -2,11 +2,8 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { HandHeart, Sparkles, Ear, BookOpen, Flag, Users, X, Send, Clock, MoreHorizontal, ShieldAlert, Frown, VolumeX, PhoneOff, Zap, Power, Lock, Globe, UserCheck } from 'lucide-react';
+import { HandHeart, Sparkles, Ear, BookOpen, Flag, Users, X, Send, Clock, MoreHorizontal, ShieldAlert, Frown, VolumeX, PhoneOff, Zap, Power } from 'lucide-react';
 import MediaUpload from './MediaUpload';
-import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
-import MemberTag from '../relationships/MemberTag';
 
 // Format a Date to "yyyy-MM-ddTHH:mm" for datetime-local input
 function toLocalDatetimeString(date) {
@@ -31,7 +28,7 @@ const reflectionSubtypes = [
 
 
 
-export default function MomentForm({ onSubmit, onClose, relationship, currentUser }) {
+export default function MomentForm({ onSubmit, onClose }) {
   const [type, setType] = useState(null);
   const [subtype, setSubtype] = useState(null);
   const [otherLabel, setOtherLabel] = useState('');
@@ -42,28 +39,6 @@ export default function MomentForm({ onSubmit, onClose, relationship, currentUse
   const [mediaUrl, setMediaUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [momentDate, setMomentDate] = useState(() => toLocalDatetimeString(new Date()));
-  const [taggedEmails, setTaggedEmails] = useState([]);
-  const [visibility, setVisibility] = useState('group');
-
-  const myEmail = currentUser?.email?.toLowerCase();
-  const members = (relationship?.member_emails || []).filter(e => e.toLowerCase() !== myEmail);
-  const isGroupRel = (relationship?.member_emails || []).length > 2;
-
-  // Get display names for members
-  const { data: allUsers = [] } = useQuery({
-    queryKey: ['users'],
-    queryFn: () => base44.entities.User.list(),
-    enabled: isGroupRel,
-  });
-
-  const getUserName = (email) => {
-    const u = allUsers.find(u => u.email?.toLowerCase() === email?.toLowerCase());
-    return u?.full_name || u?.display_name || email?.split('@')[0] || email;
-  };
-
-  const toggleTag = (email) => {
-    setTaggedEmails(prev => prev.includes(email) ? prev.filter(e => e !== email) : [...prev, email]);
-  };
 
   const handleSubmit = async () => {
     if (!type) return;
@@ -74,8 +49,6 @@ export default function MomentForm({ onSubmit, onClose, relationship, currentUse
       finalSubtype = subtype === 'other' ? (otherLabel.trim() || 'other') : (subtype || 'other');
     }
     setIsSubmitting(true);
-    const isReflection = type === 'self_reflection';
-    const finalVisibility = isReflection ? 'private' : (isGroupRel ? visibility : 'group');
     await onSubmit({
       type,
       subtype: finalSubtype,
@@ -85,10 +58,8 @@ export default function MomentForm({ onSubmit, onClose, relationship, currentUse
       show_up_next_time: showUpNextTime.trim() || undefined,
       media_url: mediaUrl || undefined,
       date: new Date(momentDate).toISOString(),
-      is_private: isReflection,
+      is_private: type === 'self_reflection',
       shared_with_partner: false,
-      tagged_member_emails: taggedEmails.length > 0 ? taggedEmails : undefined,
-      visibility: finalVisibility,
     });
     setIsSubmitting(false);
   };
@@ -101,12 +72,7 @@ export default function MomentForm({ onSubmit, onClose, relationship, currentUse
       className="bg-white rounded-2xl border border-stone-200/60 shadow-lg p-6 mb-6"
     >
       <div className="flex items-center justify-between mb-5">
-        <div>
-          <h3 className="text-lg font-semibold text-stone-800">Record a Moment</h3>
-          {relationship && (
-            <p className="text-xs text-stone-400 mt-0.5">in <span className="font-medium text-stone-600">{relationship.name}</span></p>
-          )}
-        </div>
+        <h3 className="text-lg font-semibold text-stone-800">Record a Moment</h3>
         <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-stone-100 transition-colors">
           <X className="w-4 h-4 text-stone-400" />
         </button>
@@ -294,60 +260,6 @@ export default function MomentForm({ onSubmit, onClose, relationship, currentUse
               </div>
             )}
             <MediaUpload currentUrl={mediaUrl} onUpload={setMediaUrl} onClear={() => setMediaUrl('')} />
-
-            {/* Tag members (group relationships) */}
-            {isGroupRel && members.length > 0 && type !== 'self_reflection' && (
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-2">
-                  Who is this about? <span className="text-stone-400 font-normal">(optional)</span>
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {members.map(email => (
-                    <MemberTag
-                      key={email}
-                      email={email}
-                      displayName={getUserName(email)}
-                      selected={taggedEmails.includes(email)}
-                      onToggle={toggleTag}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Visibility (group relationships with tags) */}
-            {isGroupRel && taggedEmails.length > 0 && type !== 'self_reflection' && (
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-2">Who can see this?</p>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => setVisibility('group')}
-                    className={`flex items-center gap-2 p-3 rounded-xl border-2 transition-all text-left ${
-                      visibility === 'group' ? 'border-stone-800 bg-stone-50' : 'border-stone-200 bg-white hover:border-stone-300'
-                    }`}
-                  >
-                    <Globe className={`w-4 h-4 ${visibility === 'group' ? 'text-stone-700' : 'text-stone-400'}`} />
-                    <div>
-                      <p className={`text-xs font-medium ${visibility === 'group' ? 'text-stone-800' : 'text-stone-500'}`}>Everyone</p>
-                      <p className="text-[10px] text-stone-400">Whole group sees it</p>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => setVisibility('tagged_only')}
-                    className={`flex items-center gap-2 p-3 rounded-xl border-2 transition-all text-left ${
-                      visibility === 'tagged_only' ? 'border-violet-400 bg-violet-50' : 'border-stone-200 bg-white hover:border-stone-300'
-                    }`}
-                  >
-                    <UserCheck className={`w-4 h-4 ${visibility === 'tagged_only' ? 'text-violet-600' : 'text-stone-400'}`} />
-                    <div>
-                      <p className={`text-xs font-medium ${visibility === 'tagged_only' ? 'text-violet-800' : 'text-stone-500'}`}>Tagged only</p>
-                      <p className="text-[10px] text-stone-400">Just you + tagged</p>
-                    </div>
-                  </button>
-                </div>
-              </div>
-            )}
-
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-2 flex items-center gap-1.5">
                 <Clock className="w-3 h-3" /> When did it happen?

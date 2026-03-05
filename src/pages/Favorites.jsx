@@ -8,72 +8,77 @@ import PullToRefresh from '../components/PullToRefresh';
 export default function Favorites() {
   const [currentUser, setCurrentUser] = useState(null);
   const [tab, setTab] = useState('favorites'); // 'favorites' | 'saved'
-  const [allRelationships, setAllRelationships] = useState([]);
-  const [activeRel, setActiveRel] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    base44.auth.me().then(user => {
-      setCurrentUser(user);
-      const myEmail = user.email.toLowerCase();
-      base44.entities.Relationship.list('-created_date', 200).then(all => {
-        const mine = all.filter(r => (r.member_emails || []).some(e => e.toLowerCase() === myEmail));
-        setAllRelationships(mine);
-        if (mine.length > 0) setActiveRel(mine[0]);
-      });
-    }).catch(() => {});
+    base44.auth.me().then(setCurrentUser).catch(() => {});
   }, []);
 
-  const myEmail = currentUser?.email?.toLowerCase();
-  const relId = activeRel?.id;
+  const [partnerEmail, setPartnerEmail] = useState(null);
+  const [partnerLoaded, setPartnerLoaded] = useState(false);
 
-  const { data: relMoments = [], isLoading } = useQuery({
-    queryKey: ['moments-rel', relId],
-    queryFn: () => base44.entities.Moment.filter({ relationship_id: relId }, '-created_date', 300),
-    enabled: !!relId,
+  useEffect(() => {
+    if (!currentUser) return;
+    const myEmail = currentUser.email.toLowerCase();
+    base44.entities.PartnerInvitation.filter({ inviter_email: myEmail, status: 'accepted' }).then(sent => {
+      const exact = sent.find(i => i.inviter_email?.toLowerCase() === myEmail && i.status === 'accepted');
+      if (exact) { setPartnerEmail(exact.invitee_email?.toLowerCase()); setPartnerLoaded(true); return; }
+      base44.entities.PartnerInvitation.filter({ invitee_email: myEmail, status: 'accepted' }).then(received => {
+        const exactR = received.find(i => i.invitee_email?.toLowerCase() === myEmail && i.status === 'accepted');
+        if (exactR) setPartnerEmail(exactR.inviter_email?.toLowerCase());
+        setPartnerLoaded(true);
+      });
+    });
+  }, [currentUser]);
+
+  const myEmail = currentUser?.email?.toLowerCase();
+
+  // Favorites queries
+  const { data: rawMyFaves = [], isLoading: loadingMineFaves } = useQuery({
+    queryKey: ['favorites-mine', myEmail],
+    queryFn: () => base44.entities.Moment.filter({ created_by: myEmail, is_favorite: true }, '-created_date', 100),
+    enabled: !!myEmail,
+  });
+
+  const { data: rawPartnerFaves = [], isLoading: loadingPartnerFaves } = useQuery({
+    queryKey: ['favorites-partner', partnerEmail],
+    queryFn: () => base44.entities.Moment.filter({ created_by: partnerEmail, is_favorite: true }, '-created_date', 100),
+    enabled: !!partnerEmail,
+  });
+
+  // Saved (self-reflections) queries
+  const { data: rawSaved = [], isLoading: loadingSaved } = useQuery({
+    queryKey: ['saved', myEmail],
+    queryFn: () => base44.entities.Moment.filter({ created_by: myEmail, is_saved: true }, '-created_date', 100),
+    enabled: !!myEmail,
   });
 
   const favorites = useMemo(() => {
-    return relMoments.filter(m => {
-      if (!m.is_favorite) return false;
-      if (m.created_by?.toLowerCase() === myEmail) return true;
-      if (m.is_private && !m.shared_with_partner) return false;
-      return true;
-    });
-  }, [relMoments, myEmail]);
+    const myFaves = rawMyFaves.filter(m => m.created_by?.toLowerCase() === myEmail);
+    const partnerFaves = partnerEmail
+      ? rawPartnerFaves.filter(m => m.created_by?.toLowerCase() === partnerEmail && (!m.is_private || m.shared_with_partner))
+      : [];
+    const combined = [...myFaves, ...partnerFaves];
+    combined.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+    return combined;
+  }, [rawMyFaves, rawPartnerFaves, myEmail, partnerEmail]);
 
   const saved = useMemo(() => {
-    return relMoments.filter(m => m.is_saved && m.created_by?.toLowerCase() === myEmail);
-  }, [relMoments, myEmail]);
+    return rawSaved.filter(m => m.created_by?.toLowerCase() === myEmail);
+  }, [rawSaved, myEmail]);
+
+  const isLoading =
+    tab === 'favorites'
+      ? loadingMineFaves || (!!partnerEmail && loadingPartnerFaves) || !partnerLoaded
+      : loadingSaved;
 
   const moments = tab === 'favorites' ? favorites : saved;
-  
 
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col">
       <div className="bg-white border-b border-stone-200/60 flex-shrink-0">
         <div className="max-w-2xl mx-auto px-4 pt-8 pb-0">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-stone-800 tracking-tight select-none">Saved</h1>
-            {activeRel && <span className="text-xs text-stone-400 font-medium">{activeRel.name}</span>}
-          </div>
-          {allRelationships.length > 1 && (
-            <div className="flex gap-2 mb-3 overflow-x-auto pb-1">
-              {allRelationships.map(rel => (
-                <button
-                  key={rel.id}
-                  onClick={() => setActiveRel(rel)}
-                  className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors border ${
-                    activeRel?.id === rel.id
-                      ? 'bg-stone-800 text-white border-stone-800'
-                      : 'bg-white text-stone-600 border-stone-200 hover:border-stone-400'
-                  }`}
-                >
-                  {rel.name}
-                </button>
-              ))}
-            </div>
-          )}
+          <h1 className="text-2xl font-bold text-stone-800 tracking-tight select-none mb-4">Saved</h1>
           {/* Tabs */}
           <div className="flex border-b border-stone-200">
             <button
@@ -103,7 +108,8 @@ export default function Favorites() {
       </div>
 
       <PullToRefresh onRefresh={() => {
-        queryClient.invalidateQueries({ queryKey: ['moments-rel', relId] });
+        queryClient.invalidateQueries({ queryKey: ['favorites'] });
+        queryClient.invalidateQueries({ queryKey: ['saved'] });
       }}>
         <div className="max-w-2xl mx-auto px-4 py-6">
           {isLoading ? (
