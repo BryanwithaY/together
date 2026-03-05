@@ -157,7 +157,25 @@ export default function History() {
       <div className="bg-white border-b border-stone-200/60">
         <div className="max-w-2xl mx-auto px-4 py-8">
           <h1 className="text-2xl font-bold text-stone-800 tracking-tight">History</h1>
-          <p className="text-sm text-stone-500 mt-1">Your journey together, month by month</p>
+          {activeRel && <p className="text-sm text-stone-500 mt-1">{activeRel.name} · month by month</p>}
+          {/* Relationship tabs */}
+          {allRelationships.length > 1 && (
+            <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
+              {allRelationships.map(rel => (
+                <button
+                  key={rel.id}
+                  onClick={() => setActiveRel(rel)}
+                  className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors border ${
+                    activeRel?.id === rel.id
+                      ? 'bg-stone-800 text-white border-stone-800'
+                      : 'bg-white text-stone-600 border-stone-200 hover:border-stone-400'
+                  }`}
+                >
+                  {rel.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
