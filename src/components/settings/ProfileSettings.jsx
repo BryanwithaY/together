@@ -159,7 +159,7 @@ export default function ProfileSettings({ user }) {
             Save
           </Button>
         </div>
-        <p className="text-xs text-stone-500 mt-2">Current: {TIMEZONES.find(t => t.value === timezone)?.label || timezone || 'UTC'}</p>
+        <p className="text-xs text-stone-500 mt-2">Current: {TIMEZONES.find(t => t.value === timezone)?.label || 'Loading...'}</p>
       </div>
     </div>
   );
