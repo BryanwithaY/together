@@ -73,8 +73,8 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
   const shareWithPartnerMutation = useMutation({
     mutationFn: () => base44.entities.Moment.update(moment.id, { shared_with_partner: true, is_private: false }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['moments-mine'] });
-      queryClient.invalidateQueries({ queryKey: ['moments-partner'] });
+      queryClient.invalidateQueries({ queryKey: ['moments'] });
+      queryClient.invalidateQueries({ queryKey: ['moments-private'] });
     },
   });
 
