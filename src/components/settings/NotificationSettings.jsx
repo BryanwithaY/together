@@ -96,6 +96,31 @@ function ReminderItem({ reminder, onChange, onRemove }) {
           </div>
         </div>
       )}
+
+      {/* Delivery channels */}
+      <div className="flex items-center gap-2 pt-1">
+        <span className="text-xs text-stone-500 w-20">Notify via</span>
+        <button
+          onClick={() => onChange({ ...reminder, via_inapp: !(reminder.via_inapp ?? true) })}
+          className={`flex items-center gap-1.5 text-xs px-3 py-1 rounded-full font-medium border transition-colors ${
+            (reminder.via_inapp ?? true)
+              ? 'bg-stone-800 text-white border-stone-800'
+              : 'bg-white text-stone-500 border-stone-200 hover:bg-stone-50'
+          }`}
+        >
+          <Bell className="w-3 h-3" /> In-app
+        </button>
+        <button
+          onClick={() => onChange({ ...reminder, via_email: !(reminder.via_email ?? false) })}
+          className={`flex items-center gap-1.5 text-xs px-3 py-1 rounded-full font-medium border transition-colors ${
+            reminder.via_email
+              ? 'bg-stone-800 text-white border-stone-800'
+              : 'bg-white text-stone-500 border-stone-200 hover:bg-stone-50'
+          }`}
+        >
+          <Mail className="w-3 h-3" /> Email
+        </button>
+      </div>
     </div>
   );
 }
