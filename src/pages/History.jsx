@@ -19,16 +19,15 @@ function StatPill({ label, value, color = 'stone' }) {
   );
 }
 
-function MonthBlock({ monthLabel, moments, currentUserEmail, partnerEmail }) {
+function MonthBlock({ monthLabel, moments, currentUserEmail, memberEmails = [] }) {
   const [open, setOpen] = useState(false);
 
-  const myMoments = moments.filter(m => m.created_by === currentUserEmail);
-  const partnerMoments = moments.filter(m => m.created_by === partnerEmail);
+  const myMoments = moments.filter(m => m.created_by?.toLowerCase() === currentUserEmail?.toLowerCase());
+  const otherMembers = (memberEmails || []).filter(e => e.toLowerCase() !== currentUserEmail?.toLowerCase());
 
   const byType = (list, type) => list.filter(m => m.type === type).length;
 
   const myName = 'You';
-  const partnerName = partnerEmail ? partnerEmail.split('@')[0] : 'Partner';
 
   return (
     <div className="bg-white rounded-2xl border border-stone-200/60 shadow-sm overflow-hidden">
