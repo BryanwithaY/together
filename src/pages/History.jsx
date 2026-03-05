@@ -226,7 +226,7 @@ export default function History() {
               monthLabel={format(parseISO(key + '-01'), 'MMMM yyyy')}
               moments={moms}
               currentUserEmail={currentUser?.email}
-              partnerEmail={partnerEmail}
+              memberEmails={memberEmails}
             />
           ))
         )}
