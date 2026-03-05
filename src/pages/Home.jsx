@@ -10,6 +10,7 @@ import MomentForm from '../components/moments/MomentForm';
 import MomentsList from '../components/moments/MomentsList';
 import FilterTabs from '../components/moments/FilterTabs';
 import PullToRefresh from '../components/PullToRefresh';
+import NewUserWelcome from '../components/help/NewUserWelcome';
 
 const DEMO_MOMENTS = [
   {
@@ -155,6 +156,7 @@ export default function Home() {
         </div>
       </div>
 
+      <NewUserWelcome />
       <PullToRefresh onRefresh={() => queryClient.invalidateQueries({ queryKey: ['moments'] })}>
         <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
           {/* Stats */}

@@ -51,6 +51,7 @@ import Favorites from './pages/Favorites';
 import History from './pages/History';
 import Home from './pages/Home';
 import Settings from './pages/Settings';
+import Help from './pages/Help';
 import __Layout from './Layout.jsx';
 
 
@@ -59,6 +60,7 @@ export const PAGES = {
     "History": History,
     "Home": Home,
     "Settings": Settings,
+    "Help": Help,
 }
 
 export const pagesConfig = {
