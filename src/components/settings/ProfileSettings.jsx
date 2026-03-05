@@ -140,7 +140,7 @@ export default function ProfileSettings({ user }) {
         <h3 className="text-sm font-semibold text-stone-700 mb-3">Timezone</h3>
         <div className="flex gap-2 items-end">
           <div className="flex-1 max-w-xs">
-            <Select value={timezone || 'UTC'} onValueChange={setTimezone}>
+            <Select value={timezone} onValueChange={setTimezone}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
