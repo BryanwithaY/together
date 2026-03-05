@@ -20,7 +20,7 @@ import { createPageUrl } from '@/utils';
 import ProfileSettings from '../components/settings/ProfileSettings';
 import NotificationSettings from '../components/settings/NotificationSettings';
 import AppearanceSettings from '../components/settings/AppearanceSettings';
-import PartnerConnection from '../components/settings/PartnerConnection';
+import RelationshipsPanel from '../components/settings/RelationshipsPanel';
 
 export default function Settings() {
   const navigate = useNavigate();
