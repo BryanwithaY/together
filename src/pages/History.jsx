@@ -9,6 +9,7 @@ import RelationshipGate from '../components/relationship/RelationshipGate';
 import RelationshipSwitcher from '../components/relationship/RelationshipSwitcher';
 import { useRelationship } from '../components/relationship/RelationshipContext';
 import StatsOverview from '../components/moments/StatsOverview';
+import ExportButton from '../components/moments/ExportButton';
 
 const TYPE_CONFIG = {
   ego_aside:       { icon: HandHeart, label: 'Ego Aside',  color: 'text-amber-600',  bg: 'bg-amber-50' },
