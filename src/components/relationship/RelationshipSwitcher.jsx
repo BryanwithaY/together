@@ -73,7 +73,7 @@ export default function RelationshipSwitcher() {
               className="absolute left-0 top-full mt-2 z-50 bg-white rounded-2xl shadow-xl border border-stone-200/60 min-w-[220px] py-2 overflow-hidden"
             >
               <p className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider px-4 py-1">Your Spaces</p>
-              {myRelationships.map(rel => {
+              {myRelationships.filter(r => !r.is_archived).map(rel => {
                 const RIcon = TYPE_ICONS[rel.type] || Users;
                 const isActive = activeRelationship?.id === rel.id;
                 return (
@@ -100,6 +100,35 @@ export default function RelationshipSwitcher() {
                   </button>
                 );
               })}
+              {myRelationships.some(r => r.is_archived) && (
+                <>
+                  <p className="text-[10px] font-semibold text-stone-300 uppercase tracking-wider px-4 pt-2 pb-1">Archived</p>
+                  {myRelationships.filter(r => r.is_archived).map(rel => {
+                    const RIcon = TYPE_ICONS[rel.type] || Users;
+                    const isActive = activeRelationship?.id === rel.id;
+                    return (
+                      <button
+                        key={rel.id}
+                        onClick={async () => { await setActiveRelationship(rel); setOpen(false); }}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 hover:bg-stone-50 transition-colors opacity-60 ${isActive ? 'bg-stone-50' : ''}`}
+                      >
+                        {rel.photo_url ? (
+                          <img src={rel.photo_url} alt="" className="w-7 h-7 rounded-xl object-cover flex-shrink-0 grayscale" />
+                        ) : (
+                          <div className="w-7 h-7 rounded-xl bg-stone-100 flex items-center justify-center flex-shrink-0">
+                            <RIcon className="w-3.5 h-3.5 text-stone-400" />
+                          </div>
+                        )}
+                        <div className="flex-1 text-left min-w-0">
+                          <p className="text-sm font-medium text-stone-500 truncate">{rel.name}</p>
+                          <p className="text-xs text-stone-300">Archived</p>
+                        </div>
+                        {isActive && <Check className="w-3.5 h-3.5 text-stone-400 flex-shrink-0" />}
+                      </button>
+                    );
+                  })}
+                </>
+              )}
               <div className="border-t border-stone-100 mt-1 pt-1">
                 <button
                   onClick={() => { setOpen(false); navigate(createPageUrl('RelationshipSetup')); }}
