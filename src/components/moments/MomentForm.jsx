@@ -294,6 +294,60 @@ export default function MomentForm({ onSubmit, onClose, relationship, currentUse
               </div>
             )}
             <MediaUpload currentUrl={mediaUrl} onUpload={setMediaUrl} onClear={() => setMediaUrl('')} />
+
+            {/* Tag members (group relationships) */}
+            {isGroupRel && members.length > 0 && type !== 'self_reflection' && (
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-2">
+                  Who is this about? <span className="text-stone-400 font-normal">(optional)</span>
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {members.map(email => (
+                    <MemberTag
+                      key={email}
+                      email={email}
+                      displayName={getUserName(email)}
+                      selected={taggedEmails.includes(email)}
+                      onToggle={toggleTag}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Visibility (group relationships with tags) */}
+            {isGroupRel && taggedEmails.length > 0 && type !== 'self_reflection' && (
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-2">Who can see this?</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => setVisibility('group')}
+                    className={`flex items-center gap-2 p-3 rounded-xl border-2 transition-all text-left ${
+                      visibility === 'group' ? 'border-stone-800 bg-stone-50' : 'border-stone-200 bg-white hover:border-stone-300'
+                    }`}
+                  >
+                    <Globe className={`w-4 h-4 ${visibility === 'group' ? 'text-stone-700' : 'text-stone-400'}`} />
+                    <div>
+                      <p className={`text-xs font-medium ${visibility === 'group' ? 'text-stone-800' : 'text-stone-500'}`}>Everyone</p>
+                      <p className="text-[10px] text-stone-400">Whole group sees it</p>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setVisibility('tagged_only')}
+                    className={`flex items-center gap-2 p-3 rounded-xl border-2 transition-all text-left ${
+                      visibility === 'tagged_only' ? 'border-violet-400 bg-violet-50' : 'border-stone-200 bg-white hover:border-stone-300'
+                    }`}
+                  >
+                    <UserCheck className={`w-4 h-4 ${visibility === 'tagged_only' ? 'text-violet-600' : 'text-stone-400'}`} />
+                    <div>
+                      <p className={`text-xs font-medium ${visibility === 'tagged_only' ? 'text-violet-800' : 'text-stone-500'}`}>Tagged only</p>
+                      <p className="text-[10px] text-stone-400">Just you + tagged</p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-2 flex items-center gap-1.5">
                 <Clock className="w-3 h-3" /> When did it happen?
