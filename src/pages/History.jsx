@@ -113,32 +113,25 @@ export default function History() {
   }, []);
 
   const myEmail = currentUser?.email?.toLowerCase();
+  const relId = activeRel?.id;
 
-  const { data: rawMyMoments = [], isLoading: loadingMine } = useQuery({
-    queryKey: ['moments-history-mine', myEmail],
-    queryFn: () => base44.entities.Moment.filter({ created_by: myEmail }, '-date', 1000),
-    enabled: !!myEmail,
-  });
-
-  const { data: rawPartnerMoments = [], isLoading: loadingPartner } = useQuery({
-    queryKey: ['moments-history-partner', partnerEmail],
-    queryFn: () => base44.entities.Moment.filter({ created_by: partnerEmail }, '-date', 1000),
-    enabled: !!partnerEmail,
+  const { data: rawMoments = [], isLoading } = useQuery({
+    queryKey: ['moments-history-rel', relId],
+    queryFn: () => base44.entities.Moment.filter({ relationship_id: relId }, '-date', 1000),
+    enabled: !!relId,
   });
 
   const moments = React.useMemo(() => {
-    // My moments: include all (private reflections show in my own history)
-    const myMoments = rawMyMoments.filter(m => m.created_by?.toLowerCase() === myEmail);
-    // Partner moments: exclude private unshared reflections
-    const partnerMoments = partnerEmail
-      ? rawPartnerMoments.filter(m => m.created_by?.toLowerCase() === partnerEmail && (!m.is_private || m.shared_with_partner))
-      : [];
-    const combined = [...myMoments, ...partnerMoments];
-    combined.sort((a, b) => new Date(b.date || b.created_date) - new Date(a.date || a.created_date));
-    return combined;
-  }, [rawMyMoments, rawPartnerMoments, myEmail, partnerEmail]);
+    if (!myEmail) return [];
+    return rawMoments.filter(m => {
+      if (m.created_by?.toLowerCase() === myEmail) return true;
+      if (m.is_private && !m.shared_with_partner) return false;
+      if (m.visibility === 'private' || m.visibility === 'tagged_only') return false;
+      return true;
+    });
+  }, [rawMoments, myEmail]);
 
-  const isLoading = loadingMine || (!!partnerEmail && loadingPartner);
+  const memberEmails = activeRel?.member_emails || [];
 
   // Group moments by month
   const monthGroups = React.useMemo(() => {
