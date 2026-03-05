@@ -90,6 +90,16 @@ export default function RelationshipSettings() {
     await refreshRelationships();
   };
 
+  const handleArchive = async () => {
+    await base44.entities.Relationship.update(activeRelationship.id, { is_archived: true });
+    await refreshRelationships();
+  };
+
+  const handleUnarchive = async () => {
+    await base44.entities.Relationship.update(activeRelationship.id, { is_archived: false });
+    await refreshRelationships();
+  };
+
   return (
     <div className="space-y-6">
       {/* Relationship identity */}
