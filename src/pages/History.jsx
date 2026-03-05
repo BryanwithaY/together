@@ -97,19 +97,17 @@ function MonthBlock({ monthLabel, moments, currentUserEmail, partnerEmail }) {
 
 export default function History() {
   const [currentUser, setCurrentUser] = useState(null);
-  const [partnerEmail, setPartnerEmail] = useState(null);
+  const [activeRel, setActiveRel] = useState(null);
+  const [allRelationships, setAllRelationships] = useState([]);
 
   useEffect(() => {
     base44.auth.me().then(user => {
       setCurrentUser(user);
       const myEmail = user.email.toLowerCase();
-      base44.entities.PartnerInvitation.filter({ inviter_email: myEmail, status: 'accepted' }).then(sent => {
-        const exact = sent.find(i => i.inviter_email?.toLowerCase() === myEmail && i.status === 'accepted');
-        if (exact) { setPartnerEmail(exact.invitee_email?.toLowerCase()); return; }
-        base44.entities.PartnerInvitation.filter({ invitee_email: myEmail, status: 'accepted' }).then(received => {
-          const exactR = received.find(i => i.invitee_email?.toLowerCase() === myEmail && i.status === 'accepted');
-          if (exactR) setPartnerEmail(exactR.inviter_email?.toLowerCase());
-        });
+      base44.entities.Relationship.list('-created_date', 200).then(all => {
+        const mine = all.filter(r => (r.member_emails || []).some(e => e.toLowerCase() === myEmail));
+        setAllRelationships(mine);
+        if (mine.length > 0) setActiveRel(mine[0]);
       });
     });
   }, []);
