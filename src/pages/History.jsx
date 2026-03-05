@@ -140,6 +140,13 @@ function HistoryContent() {
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <RelationshipSwitcher />
           <h1 className="text-lg font-bold text-stone-800 ml-auto">History</h1>
+          {activeRelationship?.allow_export !== false && (
+            <ExportButton
+              moments={moments}
+              privateReflections={privateReflections}
+              relationshipName={activeRelationship?.name}
+            />
+          )}
         </div>
       </div>
 
