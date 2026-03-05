@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronRight, ChevronLeft, Heart, HandHeart, Sparkles, ShieldAlert, BarChart2, Bookmark, Settings, MessageCircle, Share2, Star } from 'lucide-react';
+import {
+  X, ChevronRight, ChevronLeft, Heart, HandHeart, Sparkles, ShieldAlert,
+  BarChart2, Bookmark, Settings, MessageCircle, Share2, Star, Users, Eye, Lock, Tag
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const steps = [
@@ -11,10 +14,32 @@ const steps = [
     iconBg: 'bg-rose-50',
     content: (
       <div className="space-y-3 text-sm text-stone-600 leading-relaxed">
-        <p>Together helps you and your partner grow — not by replacing your connection, but by helping you <strong className="text-stone-800">track, reflect, and show up better</strong> for each other.</p>
-        <p>This tour will walk you through every feature in about 2 minutes.</p>
+        <p>Together helps the people you care about grow — not by replacing real connection, but by helping you <strong className="text-stone-800">track, reflect, and show up better</strong>.</p>
+        <p>It works across all relationship types: romantic partners, friends, families, co-founders, and more.</p>
         <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 text-amber-800 text-xs">
-          💡 <strong>Remember:</strong> The app tracks moments — but the real growth happens in your conversations.
+          💡 <strong>Remember:</strong> The app tracks moments — but real growth happens in your actual conversations.
+        </div>
+      </div>
+    ),
+  },
+  {
+    title: 'Relationship Spaces',
+    icon: Users,
+    iconColor: 'text-sky-600',
+    iconBg: 'bg-sky-50',
+    content: (
+      <div className="space-y-3 text-sm text-stone-600 leading-relaxed">
+        <p>Each group you belong to lives in its own <strong className="text-stone-800">Relationship Space</strong>. Data is fully isolated between spaces.</p>
+        <div className="space-y-2">
+          <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs">
+            <strong className="text-stone-700">Switch spaces</strong> using the switcher in the top-left of the home screen.
+          </div>
+          <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs">
+            <strong className="text-stone-700">Roles</strong>: Owner → Admin → Member → Read Only. Each has different permissions.
+          </div>
+        </div>
+        <div className="bg-sky-50 border border-sky-100 rounded-xl p-3 text-xs text-sky-800">
+          👑 The <strong>Owner</strong> can delete the space, transfer ownership, and control export settings.
         </div>
       </div>
     ),
@@ -26,29 +51,57 @@ const steps = [
     iconBg: 'bg-amber-50',
     content: (
       <div className="space-y-3 text-sm text-stone-600 leading-relaxed">
-        <p>Tap the <strong className="text-stone-800">+ button</strong> on the Home screen to log a moment. There are three types:</p>
+        <p>Tap <strong className="text-stone-800">+</strong> to log a moment. Three types:</p>
         <div className="space-y-2">
           <div className="flex items-start gap-3 bg-amber-50 rounded-xl p-3">
             <HandHeart className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
             <div>
               <p className="font-semibold text-amber-800 text-xs">Ego Aside</p>
-              <p className="text-xs text-amber-700 mt-0.5">Moments when you put your partner first — listened, admitted a mistake, let them lead.</p>
+              <p className="text-xs text-amber-700 mt-0.5">Moments when you put others first — listened, admitted a mistake, let someone lead.</p>
             </div>
           </div>
           <div className="flex items-start gap-3 bg-emerald-50 rounded-xl p-3">
             <Sparkles className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
             <div>
               <p className="font-semibold text-emerald-800 text-xs">Gratitude</p>
-              <p className="text-xs text-emerald-700 mt-0.5">Things you appreciate about your partner. Log it — then go say it to them directly!</p>
+              <p className="text-xs text-emerald-700 mt-0.5">Log it — then go say it directly to them!</p>
             </div>
           </div>
           <div className="flex items-start gap-3 bg-violet-50 rounded-xl p-3">
             <ShieldAlert className="w-4 h-4 text-violet-600 mt-0.5 flex-shrink-0" />
             <div>
               <p className="font-semibold text-violet-800 text-xs">Self Reflection</p>
-              <p className="text-xs text-violet-700 mt-0.5">Private moments where you assess how you could have shown up better. Honest, personal growth.</p>
+              <p className="text-xs text-violet-700 mt-0.5">Private by default. Honest self-assessment for your own growth.</p>
             </div>
           </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    title: 'Tagging & Visibility',
+    icon: Tag,
+    iconColor: 'text-emerald-600',
+    iconBg: 'bg-emerald-50',
+    content: (
+      <div className="space-y-3 text-sm text-stone-600 leading-relaxed">
+        <p>When posting, you can <strong className="text-stone-800">tag</strong> who the moment is about.</p>
+        <div className="space-y-2">
+          <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs">
+            <strong className="text-stone-700">Groups of 3+:</strong> tagging is required. You can tag one person, multiple, or everyone.
+          </div>
+          <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs">
+            <strong className="text-stone-700">1-to-1 relationships:</strong> tagging is optional.
+          </div>
+        </div>
+        <p>You can also set <strong className="text-stone-800">visibility</strong>:</p>
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2 text-xs"><Users className="w-3.5 h-3.5 text-stone-400" /> <strong>Whole relationship</strong> — everyone can see it</div>
+          <div className="flex items-center gap-2 text-xs"><Eye className="w-3.5 h-3.5 text-stone-400" /> <strong>Tagged only</strong> — only tagged members see it</div>
+          <div className="flex items-center gap-2 text-xs"><Lock className="w-3.5 h-3.5 text-stone-400" /> <strong>Private</strong> — only you (always available)</div>
+        </div>
+        <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 text-xs text-amber-800">
+          ⚠️ Once someone comments, tags and visibility are locked and can't be changed.
         </div>
       </div>
     ),
@@ -60,22 +113,19 @@ const steps = [
     iconBg: 'bg-violet-50',
     content: (
       <div className="space-y-3 text-sm text-stone-600 leading-relaxed">
-        <p>Self-reflections are <strong className="text-stone-800">private to you by default</strong>. They're a safe space to be honest with yourself.</p>
+        <p>Self-reflections are <strong className="text-stone-800">private to you by default</strong>.</p>
         <div className="space-y-2">
-          <div className="bg-violet-50 border border-violet-100 rounded-xl p-3 text-xs text-violet-800">
-            <strong>Follow-up fields</strong> let you note what you could have done better and how you want to show up next time.
-          </div>
           <div className="flex items-start gap-2.5 text-xs text-stone-600">
             <Share2 className="w-4 h-4 text-violet-400 flex-shrink-0 mt-0.5" />
-            <p>When you're ready to have a real conversation about it, tap <strong>Share with Partner</strong> to make it visible to them.</p>
+            <p>Tap <strong>Share with relationship</strong> to make it visible to others when you're ready.</p>
           </div>
           <div className="flex items-start gap-2.5 text-xs text-stone-600">
             <Bookmark className="w-4 h-4 text-violet-400 flex-shrink-0 mt-0.5" />
-            <p>Bookmark reflections you want to revisit — find them in the <strong>Saved</strong> tab.</p>
+            <p>Bookmark reflections to revisit them in the <strong>Saved</strong> tab.</p>
           </div>
         </div>
         <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs text-stone-600">
-          💬 <strong>Tip:</strong> Use the reflection to prepare what you want to say, then have the conversation in person.
+          💬 Use the reflection to prepare what you want to say — then have the real conversation in person.
         </div>
       </div>
     ),
@@ -87,22 +137,22 @@ const steps = [
     iconBg: 'bg-rose-50',
     content: (
       <div className="space-y-3 text-sm text-stone-600 leading-relaxed">
-        <p>The <strong className="text-stone-800">Home</strong> screen shows all moments — yours and your partner's.</p>
+        <p>The <strong className="text-stone-800">Home</strong> screen shows moments for your active relationship space.</p>
         <div className="space-y-2">
           <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs">
-            <strong className="text-stone-700">Filter by owner:</strong> <span className="text-stone-500">See all moments, just yours, or just your partner's.</span>
+            <strong className="text-stone-700">Filter by person:</strong> see everyone's, just yours, or a specific member's.
           </div>
           <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs">
-            <strong className="text-stone-700">Filter by type:</strong> <span className="text-stone-500">Focus on ego, gratitude, or reflection moments.</span>
+            <strong className="text-stone-700">Filter by type:</strong> focus on ego aside, gratitude, or reflections.
           </div>
         </div>
         <div className="flex items-start gap-2.5 text-xs text-stone-600">
           <MessageCircle className="w-4 h-4 text-stone-400 flex-shrink-0 mt-0.5" />
-          <p>Each moment has a <strong>comments thread</strong> — great for leaving a quick reaction or follow-up thought.</p>
+          <p>Comments can be added by tagged members. Once a comment is posted, the moment is locked from editing.</p>
         </div>
         <div className="flex items-start gap-2.5 text-xs text-stone-600">
           <Star className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
-          <p>Tap the <strong>star</strong> on ego/gratitude moments to save them as favorites.</p>
+          <p>Tap the <strong>star</strong> to save a moment to your Favorites.</p>
         </div>
       </div>
     ),
@@ -117,14 +167,14 @@ const steps = [
         <p>The <strong className="text-stone-800">History</strong> tab gives you a monthly view of your moments and patterns.</p>
         <div className="space-y-2">
           <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs">
-            <strong className="text-stone-700">All-time stats</strong> at the top show your total counts across all categories.
+            <strong className="text-stone-700">All-time totals</strong> at the top show aggregate counts across all categories.
           </div>
           <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs">
-            <strong className="text-stone-700">Monthly breakdowns</strong> help you see trends — are you logging more gratitude this month? More reflections?
+            <strong className="text-stone-700">Monthly breakdowns</strong> per member — see each person's contribution.
           </div>
         </div>
         <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 text-xs text-amber-800">
-          🗓️ <strong>Suggestion:</strong> Make it a weekly ritual to review your History together and talk about what you each noticed.
+          🗓️ Make it a weekly ritual to review History together and talk about what you each noticed.
         </div>
       </div>
     ),
@@ -142,14 +192,14 @@ const steps = [
             <Star className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" fill="currentColor" />
             <div>
               <p className="font-semibold text-amber-800 text-xs">Favorites</p>
-              <p className="text-xs text-amber-700 mt-0.5">Starred ego aside and gratitude moments from you and your partner.</p>
+              <p className="text-xs text-amber-700 mt-0.5">Starred ego aside and gratitude moments.</p>
             </div>
           </div>
           <div className="flex items-start gap-3 bg-violet-50 rounded-xl p-3">
             <Bookmark className="w-4 h-4 text-violet-500 mt-0.5 flex-shrink-0" fill="currentColor" />
             <div>
               <p className="font-semibold text-violet-800 text-xs">Reflections</p>
-              <p className="text-xs text-violet-700 mt-0.5">Bookmarked self-reflections you want to keep coming back to.</p>
+              <p className="text-xs text-violet-700 mt-0.5">Bookmarked self-reflections to revisit.</p>
             </div>
           </div>
         </div>
@@ -157,23 +207,23 @@ const steps = [
     ),
   },
   {
-    title: 'Settings & Partner',
+    title: 'Settings & Roles',
     icon: Settings,
     iconColor: 'text-stone-600',
     iconBg: 'bg-stone-100',
     content: (
       <div className="space-y-3 text-sm text-stone-600 leading-relaxed">
-        <p>In <strong className="text-stone-800">Settings</strong> you can manage your profile, connect with your partner, and adjust preferences.</p>
+        <p>In <strong className="text-stone-800">Settings</strong> you can manage your profile and relationship space.</p>
         <div className="space-y-2">
           <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs">
-            <strong className="text-stone-700">Partner Connection:</strong> <span className="text-stone-500">Invite your partner by email to share the experience. Once connected, you'll see each other's public moments.</span>
+            <strong className="text-stone-700">Relationship Space:</strong> invite members, change roles, and manage settings — based on your permission level.
           </div>
           <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs">
-            <strong className="text-stone-700">Profile:</strong> <span className="text-stone-500">Update your display name and other preferences.</span>
+            <strong className="text-stone-700">Remove members:</strong> admins can remove users with three options — archive content, anonymize, or hard delete.
           </div>
         </div>
         <div className="bg-rose-50 border border-rose-100 rounded-xl p-3 text-xs text-rose-800">
-          ❤️ <strong>Together works best as a pair.</strong> Invite your partner to join so you can both track and grow together.
+          ❤️ Together works best when everyone in the group is engaged. Invite the people who matter.
         </div>
       </div>
     ),
@@ -188,7 +238,7 @@ const steps = [
         <p>You now know everything you need to start using Together with intention.</p>
         <div className="bg-stone-800 rounded-xl p-4 text-white">
           <p className="text-xs font-semibold uppercase tracking-wider text-stone-400 mb-2">Remember</p>
-          <p className="text-sm leading-relaxed">This app is a mirror, not a messenger. Use it to grow your self-awareness — then bring that growth into your real, human connection.</p>
+          <p className="text-sm leading-relaxed">This app is a mirror, not a messenger. Use it to grow your self-awareness — then bring that growth into your real, human connections.</p>
         </div>
         <p className="text-xs text-stone-400 text-center">You can always find this tour again in Help & Philosophy.</p>
       </div>
@@ -214,57 +264,33 @@ export default function AppTour({ onClose }) {
           transition={{ duration: 0.2 }}
           className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
         >
-          {/* Progress bar */}
           <div className="h-1 bg-stone-100">
-            <div
-              className="h-1 bg-stone-800 transition-all duration-300"
-              style={{ width: `${((step + 1) / steps.length) * 100}%` }}
-            />
+            <div className="h-1 bg-stone-800 transition-all duration-300" style={{ width: `${((step + 1) / steps.length) * 100}%` }} />
           </div>
-
           <div className="p-6">
-            {/* Header */}
             <div className="flex items-start justify-between mb-5">
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-2xl ${current.iconBg} flex items-center justify-center`}>
                   <Icon className={`w-5 h-5 ${current.iconColor}`} />
                 </div>
                 <div>
-                  <p className="text-xs text-stone-400 font-medium">
-                    Step {step + 1} of {steps.length}
-                  </p>
+                  <p className="text-xs text-stone-400 font-medium">Step {step + 1} of {steps.length}</p>
                   <h2 className="text-base font-bold text-stone-800 leading-tight">{current.title}</h2>
                 </div>
               </div>
-              <button
-                onClick={onClose}
-                className="p-1.5 hover:bg-stone-100 rounded-lg transition-colors text-stone-400"
-              >
+              <button onClick={onClose} className="p-1.5 hover:bg-stone-100 rounded-lg transition-colors text-stone-400">
                 <X className="w-4 h-4" />
               </button>
             </div>
-
-            {/* Content */}
             <div className="mb-6">{current.content}</div>
-
-            {/* Navigation */}
             <div className="flex items-center gap-3">
               {!isFirst && (
-                <Button
-                  variant="outline"
-                  onClick={() => setStep(s => s - 1)}
-                  className="flex-none"
-                >
+                <Button variant="outline" onClick={() => setStep(s => s - 1)} className="flex-none">
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
               )}
-              <Button
-                onClick={() => isLast ? onClose() : setStep(s => s + 1)}
-                className="flex-1 bg-stone-800 hover:bg-stone-900 text-white"
-              >
-                {isLast ? 'Done' : (
-                  <>Next <ChevronRight className="w-4 h-4 ml-1" /></>
-                )}
+              <Button onClick={() => isLast ? onClose() : setStep(s => s + 1)} className="flex-1 bg-stone-800 hover:bg-stone-900 text-white">
+                {isLast ? 'Done' : <><span>Next</span><ChevronRight className="w-4 h-4 ml-1" /></>}
               </Button>
             </div>
           </div>

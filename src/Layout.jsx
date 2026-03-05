@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import BottomTabBar from './components/BottomTabBar';
 import useSystemTheme from './components/hooks/useSystemTheme';
-import { RelationshipProvider } from './components/relationship/RelationshipContext';
+import { RelationshipProvider } from './components/relationship/RelationshipContext.jsx';
 
 const pageVariants = {
   initial: { opacity: 0, x: 24 },
