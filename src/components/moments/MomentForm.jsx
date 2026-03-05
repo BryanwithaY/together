@@ -74,6 +74,8 @@ export default function MomentForm({ onSubmit, onClose, relationship, currentUse
       finalSubtype = subtype === 'other' ? (otherLabel.trim() || 'other') : (subtype || 'other');
     }
     setIsSubmitting(true);
+    const isReflection = type === 'self_reflection';
+    const finalVisibility = isReflection ? 'private' : (isGroupRel ? visibility : 'group');
     await onSubmit({
       type,
       subtype: finalSubtype,
@@ -83,8 +85,10 @@ export default function MomentForm({ onSubmit, onClose, relationship, currentUse
       show_up_next_time: showUpNextTime.trim() || undefined,
       media_url: mediaUrl || undefined,
       date: new Date(momentDate).toISOString(),
-      is_private: type === 'self_reflection',
+      is_private: isReflection,
       shared_with_partner: false,
+      tagged_member_emails: taggedEmails.length > 0 ? taggedEmails : undefined,
+      visibility: finalVisibility,
     });
     setIsSubmitting(false);
   };
