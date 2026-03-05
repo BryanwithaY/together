@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Heart, HandHeart, Sparkles, ShieldAlert, BarChart2, Bookmark, Play, ChevronRight, MessageCircle, Users, Eye, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import AppTour from '../components/help/AppTour';
+import AppTour from '../components/help/AppTour.jsx';
 
 const principles = [
   {
