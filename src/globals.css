@@ -31,20 +31,21 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Ensure inputs always have visible text regardless of theme */
-  input, textarea, select {
-    color: #1c1917 !important; /* stone-900 */
+  /* Ensure inputs always have visible dark text */
+  input:not([type="file"]), textarea, select {
+    color: #1c1917 !important;
+    background-color: #ffffff !important;
     -webkit-text-fill-color: #1c1917 !important;
   }
 
   input::placeholder, textarea::placeholder {
-    color: #a8a29e !important; /* stone-400 */
+    color: #a8a29e !important;
     -webkit-text-fill-color: #a8a29e !important;
     opacity: 1;
   }
 
-  /* datetime-local native picker text */
-  input[type="datetime-local"] {
+  input[type="datetime-local"],
+  input[type="time"] {
     color-scheme: light;
   }
 
