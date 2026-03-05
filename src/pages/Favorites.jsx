@@ -47,6 +47,7 @@ export default function Favorites() {
   }, [relMoments, myEmail]);
 
   const moments = tab === 'favorites' ? favorites : saved;
+  
 
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col">
