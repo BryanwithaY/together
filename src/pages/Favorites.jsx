@@ -8,69 +8,43 @@ import PullToRefresh from '../components/PullToRefresh';
 export default function Favorites() {
   const [currentUser, setCurrentUser] = useState(null);
   const [tab, setTab] = useState('favorites'); // 'favorites' | 'saved'
+  const [allRelationships, setAllRelationships] = useState([]);
+  const [activeRel, setActiveRel] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    base44.auth.me().then(setCurrentUser).catch(() => {});
+    base44.auth.me().then(user => {
+      setCurrentUser(user);
+      const myEmail = user.email.toLowerCase();
+      base44.entities.Relationship.list('-created_date', 200).then(all => {
+        const mine = all.filter(r => (r.member_emails || []).some(e => e.toLowerCase() === myEmail));
+        setAllRelationships(mine);
+        if (mine.length > 0) setActiveRel(mine[0]);
+      });
+    }).catch(() => {});
   }, []);
 
-  const [partnerEmail, setPartnerEmail] = useState(null);
-  const [partnerLoaded, setPartnerLoaded] = useState(false);
-
-  useEffect(() => {
-    if (!currentUser) return;
-    const myEmail = currentUser.email.toLowerCase();
-    base44.entities.PartnerInvitation.filter({ inviter_email: myEmail, status: 'accepted' }).then(sent => {
-      const exact = sent.find(i => i.inviter_email?.toLowerCase() === myEmail && i.status === 'accepted');
-      if (exact) { setPartnerEmail(exact.invitee_email?.toLowerCase()); setPartnerLoaded(true); return; }
-      base44.entities.PartnerInvitation.filter({ invitee_email: myEmail, status: 'accepted' }).then(received => {
-        const exactR = received.find(i => i.invitee_email?.toLowerCase() === myEmail && i.status === 'accepted');
-        if (exactR) setPartnerEmail(exactR.inviter_email?.toLowerCase());
-        setPartnerLoaded(true);
-      });
-    });
-  }, [currentUser]);
-
   const myEmail = currentUser?.email?.toLowerCase();
+  const relId = activeRel?.id;
 
-  // Favorites queries
-  const { data: rawMyFaves = [], isLoading: loadingMineFaves } = useQuery({
-    queryKey: ['favorites-mine', myEmail],
-    queryFn: () => base44.entities.Moment.filter({ created_by: myEmail, is_favorite: true }, '-created_date', 100),
-    enabled: !!myEmail,
-  });
-
-  const { data: rawPartnerFaves = [], isLoading: loadingPartnerFaves } = useQuery({
-    queryKey: ['favorites-partner', partnerEmail],
-    queryFn: () => base44.entities.Moment.filter({ created_by: partnerEmail, is_favorite: true }, '-created_date', 100),
-    enabled: !!partnerEmail,
-  });
-
-  // Saved (self-reflections) queries
-  const { data: rawSaved = [], isLoading: loadingSaved } = useQuery({
-    queryKey: ['saved', myEmail],
-    queryFn: () => base44.entities.Moment.filter({ created_by: myEmail, is_saved: true }, '-created_date', 100),
-    enabled: !!myEmail,
+  const { data: relMoments = [], isLoading } = useQuery({
+    queryKey: ['moments-rel', relId],
+    queryFn: () => base44.entities.Moment.filter({ relationship_id: relId }, '-created_date', 300),
+    enabled: !!relId,
   });
 
   const favorites = useMemo(() => {
-    const myFaves = rawMyFaves.filter(m => m.created_by?.toLowerCase() === myEmail);
-    const partnerFaves = partnerEmail
-      ? rawPartnerFaves.filter(m => m.created_by?.toLowerCase() === partnerEmail && (!m.is_private || m.shared_with_partner))
-      : [];
-    const combined = [...myFaves, ...partnerFaves];
-    combined.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
-    return combined;
-  }, [rawMyFaves, rawPartnerFaves, myEmail, partnerEmail]);
+    return relMoments.filter(m => {
+      if (!m.is_favorite) return false;
+      if (m.created_by?.toLowerCase() === myEmail) return true;
+      if (m.is_private && !m.shared_with_partner) return false;
+      return true;
+    });
+  }, [relMoments, myEmail]);
 
   const saved = useMemo(() => {
-    return rawSaved.filter(m => m.created_by?.toLowerCase() === myEmail);
-  }, [rawSaved, myEmail]);
-
-  const isLoading =
-    tab === 'favorites'
-      ? loadingMineFaves || (!!partnerEmail && loadingPartnerFaves) || !partnerLoaded
-      : loadingSaved;
+    return relMoments.filter(m => m.is_saved && m.created_by?.toLowerCase() === myEmail);
+  }, [relMoments, myEmail]);
 
   const moments = tab === 'favorites' ? favorites : saved;
 
