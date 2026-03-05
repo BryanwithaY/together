@@ -33,6 +33,8 @@ export default function RelationshipSettings() {
   const [uploading, setUploading] = useState(false);
   const [removingMember, setRemovingMember] = useState(null);
   const [showRoleMenuFor, setShowRoleMenuFor] = useState(null);
+  const [deleteSpaceConfirmText, setDeleteSpaceConfirmText] = useState('');
+  const [deleteSpaceOpen, setDeleteSpaceOpen] = useState(false);
 
   if (!activeRelationship) return null;
 
