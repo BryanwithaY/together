@@ -135,31 +135,31 @@ export default function ProfileSettings({ user }) {
         <p className="text-xs text-stone-500 mt-2">Email: {user?.email}</p>
       </div>
 
-       <div>
-         <h3 className="text-sm font-semibold text-stone-700 mb-3">Timezone</h3>
-         <div className="flex gap-2 items-end">
-           <div className="flex-1 max-w-xs">
-             <Select value={timezone || 'UTC'} onValueChange={setTimezone}>
-               <SelectTrigger>
-                 <SelectValue placeholder={TIMEZONES.find(t => t.value === timezone)?.label || 'Select timezone'} />
-               </SelectTrigger>
-               <SelectContent className="max-h-80">
-                 {TIMEZONES.map(tz => (
-                   <SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>
-                 ))}
-               </SelectContent>
-             </Select>
-           </div>
-           <Button
-             onClick={handleTimezoneSave}
-             disabled={updateProfileMutation.isPending || timezone === user?.timezone}
-             className="bg-stone-800 hover:bg-stone-900"
-           >
-             Save
-           </Button>
-         </div>
-         <p className="text-xs text-stone-500 mt-2">Used for reminders and scheduled notifications</p>
-       </div>
-       </div>
-       );
-       }
+      <div>
+        <h3 className="text-sm font-semibold text-stone-700 mb-3">Timezone</h3>
+        <div className="flex gap-2 items-end">
+          <div className="flex-1 max-w-xs">
+            <Select value={timezone || 'UTC'} onValueChange={setTimezone}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="max-h-80">
+                {TIMEZONES.map(tz => (
+                  <SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button
+            onClick={handleTimezoneSave}
+            disabled={updateProfileMutation.isPending || timezone === user?.timezone}
+            className="bg-stone-800 hover:bg-stone-900"
+          >
+            Save
+          </Button>
+        </div>
+        <p className="text-xs text-stone-500 mt-2">Current: {TIMEZONES.find(t => t.value === timezone)?.label || timezone || 'UTC'}</p>
+      </div>
+    </div>
+  );
+}
