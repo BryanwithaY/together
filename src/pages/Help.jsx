@@ -4,6 +4,7 @@ import { createPageUrl } from '@/utils';
 import { ArrowLeft, Heart, HandHeart, Sparkles, ShieldAlert, BarChart2, Bookmark, Play, ChevronRight, MessageCircle, Users, Eye, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import AppTour from '../components/help/AppTour.jsx';
+import BugReportForm from '../components/support/BugReportForm.jsx';
 
 const principles = [
   {
@@ -202,6 +203,9 @@ export default function Help() {
             ))}
           </ul>
         </div>
+
+        {/* Bug Report / Support */}
+        <BugReportForm />
 
         <div className="h-2" />
       </div>
