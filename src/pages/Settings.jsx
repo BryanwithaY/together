@@ -24,6 +24,9 @@ import RelationshipSettings from '../components/settings/RelationshipSettings';
 
 export default function Settings() {
   const navigate = useNavigate();
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
   const { data: user, isLoading } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
