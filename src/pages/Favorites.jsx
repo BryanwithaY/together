@@ -103,8 +103,7 @@ export default function Favorites() {
       </div>
 
       <PullToRefresh onRefresh={() => {
-        queryClient.invalidateQueries({ queryKey: ['favorites'] });
-        queryClient.invalidateQueries({ queryKey: ['saved'] });
+        queryClient.invalidateQueries({ queryKey: ['moments-rel', relId] });
       }}>
         <div className="max-w-2xl mx-auto px-4 py-6">
           {isLoading ? (
