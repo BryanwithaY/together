@@ -81,7 +81,6 @@ Deno.serve(async (req) => {
       if (!shouldFire(reminder, hour, minute, weekday)) continue;
 
       const viaEmail = reminder.via_email === true;
-      const viaInapp = reminder.via_inapp !== false; // default true
 
       if (viaEmail && user.email) {
         await base44.asServiceRole.integrations.Core.SendEmail({
