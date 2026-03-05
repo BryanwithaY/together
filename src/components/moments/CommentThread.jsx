@@ -143,6 +143,16 @@ export default function CommentThread({ momentId, comments, currentUser, moment 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['comments', momentId] });
     },
+    onSuccess: () => {
+      if (moment?.relationship_id && currentUser?.email) {
+        base44.functions.invoke('sendEventNotification', {
+          event_type: 'partner_comments',
+          relationship_id: moment.relationship_id,
+          actor_email: currentUser.email,
+          context: newComment.trim(),
+        }).catch(() => {});
+      }
+    },
   });
 
   const handleSubmit = (e) => {
