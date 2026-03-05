@@ -115,55 +115,67 @@ export default function Settings() {
           <svg className="w-4 h-4 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
         </Link>
 
-        {/* Logout + Delete */}
-        <div className="bg-white rounded-2xl border border-stone-200/60 shadow-sm p-6 space-y-3">
+        {/* Logout */}
+        <div className="bg-white rounded-2xl border border-stone-200/60 shadow-sm p-4">
           <Button
             onClick={handleLogout}
             variant="outline"
-            className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
+            className="w-full border-stone-200 text-stone-600 hover:bg-stone-50 text-sm"
           >
             <LogOut className="w-4 h-4 mr-2" />
             Log Out
           </Button>
+        </div>
 
-          <AlertDialog open={deleteDialogOpen} onOpenChange={(open) => { setDeleteDialogOpen(open); if (!open) setDeleteConfirmText(''); }}>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="ghost"
-                className="w-full text-stone-400 hover:text-red-500 hover:bg-red-50 text-sm"
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Delete Account
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete your account?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will permanently delete your account and all your logged moments. This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <div className="px-1 py-2">
-                <p className="text-sm text-stone-600 mb-2">Type <strong>delete</strong> to confirm:</p>
-                <Input
-                  value={deleteConfirmText}
-                  onChange={e => setDeleteConfirmText(e.target.value)}
-                  placeholder="delete"
-                  autoComplete="off"
-                />
-              </div>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <Button
-                  onClick={handleDeleteAccount}
-                  disabled={deleteConfirmText.toLowerCase() !== 'delete'}
-                  className="bg-red-600 hover:bg-red-700 text-white disabled:opacity-40"
-                >
-                  Yes, delete my account
-                </Button>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+        {/* Danger zone — collapsed by default */}
+        <div>
+          <button
+            onClick={() => setShowDangerZone(v => !v)}
+            className="flex items-center gap-1.5 text-xs text-stone-300 hover:text-stone-500 transition-colors mx-auto"
+          >
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showDangerZone ? 'rotate-180' : ''}`} />
+            {showDangerZone ? 'Hide' : 'More options'}
+          </button>
+
+          {showDangerZone && (
+            <div className="mt-3 bg-white rounded-2xl border border-stone-200/60 shadow-sm p-4">
+              <AlertDialog open={deleteDialogOpen} onOpenChange={(open) => { setDeleteDialogOpen(open); if (!open) setDeleteConfirmText(''); }}>
+                <AlertDialogTrigger asChild>
+                  <button className="w-full text-left text-xs text-stone-400 hover:text-red-500 transition-colors flex items-center gap-2 py-1">
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Delete my account
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently delete your account and all your logged moments. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <div className="px-1 py-2">
+                    <p className="text-sm text-stone-600 mb-2">Type <strong>delete</strong> to confirm:</p>
+                    <Input
+                      value={deleteConfirmText}
+                      onChange={e => setDeleteConfirmText(e.target.value)}
+                      placeholder="delete"
+                      autoComplete="off"
+                    />
+                  </div>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <Button
+                      onClick={handleDeleteAccount}
+                      disabled={deleteConfirmText.toLowerCase() !== 'delete'}
+                      className="bg-red-600 hover:bg-red-700 text-white disabled:opacity-40"
+                    >
+                      Yes, delete my account
+                    </Button>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          )}
         </div>
 
         <div className="h-2" />
