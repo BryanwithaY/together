@@ -9,23 +9,30 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { title, description, type } = await req.json();
+    const { title, description, type, attachments } = await req.json();
 
     if (!title || !description) {
       return Response.json({ error: 'Title and description are required' }, { status: 400 });
     }
 
+    const attachmentLinks = attachments && attachments.length > 0
+      ? '\n\nAttachments:\n' + attachments.map(att => `- ${att.name}: ${att.url}`).join('\n')
+      : '';
+
     const emailBody = `
-New ${type || 'Support'} Report from ${user.full_name} (${user.email})
+New ${type || 'Support'} Report
+
+User: ${user.full_name}
+Email: ${user.email}
 
 Title: ${title}
 
 Description:
 ${description}
+${attachmentLinks}
 
 ---
 Submitted on: ${new Date().toLocaleString()}
-User Email: ${user.email}
     `;
 
     await base44.integrations.Core.SendEmail({
