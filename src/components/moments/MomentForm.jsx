@@ -101,7 +101,12 @@ export default function MomentForm({ onSubmit, onClose, relationship, currentUse
       className="bg-white rounded-2xl border border-stone-200/60 shadow-lg p-6 mb-6"
     >
       <div className="flex items-center justify-between mb-5">
-        <h3 className="text-lg font-semibold text-stone-800">Record a Moment</h3>
+        <div>
+          <h3 className="text-lg font-semibold text-stone-800">Record a Moment</h3>
+          {relationship && (
+            <p className="text-xs text-stone-400 mt-0.5">in <span className="font-medium text-stone-600">{relationship.name}</span></p>
+          )}
+        </div>
         <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-stone-100 transition-colors">
           <X className="w-4 h-4 text-stone-400" />
         </button>
