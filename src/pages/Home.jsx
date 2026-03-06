@@ -37,7 +37,7 @@ function HomeContent() {
     gcTime: 5 * 60 * 1000,
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!momentsLoading) setPageReady();
   }, [momentsLoading]);
 
