@@ -18,6 +18,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
 import ProfileSettings from '../components/settings/ProfileSettings';
+import { usePageLoading } from '../components/PageLoadingContext';
 import NotificationSettings from '../components/settings/NotificationSettings';
 import AppearanceSettings from '../components/settings/AppearanceSettings';
 import RelationshipSettings from '../components/settings/RelationshipSettings';

@@ -12,6 +12,7 @@ import RelationshipSwitcher from '../components/relationship/RelationshipSwitche
 import { useRelationship } from '../components/relationship/RelationshipContext';
 import StatsOverview from '../components/moments/StatsOverview';
 import ExportButton from '../components/moments/ExportButton';
+import { usePageLoading } from '../components/PageLoadingContext';
 
 const TYPE_CONFIG = {
   ego_aside:       { icon: HandHeart, label: 'Ego Aside',  color: 'text-amber-600',  bg: 'bg-amber-50' },

@@ -8,6 +8,7 @@ import RelationshipGate from '../components/relationship/RelationshipGate';
 import RelationshipSwitcher from '../components/relationship/RelationshipSwitcher';
 import { useRelationship } from '../components/relationship/RelationshipContext';
 import MomentCard from '../components/moments/MomentCard';
+import { usePageLoading } from '../components/PageLoadingContext';
 
 const TABS = [
   { key: 'favorites', label: 'Favorites', icon: Star },
