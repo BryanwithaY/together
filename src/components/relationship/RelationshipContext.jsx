@@ -37,13 +37,7 @@ export function RelationshipProvider({ children }) {
     (async () => {
       setLoading(true);
       try {
-        // Parallel: fetch user and memberships simultaneously
-        const [user, memberships] = await Promise.all([
-          base44.auth.me().catch(() => null),
-          // We need user first to get email, so memberships fetch happens after
-          // but we still optimise the next step
-          Promise.resolve(null),
-        ]);
+        const user = await base44.auth.me().catch(() => null);
 
         if (!user || cancelled) { setLoading(false); return; }
         setCurrentUser(user);
