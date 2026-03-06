@@ -28,6 +28,7 @@ export default function Settings() {
   const navigate = useNavigate();
   const { setPageReady } = usePageLoading();
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleteReason, setDeleteReason] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [showDangerZone, setShowDangerZone] = useState(false);
 
@@ -45,8 +46,8 @@ export default function Settings() {
   };
 
   const handleDeleteAccount = async () => {
-    // Just log out — actual data deletion should be handled server-side
-    // Deleting 500 moments sequentially in the browser is unreliable at scale
+    // Record tombstone + churn data before logging out
+    await base44.functions.invoke('deleteAccount', { reason: deleteReason || null }).catch(() => {});
     base44.auth.logout();
   };
 
