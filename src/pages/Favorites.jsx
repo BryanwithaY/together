@@ -29,6 +29,10 @@ function FavoritesContent() {
     enabled: !!activeRelationship?.id,
   });
 
+  useEffect(() => {
+    if (!loadingFavorites) setPageReady();
+  }, [loadingFavorites]);
+
   const { data: saved = [] } = useQuery({
     queryKey: ['saved', activeRelationship?.id, currentUser?.email],
     queryFn: () => base44.entities.Moment.filter({
