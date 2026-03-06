@@ -11,6 +11,7 @@ import MomentForm from '../components/moments/MomentForm';
 import MomentsList from '../components/moments/MomentsList';
 import FilterTabs from '../components/moments/FilterTabs';
 import NewUserWelcome from '../components/help/NewUserWelcome';
+import { usePageLoading } from '../components/PageLoadingContext';
 
 function HomeContent() {
   const { activeRelationship, currentUser } = useRelationship();
