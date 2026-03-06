@@ -2,8 +2,9 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Heart, Settings, BarChart2, Bookmark } from 'lucide-react';
+import { useRelationship } from './relationship/RelationshipContext';
 
-const tabs = [
+const BASE_TABS = [
   { label: 'Moments', icon: Heart, page: 'Home' },
   { label: 'History', icon: BarChart2, page: 'History' },
   { label: 'Saved', icon: Bookmark, page: 'Favorites' },
