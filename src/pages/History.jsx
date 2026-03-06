@@ -209,6 +209,7 @@ function MonthCardLazy({ month, currentUserEmail, relationshipId, members }) {
 // Fetch only the last 12 months of moment counts for the stats overview + month list
 function HistoryContent() {
   const { activeRelationship, currentUser, members } = useRelationship();
+  const { setPageReady } = usePageLoading();
 
   // Lightweight query just for stats — last 12 months, limited fields
   const { data: moments = [], isLoading } = useQuery({

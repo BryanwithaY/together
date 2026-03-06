@@ -17,6 +17,7 @@ const TABS = [
 
 function FavoritesContent() {
   const { activeRelationship, currentUser } = useRelationship();
+  const { setPageReady } = usePageLoading();
   const [tab, setTab] = useState('favorites');
 
   const { data: favorites = [] } = useQuery({

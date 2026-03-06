@@ -25,6 +25,7 @@ import RelationshipSettings from '../components/settings/RelationshipSettings';
 
 export default function Settings() {
   const navigate = useNavigate();
+  const { setPageReady } = usePageLoading();
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [showDangerZone, setShowDangerZone] = useState(false);
@@ -33,6 +34,10 @@ export default function Settings() {
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
+
+  useEffect(() => {
+    if (!isLoading) setPageReady();
+  }, [isLoading]);
 
   const handleLogout = () => {
     base44.auth.logout();
