@@ -138,7 +138,6 @@ function MonthCardLazy({ month, currentUserEmail, relationshipId, members, stats
     const d = new Date(m.date);
     return d >= monthStart && d <= monthEnd;
   });
-  const loadingMoments = false;
 
   const total = moments.length + privateReflections.length;
 
