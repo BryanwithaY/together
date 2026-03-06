@@ -122,42 +122,22 @@ function MonthCard({ month, moments, privateReflections, members, currentUserEma
   );
 }
 
-function MonthCardLazy({ month, currentUserEmail, relationshipId, members }) {
+function MonthCardLazy({ month, currentUserEmail, relationshipId, members, statsData, privateStatsData }) {
   const [expanded, setExpanded] = useState(false);
   const label = format(month, 'MMMM yyyy');
   const monthStart = startOfMonth(month);
   const monthEnd = endOfMonth(month);
 
-  const { data: moments = [], isLoading: loadingMoments } = useQuery({
-    queryKey: ['moments-history-month', relationshipId, format(month, 'yyyy-MM')],
-    queryFn: () => base44.entities.Moment.filter({
-      relationship_id: relationshipId,
-      is_private: false,
-    }, '-date', 1000),
-    enabled: expanded && !!relationshipId,
-    staleTime: 5 * 60_000,
-    gcTime: 10 * 60_000,
-    select: (data) => data.filter(m => {
-      const d = new Date(m.date);
-      return d >= monthStart && d <= monthEnd;
-    }),
+  // Derive month-scoped data from the already-loaded stats queries (zero extra network calls)
+  const moments = statsData.filter(m => {
+    const d = new Date(m.date);
+    return d >= monthStart && d <= monthEnd;
   });
-
-  const { data: privateReflections = [] } = useQuery({
-    queryKey: ['moments-private-history-month', relationshipId, currentUserEmail, format(month, 'yyyy-MM')],
-    queryFn: () => base44.entities.Moment.filter({
-      relationship_id: relationshipId,
-      is_private: true,
-      created_by: currentUserEmail,
-    }, '-date', 500),
-    enabled: expanded && !!relationshipId && !!currentUserEmail,
-    staleTime: 5 * 60_000,
-    gcTime: 10 * 60_000,
-    select: (data) => data.filter(m => {
-      const d = new Date(m.date);
-      return d >= monthStart && d <= monthEnd;
-    }),
+  const privateReflections = privateStatsData.filter(m => {
+    const d = new Date(m.date);
+    return d >= monthStart && d <= monthEnd;
   });
+  const loadingMoments = false;
 
   const total = moments.length + privateReflections.length;
 
