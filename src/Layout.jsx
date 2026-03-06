@@ -112,7 +112,7 @@ export default function Layout({ children, currentPageName }) {
         )}
       </AnimatePresence>
 
-      <PageLoadingBar locationKey={location.key} />
+      <PageLoadingOverlay locationKey={location.key} />
       <div className="app-shell">
         <main className="main-content relative overflow-x-hidden">
           <AnimatePresence mode="wait" initial={false}>
