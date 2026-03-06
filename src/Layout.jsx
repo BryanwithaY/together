@@ -62,16 +62,16 @@ export default function Layout({ children, currentPageName }) {
     sessionStorage.setItem(SESSION_KEY, '1');
   };
 
-  // When route changes, show the overlay immediately and wait for page to signal ready
+  // When route changes, show the overlay and wait for page to signal ready
   useEffect(() => {
     setPageLoading(true);
     pageLoadingRef.current = true;
 
-    // Safety fallback: hide after 5s no matter what
+    // Safety fallback: hide after 8s — generous but prevents permanent freeze
     const fallback = setTimeout(() => {
       setPageLoading(false);
       pageLoadingRef.current = false;
-    }, 5000);
+    }, 8000);
 
     return () => clearTimeout(fallback);
   }, [location.key]);
