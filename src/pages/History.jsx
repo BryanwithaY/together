@@ -195,6 +195,7 @@ function MonthCardLazy({ month, currentUserEmail, relationshipId, members }) {
                 moments={moments}
                 privateReflections={privateReflections}
                 currentUserEmail={currentUserEmail}
+                month={month}
               />
             ))
           )}
