@@ -19,6 +19,11 @@ function HomeContent() {
   const [ownerFilter, setOwnerFilter] = useState('all');
   const queryClient = useQueryClient();
 
+  // Handle deep-link from History tab
+  const urlParams = new URLSearchParams(window.location.search);
+  const scrollToId = urlParams.get('scrollTo');
+  const ownerParam = urlParams.get('owner');
+
   const { data: moments = [], isLoading: momentsLoading } = useQuery({
     queryKey: ['moments', activeRelationship?.id],
     queryFn: () => base44.entities.Moment.filter({
