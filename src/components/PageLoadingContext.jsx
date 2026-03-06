@@ -1,16 +1,17 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useRef, useCallback } from 'react';
 
 const PageLoadingContext = createContext({ setPageReady: () => {} });
 
 export function PageLoadingProvider({ children, onReady }) {
-  const [ready, setReady] = useState(false);
+  // Use a ref so setPageReady never re-creates due to stale closure over `ready`
+  const firedRef = useRef(false);
 
   const setPageReady = useCallback(() => {
-    if (!ready) {
-      setReady(true);
+    if (!firedRef.current) {
+      firedRef.current = true;
       if (onReady) onReady();
     }
-  }, [ready, onReady]);
+  }, [onReady]);
 
   return (
     <PageLoadingContext.Provider value={{ setPageReady }}>
