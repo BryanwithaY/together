@@ -15,6 +15,7 @@ import { usePageLoading } from '../components/PageLoadingContext';
 
 function HomeContent() {
   const { activeRelationship, currentUser } = useRelationship();
+  const { setPageReady } = usePageLoading();
   const [showForm, setShowForm] = useState(false);
   const [typeFilter, setTypeFilter] = useState('all');
   const [ownerFilter, setOwnerFilter] = useState('all');
