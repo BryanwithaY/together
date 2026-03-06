@@ -224,7 +224,7 @@ export default function MomentForm({ onSubmit, onClose }) {
                   style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
                 />
                 <div className="absolute bottom-2 right-2">
-                  <VoiceInput onTranscript={t => setWhatHappened(prev => prev ? prev + ' ' + t : t)} />
+                  <VoiceInput value={whatHappened} onChange={setWhatHappened} />
                 </div>
               </div>
             </div>
@@ -241,7 +241,7 @@ export default function MomentForm({ onSubmit, onClose }) {
                   style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
                 />
                 <div className="absolute bottom-2 right-2">
-                  <VoiceInput onTranscript={t => setHowItFelt(prev => prev ? prev + ' ' + t : t)} />
+                  <VoiceInput value={howItFelt} onChange={setHowItFelt} />
                 </div>
               </div>
             </div>
@@ -259,7 +259,7 @@ export default function MomentForm({ onSubmit, onClose }) {
                       style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
                     />
                     <div className="absolute bottom-2 right-2">
-                      <VoiceInput onTranscript={t => setCouldHaveDoneBetter(prev => prev ? prev + ' ' + t : t)} />
+                      <VoiceInput value={couldHaveDoneBetter} onChange={setCouldHaveDoneBetter} />
                     </div>
                   </div>
                 </div>
@@ -274,7 +274,7 @@ export default function MomentForm({ onSubmit, onClose }) {
                       style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
                     />
                     <div className="absolute bottom-2 right-2">
-                      <VoiceInput onTranscript={t => setShowUpNextTime(prev => prev ? prev + ' ' + t : t)} />
+                      <VoiceInput value={showUpNextTime} onChange={setShowUpNextTime} />
                     </div>
                   </div>
                 </div>
