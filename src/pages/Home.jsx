@@ -37,6 +37,10 @@ function HomeContent() {
     gcTime: 5 * 60 * 1000,
   });
 
+  React.useEffect(() => {
+    if (!momentsLoading) setPageReady();
+  }, [momentsLoading]);
+
   const { data: privateReflections = [] } = useQuery({
     queryKey: ['moments-private', activeRelationship?.id, currentUser?.email],
     queryFn: () => base44.entities.Moment.filter({
