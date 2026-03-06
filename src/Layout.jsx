@@ -7,29 +7,7 @@ import { RelationshipProvider } from './components/relationship/RelationshipCont
 import AppLoadingScreen from './components/AppLoadingScreen';
 import { PageLoadingProvider } from './components/PageLoadingContext.jsx';
 
-function PageLoadingOverlay({ locationKey }) {
-  const [visible, setVisible] = useState(false);
-  const showTimerRef = useRef(null);
-  const hideTimerRef = useRef(null);
-
-  useEffect(() => {
-    setVisible(false);
-    clearTimeout(showTimerRef.current);
-    clearTimeout(hideTimerRef.current);
-
-    // Show overlay if navigation takes >150ms
-    showTimerRef.current = setTimeout(() => {
-      setVisible(true);
-      // Auto-hide after 1.2s as a fallback
-      hideTimerRef.current = setTimeout(() => setVisible(false), 1200);
-    }, 150);
-
-    return () => {
-      clearTimeout(showTimerRef.current);
-      clearTimeout(hideTimerRef.current);
-    };
-  }, [locationKey]);
-
+function PageLoadingOverlay({ visible }) {
   return (
     <AnimatePresence>
       {visible && (
