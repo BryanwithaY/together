@@ -88,24 +88,24 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
   const shareWithPartnerMutation = useMutation({
     mutationFn: () => base44.entities.Moment.update(moment.id, { shared_with_partner: true, is_private: false }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['moments'] });
-      queryClient.invalidateQueries({ queryKey: ['moments-private'] });
+      queryClient.invalidateQueries({ queryKey: ['moments', moment.relationship_id] });
+      queryClient.invalidateQueries({ queryKey: ['moments-private', moment.relationship_id] });
     },
   });
 
   const favoriteMutation = useMutation({
     mutationFn: () => base44.entities.Moment.update(moment.id, { is_favorite: !moment.is_favorite }),
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['moments'] });
-      queryClient.invalidateQueries({ queryKey: ['favorites'] });
+      queryClient.invalidateQueries({ queryKey: ['moments', moment.relationship_id] });
+      queryClient.invalidateQueries({ queryKey: ['favorites', moment.relationship_id] });
     },
   });
 
   const saveMutation = useMutation({
     mutationFn: () => base44.entities.Moment.update(moment.id, { is_saved: !moment.is_saved }),
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['moments'] });
-      queryClient.invalidateQueries({ queryKey: ['saved'] });
+      queryClient.invalidateQueries({ queryKey: ['moments', moment.relationship_id] });
+      queryClient.invalidateQueries({ queryKey: ['saved', moment.relationship_id] });
     },
   });
 
