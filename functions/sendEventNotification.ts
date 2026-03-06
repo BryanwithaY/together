@@ -46,10 +46,11 @@ Deno.serve(async (req) => {
     partner_reviews:  'Your partner reviewed a moment ✓',
   };
 
+  // Do NOT include moment content (context) in email bodies — it contains private relationship text
   const bodyMap = {
-    partner_logs:     `Your partner recorded a new moment in your shared space.\n\n${context || ''}\n\nOpen the app to see it.`,
-    partner_comments: `Your partner left a comment.\n\n${context || ''}\n\nOpen the app to reply.`,
-    partner_reviews:  `Your partner marked a moment as reviewed.\n\n${context || ''}\n\nOpen the app to view it.`,
+    partner_logs:     `Your partner recorded a new moment in your shared space.\n\nOpen the app to see it.`,
+    partner_comments: `Your partner left a comment on a moment.\n\nOpen the app to reply.`,
+    partner_reviews:  `Your partner marked a moment as reviewed.\n\nOpen the app to view it.`,
   };
 
   const prefKey = event_type; // matches notification_partner_logs etc.

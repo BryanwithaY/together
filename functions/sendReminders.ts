@@ -69,8 +69,8 @@ Deno.serve(async (req) => {
     }
   }
 
-  // Get all users with reminders enabled
-  const allUsers = await base44.asServiceRole.entities.User.list();
+  // Get all users — limit to 500 to guard against unbounded fetches as user base grows
+  const allUsers = await base44.asServiceRole.entities.User.list(undefined, 500);
   const usersWithReminders = allUsers.filter(u => u.notification_daily_reminder && u.notification_reminders?.length);
 
   let fired = 0;

@@ -166,8 +166,8 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
         onClose={() => setEditing(false)}
         onSaved={() => {
           setEditing(false);
-          queryClient.invalidateQueries({ queryKey: ['moments'] });
-          queryClient.invalidateQueries({ queryKey: ['favorites'] });
+          queryClient.invalidateQueries({ queryKey: ['moments', moment.relationship_id] });
+          queryClient.invalidateQueries({ queryKey: ['favorites', moment.relationship_id] });
         }}
       />
     );
