@@ -167,14 +167,25 @@ export default function Settings() {
                       This will permanently delete your account and all your logged moments. This action cannot be undone.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
-                  <div className="px-1 py-2">
-                    <p className="text-sm text-stone-600 mb-2">Type <strong>delete</strong> to confirm:</p>
-                    <Input
-                      value={deleteConfirmText}
-                      onChange={e => setDeleteConfirmText(e.target.value)}
-                      placeholder="delete"
-                      autoComplete="off"
-                    />
+                  <div className="px-1 py-2 space-y-3">
+                    <div>
+                      <p className="text-sm text-stone-600 mb-2">Why are you leaving? (optional)</p>
+                      <Input
+                        value={deleteReason}
+                        onChange={e => setDeleteReason(e.target.value)}
+                        placeholder="e.g. not what I expected, found an alternative..."
+                        autoComplete="off"
+                      />
+                    </div>
+                    <div>
+                      <p className="text-sm text-stone-600 mb-2">Type <strong>delete</strong> to confirm:</p>
+                      <Input
+                        value={deleteConfirmText}
+                        onChange={e => setDeleteConfirmText(e.target.value)}
+                        placeholder="delete"
+                        autoComplete="off"
+                      />
+                    </div>
                   </div>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
