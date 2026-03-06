@@ -6,6 +6,48 @@ import useSystemTheme from './components/hooks/useSystemTheme';
 import { RelationshipProvider } from './components/relationship/RelationshipContext.jsx';
 import AppLoadingScreen from './components/AppLoadingScreen';
 
+function PageLoadingBar({ locationKey }) {
+  const [progress, setProgress] = useState(0);
+  const [visible, setVisible] = useState(false);
+  const timerRef = useRef(null);
+  const showTimerRef = useRef(null);
+
+  useEffect(() => {
+    setProgress(0);
+    setVisible(false);
+    clearTimeout(timerRef.current);
+    clearTimeout(showTimerRef.current);
+
+    // Only show the bar if loading takes >250ms
+    showTimerRef.current = setTimeout(() => {
+      setVisible(true);
+      setProgress(70);
+      timerRef.current = setTimeout(() => {
+        setProgress(100);
+        setTimeout(() => setVisible(false), 300);
+      }, 600);
+    }, 250);
+
+    return () => {
+      clearTimeout(timerRef.current);
+      clearTimeout(showTimerRef.current);
+    };
+  }, [locationKey]);
+
+  if (!visible) return null;
+
+  return (
+    <div className="fixed top-0 left-0 right-0 z-[9998] h-0.5 bg-stone-100">
+      <motion.div
+        className="h-full bg-stone-600"
+        initial={{ width: '0%' }}
+        animate={{ width: `${progress}%` }}
+        transition={{ duration: progress === 70 ? 0.4 : 0.3, ease: 'easeOut' }}
+      />
+    </div>
+  );
+}
+
 const pageVariants = {
   initial: { opacity: 0, x: 24 },
   animate: { opacity: 1, x: 0 },
