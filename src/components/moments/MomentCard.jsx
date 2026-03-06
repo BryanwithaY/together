@@ -69,8 +69,12 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
   });
 
   const markReviewedMutation = useMutation({
-    mutationFn: () => base44.entities.Moment.update(moment.id, { reviewed_by: currentUser.email }),
+    mutationFn: () => base44.entities.Moment.update(moment.id, {
+      reviewed_by: currentUser.email,
+      reviews: [...(moment.reviews || []), { user_email: currentUser.email, reviewed_at: new Date().toISOString() }],
+    }),
     onSuccess: () => {
+      // Precise invalidation — only invalidate this relationship's moments
       queryClient.invalidateQueries({ queryKey: ['moments', moment.relationship_id] });
       base44.functions.invoke('sendEventNotification', {
         event_type: 'partner_reviews',
