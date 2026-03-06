@@ -15,7 +15,7 @@ export default function BottomTabBar({ currentPageName }) {
   const navigate = useNavigate();
   const { currentUser } = useRelationship();
   const tabs = currentUser?.role === 'admin'
-    ? [...BASE_TABS, { label: 'Admin', icon: Settings, page: 'Admin' }]
+    ? [...BASE_TABS, { label: 'Admin', icon: ShieldCheck, page: 'Admin' }]
     : BASE_TABS;
 
   const handleTabClick = (e, page) => {
