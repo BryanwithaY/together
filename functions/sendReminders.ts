@@ -37,17 +37,21 @@ function shouldFire(reminder, hour, minute, weekday) {
   }
 
   if (frequency === 'daily') {
-    // time = "HH:MM"
+    // time = "HH:MM" — match within a 5-minute window to account for automation jitter
     if (!time) return false;
     const [h, m] = time.split(':').map(Number);
-    return hour === h && minute === m;
+    const targetTotal = h * 60 + m;
+    const nowTotal = hour * 60 + minute;
+    return Math.abs(nowTotal - targetTotal) < 5;
   }
 
   if (frequency === 'weekly') {
     // time = "HH:MM", day = weekday number string e.g. "1"
     if (!time || day === undefined) return false;
     const [h, m] = time.split(':').map(Number);
-    return weekday === parseInt(day, 10) && hour === h && minute === m;
+    const targetTotal = h * 60 + m;
+    const nowTotal = hour * 60 + minute;
+    return weekday === parseInt(day, 10) && Math.abs(nowTotal - targetTotal) < 5;
   }
 
   return false;
