@@ -154,20 +154,14 @@ function MonthCardLazy({ month, currentUserEmail, relationshipId, members, stats
       >
         <div className="text-left">
           <p className="font-semibold text-stone-800">{label}</p>
-          {expanded && !loadingMoments && (
-            <p className="text-xs text-stone-400 mt-0.5">{total} moment{total !== 1 ? 's' : ''}</p>
-          )}
+          <p className="text-xs text-stone-400 mt-0.5">{total} moment{total !== 1 ? 's' : ''}</p>
         </div>
         {expanded ? <ChevronUp className="w-4 h-4 text-stone-400" /> : <ChevronDown className="w-4 h-4 text-stone-400" />}
       </button>
 
       {expanded && (
         <div className="border-t border-stone-100 px-5 pb-4 divide-y divide-stone-50">
-          {loadingMoments ? (
-            <div className="flex justify-center py-4">
-              <div className="w-4 h-4 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" />
-            </div>
-          ) : total === 0 ? (
+          {total === 0 ? (
             <p className="text-sm text-stone-400 py-3 text-center">No moments this month</p>
           ) : (
             members.map(member => (
