@@ -75,10 +75,19 @@ Deno.serve(async (req) => {
 
   let fired = 0;
 
+  const now = new Date();
+
   for (const user of usersWithReminders) {
+    // Deduplication: skip if a reminder was already sent within the last 4 minutes
+    if (user.last_reminder_sent_at) {
+      const lastSent = new Date(user.last_reminder_sent_at);
+      if (now - lastSent < 4 * 60 * 1000) continue;
+    }
+
     const tz = user.timezone || 'UTC';
     const { hour, minute, weekday } = getNowInTimezone(tz);
 
+    let sentThisCycle = false;
     for (const reminder of user.notification_reminders) {
       if (!shouldFire(reminder, hour, minute, weekday)) continue;
 
@@ -90,9 +99,17 @@ Deno.serve(async (req) => {
           subject: "Time to log a moment 💛",
           body: `Hi ${user.full_name || 'there'},\n\nThis is your reminder to log a moment in your relationship space.\n\nSmall consistent check-ins make a big difference over time.\n\nOpen the app and record something — even a brief note counts.\n\nhttps://app.base44.app`,
         });
+        sentThisCycle = true;
       }
 
       fired++;
+    }
+
+    // Stamp the send time to prevent duplicate sends in the next automation run
+    if (sentThisCycle) {
+      await base44.asServiceRole.entities.User.update(user.id, {
+        last_reminder_sent_at: now.toISOString(),
+      });
     }
   }
 
