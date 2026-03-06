@@ -19,7 +19,8 @@ const TYPE_CONFIG = {
   self_reflection: { icon: ShieldAlert,label: 'Reflection',color: 'text-violet-600', bg: 'bg-violet-50' },
 };
 
-function MemberMonthRow({ member, moments, privateReflections, currentUserEmail }) {
+function MemberMonthRow({ member, moments, privateReflections, currentUserEmail, month }) {
+  const navigate = useNavigate();
   const isMe = member.user_email?.toLowerCase() === currentUserEmail?.toLowerCase();
   const name = member.display_name || member.user_email?.split('@')[0] || '?';
 
@@ -32,8 +33,20 @@ function MemberMonthRow({ member, moments, privateReflections, currentUserEmail 
   const counts = { ego_aside: 0, gratitude: 0, self_reflection: 0 };
   allMoments.forEach(m => { if (counts[m.type] !== undefined) counts[m.type]++; });
 
+  // Find the earliest moment this member had in this month
+  const sorted = [...allMoments].sort((a, b) => new Date(a.date) - new Date(b.date));
+  const firstMomentId = sorted[0]?.id;
+
+  const handleClick = () => {
+    if (!firstMomentId) return;
+    navigate(createPageUrl(`Home?scrollTo=${firstMomentId}&owner=${member.user_email}`));
+  };
+
   return (
-    <div className="flex items-center gap-3 py-2">
+    <button
+      onClick={handleClick}
+      className="w-full flex items-center gap-3 py-2 text-left hover:bg-stone-50 rounded-lg transition-colors -mx-1 px-1"
+    >
       <div className="w-7 h-7 rounded-full bg-stone-200 flex items-center justify-center text-xs font-semibold text-stone-600 flex-shrink-0">
         {name[0].toUpperCase()}
       </div>
@@ -51,7 +64,7 @@ function MemberMonthRow({ member, moments, privateReflections, currentUserEmail 
           );
         })}
       </div>
-    </div>
+    </button>
   );
 }
 
