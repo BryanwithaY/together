@@ -97,26 +97,34 @@ export default function BugReportForm() {
 
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-2">Title</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Brief description of the issue"
-            required
-            className="w-full px-3 py-2 border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400"
-          />
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Brief description of the issue"
+              required
+              className="flex-1 px-3 py-2 border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400"
+            />
+            <VoiceInput onTranscript={t => setTitle(prev => prev ? prev + ' ' + t : t)} />
+          </div>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-2">Details</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Please provide as much detail as possible to help us understand the issue..."
-            required
-            rows={5}
-            className="w-full px-3 py-2 border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400 resize-none"
-          />
+          <div className="relative">
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Please provide as much detail as possible to help us understand the issue..."
+              required
+              rows={5}
+              className="w-full px-3 py-2 border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400 resize-none pr-12"
+            />
+            <div className="absolute bottom-2 right-2">
+              <VoiceInput onTranscript={t => setDescription(prev => prev ? prev + ' ' + t : t)} />
+            </div>
+          </div>
         </div>
 
         <div>
