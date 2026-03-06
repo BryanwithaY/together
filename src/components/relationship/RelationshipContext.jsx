@@ -49,14 +49,11 @@ export function RelationshipProvider({ children }) {
 
         if (!membershipsResult.length || cancelled) { setLoading(false); return; }
 
-        // Fetch all relationships + preferred relationship's members in parallel
         const relIds = membershipsResult.map(m => m.relationship_id);
         const savedId = localStorage.getItem('active_relationship_id');
 
-        const [allRelArrays] = await Promise.all([
-          // Fetch all relationships in parallel (one request each)
-          Promise.all(relIds.map(id => base44.entities.Relationship.filter({ id }))),
-        ]);
+        // Fetch all relationships in parallel
+        const allRelArrays = await Promise.all(relIds.map(id => base44.entities.Relationship.filter({ id })));
 
         if (cancelled) return;
 
