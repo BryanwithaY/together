@@ -153,31 +153,102 @@ export default function Admin() {
 
             {/* FEATURES */}
             {activeTab === 'features' && (
-              <div className="bg-white rounded-2xl border border-stone-200/60 p-4 space-y-4">
-                <h3 className="text-sm font-semibold text-stone-700">Feature Usage</h3>
-                <FeatureUsageChart
-                  allTime={s.moments.feature_usage_all_time}
-                  last30d={s.moments.feature_usage_30d}
-                />
-                {/* Ego aside subtypes */}
-                {Object.entries(s.moments.feature_usage_all_time)
-                  .filter(([k]) => k.startsWith('ego_aside:'))
-                  .length > 0 && (
-                  <div className="pt-2 border-t border-stone-100">
-                    <p className="text-xs font-medium text-stone-500 mb-2 uppercase tracking-wider">Ego Aside Subtypes</p>
-                    <div className="space-y-1">
-                      {Object.entries(s.moments.feature_usage_all_time)
-                        .filter(([k]) => k.startsWith('ego_aside:'))
-                        .sort((a, b) => b[1] - a[1])
-                        .map(([k, v]) => (
-                          <div key={k} className="flex justify-between text-sm">
-                            <span className="text-stone-600">{k.replace('ego_aside:', '').replace('_', ' ')}</span>
-                            <span className="font-medium text-stone-800">{v}</span>
-                          </div>
-                        ))}
+              <div className="space-y-4">
+                <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
+                  <h3 className="text-sm font-semibold text-stone-700 mb-3">Feature Usage</h3>
+                  <FeatureUsageChart
+                    allTime={s.moments.feature_usage_all_time}
+                    last30d={s.moments.feature_usage_30d}
+                  />
+                  {/* Ego aside subtypes */}
+                  {Object.entries(s.moments.feature_usage_all_time)
+                    .filter(([k]) => k.startsWith('ego_aside:'))
+                    .length > 0 && (
+                    <div className="pt-2 border-t border-stone-100">
+                      <p className="text-xs font-medium text-stone-500 mb-2 uppercase tracking-wider">Ego Aside Subtypes</p>
+                      <div className="space-y-1">
+                        {Object.entries(s.moments.feature_usage_all_time)
+                          .filter(([k]) => k.startsWith('ego_aside:'))
+                          .sort((a, b) => b[1] - a[1])
+                          .map(([k, v]) => (
+                            <div key={k} className="flex justify-between text-sm">
+                              <span className="text-stone-600">{k.replace('ego_aside:', '').replace('_', ' ')}</span>
+                              <span className="font-medium text-stone-800">{v}</span>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Engagement & Content */}
+                <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
+                  <h3 className="text-sm font-semibold text-stone-700 mb-3">Engagement & Content</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-blue-600">{s.engagement.comments_total}</p>
+                      <p className="text-xs text-stone-400 mt-0.5">Comments</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-emerald-600">{s.engagement.moments_shared}</p>
+                      <p className="text-xs text-stone-400 mt-0.5">Shared</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-orange-600">{s.engagement.moments_reviewed}</p>
+                      <p className="text-xs text-stone-400 mt-0.5">Reviewed</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-pink-600">{s.engagement.moments_favorited}</p>
+                      <p className="text-xs text-stone-400 mt-0.5">Favorited</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-purple-600">{s.engagement.moments_saved}</p>
+                      <p className="text-xs text-stone-400 mt-0.5">Saved</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-cyan-600">{s.engagement.moments_with_media}</p>
+                      <p className="text-xs text-stone-400 mt-0.5">Photos/Videos</p>
                     </div>
                   </div>
-                )}
+                </div>
+
+                {/* Profiles & Invites */}
+                <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
+                  <h3 className="text-sm font-semibold text-stone-700 mb-3">Profiles & Invites</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-indigo-600">{s.profiles.users_with_profile_pics}</p>
+                      <p className="text-xs text-stone-400 mt-0.5">Profile Pics Set</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-teal-600">{s.profiles.relationships_with_photos}</p>
+                      <p className="text-xs text-stone-400 mt-0.5">Rel. Photos Set</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-rose-600">{s.invites.sent_to_app}</p>
+                      <p className="text-xs text-stone-400 mt-0.5">Invites Sent</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-lime-600">{s.invites.joined_from_invites}</p>
+                      <p className="text-xs text-stone-400 mt-0.5">Invites Joined</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Relationship Distribution */}
+                <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
+                  <h3 className="text-sm font-semibold text-stone-700 mb-3">Relationship Distribution</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-violet-600">{s.relationships.users_with_multiple}</p>
+                      <p className="text-xs text-stone-400 mt-0.5">Users with Multiple</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-sky-600">{s.relationships.avg_per_user}</p>
+                      <p className="text-xs text-stone-400 mt-0.5">Avg per User</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
