@@ -117,7 +117,7 @@ function MonthCardLazy({ month, currentUserEmail, relationshipId, members }) {
     queryFn: () => base44.entities.Moment.filter({
       relationship_id: relationshipId,
       is_private: false,
-    }, '-date', 200),
+    }, '-date', 1000),
     enabled: expanded && !!relationshipId,
     staleTime: 5 * 60_000,
     gcTime: 10 * 60_000,
@@ -133,7 +133,7 @@ function MonthCardLazy({ month, currentUserEmail, relationshipId, members }) {
       relationship_id: relationshipId,
       is_private: true,
       created_by: currentUserEmail,
-    }, '-date', 50),
+    }, '-date', 500),
     enabled: expanded && !!relationshipId && !!currentUserEmail,
     staleTime: 5 * 60_000,
     gcTime: 10 * 60_000,
@@ -196,7 +196,7 @@ function HistoryContent() {
   // Lightweight query just for stats — last 12 months, limited fields
   const { data: moments = [], isLoading } = useQuery({
     queryKey: ['moments-history-stats', activeRelationship?.id],
-    queryFn: () => base44.entities.Moment.filter({ relationship_id: activeRelationship.id, is_private: false }, '-date', 200),
+    queryFn: () => base44.entities.Moment.filter({ relationship_id: activeRelationship.id, is_private: false }, '-date', 1000),
     enabled: !!activeRelationship?.id,
     staleTime: 2 * 60_000,
     gcTime: 10 * 60_000,
@@ -208,7 +208,7 @@ function HistoryContent() {
       relationship_id: activeRelationship.id,
       is_private: true,
       created_by: currentUser.email,
-    }, '-date', 50),
+    }, '-date', 500),
     enabled: !!activeRelationship?.id && !!currentUser?.email,
     staleTime: 2 * 60_000,
     gcTime: 10 * 60_000,
