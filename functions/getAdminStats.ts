@@ -155,9 +155,30 @@ Deno.serve(async (req) => {
         feature_usage_30d: featureUsage30d,
       },
       relationships: {
-        total_active: activeRels.length,
-        connected_pairs: connectedPairs,
-        solo_spaces: activeRels.length - connectedPairs,
+       total_active: activeRels.length,
+       connected_pairs: connectedPairs,
+       solo_spaces: activeRels.length - connectedPairs,
+       users_with_multiple: usersWithMultipleRels,
+       avg_per_user: avgRelsPerUser,
+      },
+      engagement: {
+       comments_total: commentCount,
+       comments_7d: comments7d,
+       comments_30d: comments30d,
+       moments_with_comments: momentsWithComments,
+       moments_shared: momentsShared,
+       moments_reviewed: momentsReviewed,
+       moments_favorited: allMoments.filter(m => m.is_favorite).length,
+       moments_saved: allMoments.filter(m => m.is_saved).length,
+       moments_with_media: allMoments.filter(m => m.media_url).length,
+      },
+      profiles: {
+       users_with_profile_pics: usersWithProfilePics,
+       relationships_with_photos: relsWithPhotos,
+      },
+      invites: {
+       sent_to_app: invitesSentToJoinApp,
+       joined_from_invites: joinsFromInvites,
       },
       bugs: {
         total: bugReports.length,
