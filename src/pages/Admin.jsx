@@ -115,13 +115,7 @@ export default function Admin() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-        {isLoading && (
-          <div className="flex justify-center py-16">
-            <div className="w-8 h-8 border-2 border-stone-300 border-t-stone-700 rounded-full animate-spin" />
-          </div>
-        )}
-
-        {!isLoading && s && (
+        {s && (
           <>
             {/* OVERVIEW */}
             {activeTab === 'overview' && (
