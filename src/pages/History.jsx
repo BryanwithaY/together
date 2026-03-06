@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { format, startOfMonth, endOfMonth, eachMonthOfInterval, subMonths } from 'date-fns';
-// Note: base44 and useQuery kept for the stats queries below
+
 import { HandHeart, Sparkles, ShieldAlert, Heart, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
