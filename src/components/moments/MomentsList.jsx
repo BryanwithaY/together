@@ -1,10 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import MomentCard from './MomentCard';
 import { motion } from 'framer-motion';
-import { Heart, Lock } from 'lucide-react';
+import { Heart } from 'lucide-react';
+
+const PAGE_SIZE = 20;
 
 export default function MomentsList({ moments, privateReflections = [], typeFilter, ownerFilter, currentUser }) {
-  // When filtering for self_reflection, include private ones that belong to the current user
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const sentinelRef = useRef(null);
+
+  // Reset visible count when filters change
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [typeFilter, ownerFilter]);
+
   const displayMoments = typeFilter === 'self_reflection'
     ? [
         ...moments.filter(m => m.type === 'self_reflection'),
@@ -14,17 +23,31 @@ export default function MomentsList({ moments, privateReflections = [], typeFilt
 
   const filtered = displayMoments.filter(m => {
     const typeMatch = typeFilter === 'all' || m.type === typeFilter;
-    
-    // Don't apply owner filter to private reflections shown in reflection tab
     let ownerMatch = true;
     if (ownerFilter === 'mine') {
       ownerMatch = m.created_by === currentUser?.email;
     } else if (ownerFilter === 'partner') {
       ownerMatch = m.created_by !== currentUser?.email;
     }
-    
     return typeMatch && ownerMatch;
   });
+
+  const visible = filtered.slice(0, visibleCount);
+  const hasMore = visibleCount < filtered.length;
+
+  useEffect(() => {
+    if (!sentinelRef.current || !hasMore) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount(c => c + PAGE_SIZE);
+        }
+      },
+      { rootMargin: '200px' }
+    );
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [hasMore, visibleCount]);
 
   if (filtered.length === 0) {
     return (
@@ -44,9 +67,14 @@ export default function MomentsList({ moments, privateReflections = [], typeFilt
 
   return (
     <div className="space-y-3">
-      {filtered.map((moment, index) => (
+      {visible.map((moment, index) => (
         <MomentCard key={moment.id} moment={moment} index={index} currentUser={currentUser} />
       ))}
+      {hasMore && (
+        <div ref={sentinelRef} className="flex justify-center py-4">
+          <div className="w-5 h-5 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" />
+        </div>
+      )}
     </div>
   );
 }
