@@ -106,33 +106,117 @@ function MonthCard({ month, moments, privateReflections, members, currentUserEma
   );
 }
 
-function HistoryContent() {
-  const { activeRelationship, currentUser, members } = useRelationship();
+function MonthCardLazy({ month, currentUserEmail, relationshipId, members }) {
+  const [expanded, setExpanded] = useState(false);
+  const label = format(month, 'MMMM yyyy');
+  const monthStart = startOfMonth(month);
+  const monthEnd = endOfMonth(month);
 
-  const { data: moments = [] } = useQuery({
-    queryKey: ['moments-history', activeRelationship?.id],
-    queryFn: () => base44.entities.Moment.filter({ relationship_id: activeRelationship.id, is_private: false }, '-date', 500),
-    enabled: !!activeRelationship?.id,
+  const { data: moments = [], isLoading: loadingMoments } = useQuery({
+    queryKey: ['moments-history-month', relationshipId, format(month, 'yyyy-MM')],
+    queryFn: () => base44.entities.Moment.filter({
+      relationship_id: relationshipId,
+      is_private: false,
+    }, '-date', 200),
+    enabled: expanded && !!relationshipId,
+    staleTime: 5 * 60_000,
+    gcTime: 10 * 60_000,
+    select: (data) => data.filter(m => {
+      const d = new Date(m.date);
+      return d >= monthStart && d <= monthEnd;
+    }),
   });
 
   const { data: privateReflections = [] } = useQuery({
-    queryKey: ['moments-private-history', activeRelationship?.id, currentUser?.email],
+    queryKey: ['moments-private-history-month', relationshipId, currentUserEmail, format(month, 'yyyy-MM')],
+    queryFn: () => base44.entities.Moment.filter({
+      relationship_id: relationshipId,
+      is_private: true,
+      created_by: currentUserEmail,
+    }, '-date', 50),
+    enabled: expanded && !!relationshipId && !!currentUserEmail,
+    staleTime: 5 * 60_000,
+    gcTime: 10 * 60_000,
+    select: (data) => data.filter(m => {
+      const d = new Date(m.date);
+      return d >= monthStart && d <= monthEnd;
+    }),
+  });
+
+  const total = moments.length + privateReflections.length;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-white rounded-2xl border border-stone-200/60 shadow-sm overflow-hidden"
+    >
+      <button
+        className="w-full flex items-center justify-between px-5 py-4"
+        onClick={() => setExpanded(v => !v)}
+      >
+        <div className="text-left">
+          <p className="font-semibold text-stone-800">{label}</p>
+          {expanded && !loadingMoments && (
+            <p className="text-xs text-stone-400 mt-0.5">{total} moment{total !== 1 ? 's' : ''}</p>
+          )}
+        </div>
+        {expanded ? <ChevronUp className="w-4 h-4 text-stone-400" /> : <ChevronDown className="w-4 h-4 text-stone-400" />}
+      </button>
+
+      {expanded && (
+        <div className="border-t border-stone-100 px-5 pb-4 divide-y divide-stone-50">
+          {loadingMoments ? (
+            <div className="flex justify-center py-4">
+              <div className="w-4 h-4 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" />
+            </div>
+          ) : total === 0 ? (
+            <p className="text-sm text-stone-400 py-3 text-center">No moments this month</p>
+          ) : (
+            members.map(member => (
+              <MemberMonthRow
+                key={member.id}
+                member={member}
+                moments={moments}
+                privateReflections={privateReflections}
+                currentUserEmail={currentUserEmail}
+              />
+            ))
+          )}
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
+// Fetch only the last 12 months of moment counts for the stats overview + month list
+function HistoryContent() {
+  const { activeRelationship, currentUser, members } = useRelationship();
+
+  // Lightweight query just for stats — last 12 months, limited fields
+  const { data: moments = [], isLoading } = useQuery({
+    queryKey: ['moments-history-stats', activeRelationship?.id],
+    queryFn: () => base44.entities.Moment.filter({ relationship_id: activeRelationship.id, is_private: false }, '-date', 200),
+    enabled: !!activeRelationship?.id,
+    staleTime: 2 * 60_000,
+    gcTime: 10 * 60_000,
+  });
+
+  const { data: privateReflections = [] } = useQuery({
+    queryKey: ['moments-private-history-stats', activeRelationship?.id, currentUser?.email],
     queryFn: () => base44.entities.Moment.filter({
       relationship_id: activeRelationship.id,
       is_private: true,
       created_by: currentUser.email,
-    }, '-date', 200),
+    }, '-date', 50),
     enabled: !!activeRelationship?.id && !!currentUser?.email,
+    staleTime: 2 * 60_000,
+    gcTime: 10 * 60_000,
   });
 
-  const allMoments = [...moments, ...privateReflections];
-
-  // Build months to display (from oldest moment to now, up to 12 months back)
+  // Build last 12 months
   const now = new Date();
-  const earliest = allMoments.length > 0
-    ? new Date(Math.min(...allMoments.map(m => new Date(m.date))))
-    : subMonths(now, 0);
-  const monthsRange = eachMonthOfInterval({ start: earliest, end: now }).reverse();
+  const monthsRange = eachMonthOfInterval({ start: subMonths(now, 11), end: now }).reverse();
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -153,18 +237,23 @@ function HistoryContent() {
       <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
         <StatsOverview moments={moments} privateReflections={privateReflections} />
 
-        {monthsRange.map(month => (
-          <MonthCard
-            key={month.toISOString()}
-            month={month}
-            moments={moments}
-            privateReflections={privateReflections}
-            members={members}
-            currentUserEmail={currentUser?.email}
-          />
-        ))}
+        {isLoading ? (
+          <div className="flex justify-center py-16">
+            <div className="w-6 h-6 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" />
+          </div>
+        ) : (
+          monthsRange.map(month => (
+            <MonthCardLazy
+              key={month.toISOString()}
+              month={month}
+              relationshipId={activeRelationship?.id}
+              currentUserEmail={currentUser?.email}
+              members={members}
+            />
+          ))
+        )}
 
-        {allMoments.length === 0 && (
+        {!isLoading && moments.length === 0 && privateReflections.length === 0 && (
           <div className="text-center py-16">
             <div className="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-4">
               <Heart className="w-7 h-7 text-stone-300" />
