@@ -23,6 +23,7 @@ import NotificationSettings from '../components/settings/NotificationSettings';
 import AppearanceSettings from '../components/settings/AppearanceSettings';
 import RelationshipSettings from '../components/settings/RelationshipSettings';
 import InviteCard from '../components/settings/InviteCard';
+import PersonalStats from '../components/analytics/PersonalStats';
 
 export default function Settings() {
   const navigate = useNavigate();
