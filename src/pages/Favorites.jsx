@@ -27,6 +27,8 @@ function FavoritesContent() {
       is_favorite: true,
     }, '-date', 200),
     enabled: !!activeRelationship?.id,
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
   });
 
   useEffect(() => {
@@ -41,6 +43,8 @@ function FavoritesContent() {
       created_by: currentUser.email,
     }, '-date', 200),
     enabled: !!activeRelationship?.id && !!currentUser?.email,
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
   });
 
   const displayed = tab === 'favorites' ? favorites : saved;
