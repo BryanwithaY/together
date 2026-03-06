@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Send, User, Pencil, Trash2, Check, X } from 'lucide-react';
 import { format, differenceInMinutes } from 'date-fns';
 import MediaUpload from './MediaUpload';
+import VoiceInput from '../ui/VoiceInput';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,

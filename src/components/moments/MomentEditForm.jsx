@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { X, Save } from 'lucide-react';
 import MediaUpload from './MediaUpload';
+import VoiceInput from '../ui/VoiceInput';
 
 export default function MomentEditForm({ moment, onClose, onSaved }) {
   const [whatHappened, setWhatHappened] = useState(moment.what_happened || '');

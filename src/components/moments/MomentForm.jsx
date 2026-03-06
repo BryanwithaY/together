@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { HandHeart, Sparkles, Ear, BookOpen, Flag, Users, X, Send, Clock, MoreHorizontal, ShieldAlert, Frown, VolumeX, PhoneOff, Zap, Power } from 'lucide-react';
 import MediaUpload from './MediaUpload';
+import VoiceInput from '../ui/VoiceInput';
 
 // Format a Date to "yyyy-MM-ddTHH:mm" for datetime-local input
 function toLocalDatetimeString(date) {

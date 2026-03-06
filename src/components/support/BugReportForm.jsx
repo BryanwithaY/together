@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, CheckCircle2, Send, Upload, X } from 'lucide-react';
+import VoiceInput from '../ui/VoiceInput';
 
 export default function BugReportForm() {
   const [title, setTitle] = useState('');
