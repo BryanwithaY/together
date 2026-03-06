@@ -54,11 +54,32 @@ export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const alreadyLoaded = useRef(sessionStorage.getItem(SESSION_KEY) === '1');
   const [showSplash, setShowSplash] = useState(false);
+  const [pageLoading, setPageLoading] = useState(false);
+  const pageLoadingRef = useRef(false);
 
   const handleSplashReady = () => {
     setShowSplash(false);
     sessionStorage.setItem(SESSION_KEY, '1');
   };
+
+  // When route changes, show the overlay immediately and wait for page to signal ready
+  useEffect(() => {
+    setPageLoading(true);
+    pageLoadingRef.current = true;
+
+    // Safety fallback: hide after 5s no matter what
+    const fallback = setTimeout(() => {
+      setPageLoading(false);
+      pageLoadingRef.current = false;
+    }, 5000);
+
+    return () => clearTimeout(fallback);
+  }, [location.key]);
+
+  const handlePageReady = useCallback(() => {
+    setPageLoading(false);
+    pageLoadingRef.current = false;
+  }, []);
 
   useEffect(() => {
     if (alreadyLoaded.current) return;
@@ -91,7 +112,7 @@ export default function Layout({ children, currentPageName }) {
         )}
       </AnimatePresence>
 
-      <PageLoadingOverlay locationKey={location.key} />
+      <PageLoadingOverlay visible={pageLoading && !showSplash} />
       <div className="app-shell">
         <main className="main-content relative overflow-x-hidden">
           <AnimatePresence mode="wait" initial={false}>
@@ -104,7 +125,9 @@ export default function Layout({ children, currentPageName }) {
               transition={pageTransition}
               className="w-full"
             >
-              {children}
+              <PageLoadingProvider onReady={handlePageReady}>
+                {children}
+              </PageLoadingProvider>
             </motion.div>
           </AnimatePresence>
         </main>
