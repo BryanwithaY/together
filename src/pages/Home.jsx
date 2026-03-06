@@ -110,11 +110,7 @@ function HomeContent() {
           onOwnerChange={setOwnerFilter}
         />
 
-        {momentsLoading ? (
-          <div className="flex justify-center py-16">
-            <div className="w-6 h-6 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" />
-          </div>
-        ) : (
+        {momentsLoading ? null : (
           <MomentsList
             moments={moments}
             privateReflections={privateReflections}
