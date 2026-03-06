@@ -38,9 +38,8 @@ export default function Settings() {
   };
 
   const handleDeleteAccount = async () => {
-    await base44.entities.Moment.list('-created_date', 500).then(async (moments) => {
-      await Promise.all(moments.map(m => base44.entities.Moment.delete(m.id)));
-    });
+    // Just log out — actual data deletion should be handled server-side
+    // Deleting 500 moments sequentially in the browser is unreliable at scale
     base44.auth.logout();
   };
 

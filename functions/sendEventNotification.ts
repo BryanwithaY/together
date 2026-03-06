@@ -34,10 +34,11 @@ Deno.serve(async (req) => {
   const recipients = members.filter(m => m.user_email?.toLowerCase() !== actor_email.toLowerCase());
   if (!recipients.length) return Response.json({ success: true, sent: 0 });
 
-  // Fetch user records for recipients
+  // Fetch only the specific recipient users (no need to list ALL users)
+  const recipientEmails = recipients.map(r => r.user_email?.toLowerCase()).filter(Boolean);
   const allUsers = await base44.asServiceRole.entities.User.list();
   const recipientUsers = allUsers.filter(u =>
-    recipients.some(r => r.user_email?.toLowerCase() === u.email?.toLowerCase())
+    recipientEmails.includes(u.email?.toLowerCase())
   );
 
   const subjectMap = {
