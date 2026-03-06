@@ -70,6 +70,13 @@ export default function RelationshipSetup() {
     setUploading(false);
   };
 
+  // Capture referral code from URL on mount and attribute after signup
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if (ref) sessionStorage.setItem('referral_code', ref);
+  }, []);
+
   const handleCreate = async () => {
     if (!relName.trim() || !relType || !currentUser) return;
     setSaving(true);
