@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { format, startOfMonth, endOfMonth, eachMonthOfInterval, subMonths } from 'date-fns';
@@ -158,26 +158,23 @@ function HistoryContent() {
     if (!isLoading) setPageReady();
   }, [isLoading]);
 
-  // Build only months that have at least one moment
-  const allMoments = [...moments, ...privateReflections];
-  const monthsWithData = allMoments.reduce((acc, m) => {
-    const key = format(new Date(m.date), 'yyyy-MM');
-    acc.add(key);
-    return acc;
-  }, new Set());
+  // Memoize derived month list so it doesn't recompute on every render
+  const monthsRange = useMemo(() => {
+    const allMoments = [...moments, ...privateReflections];
+    const monthsWithData = new Set(allMoments.map(m => format(new Date(m.date), 'yyyy-MM')));
 
-  // Determine the earliest date from actual moment data
-  const earliestMomentDate = allMoments.length > 0
-    ? new Date(Math.min(...allMoments.map(m => new Date(m.date).getTime())))
-    : null;
-  const relationshipCreated = activeRelationship?.created_date ? new Date(activeRelationship.created_date) : null;
-  const userCreated = currentUser?.created_date ? new Date(currentUser.created_date) : null;
-  const earliestDate = earliestMomentDate || relationshipCreated || userCreated || subMonths(new Date(), 11);
+    const earliestMomentDate = allMoments.length > 0
+      ? new Date(Math.min(...allMoments.map(m => new Date(m.date).getTime())))
+      : null;
+    const earliestDate = earliestMomentDate
+      || (activeRelationship?.created_date ? new Date(activeRelationship.created_date) : null)
+      || (currentUser?.created_date ? new Date(currentUser.created_date) : null)
+      || subMonths(new Date(), 11);
 
-  const now = new Date();
-  const monthsRange = eachMonthOfInterval({ start: startOfMonth(earliestDate), end: now })
-    .reverse()
-    .filter(month => monthsWithData.has(format(month, 'yyyy-MM')));
+    return eachMonthOfInterval({ start: startOfMonth(earliestDate), end: new Date() })
+      .reverse()
+      .filter(month => monthsWithData.has(format(month, 'yyyy-MM')));
+  }, [moments, privateReflections, activeRelationship?.created_date, currentUser?.created_date]);
 
   return (
     <div className="min-h-screen bg-stone-50">
