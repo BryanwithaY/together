@@ -33,8 +33,8 @@ function HomeContent() {
       is_private: false,
     }, '-date', 100),
     enabled: !!activeRelationship?.id,
-    staleTime: 30_000,
-    gcTime: 5 * 60 * 1000,
+    staleTime: 60_000,
+    gcTime: 10 * 60_000,
   });
 
   useEffect(() => {
