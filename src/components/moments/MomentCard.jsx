@@ -203,7 +203,7 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0, x: swipeX > 0 ? -swipeX : -swipeX }}
-          transition={swiping ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 40, delay: Math.min(index * 0.05, 0.3) }}
+          transition={swiping ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 40, delay: Math.min(index * 0.03, 0.15) }}
           className="relative rounded-2xl bg-white border border-stone-200/60 shadow-sm"
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
