@@ -34,11 +34,11 @@ Deno.serve(async (req) => {
   const recipients = members.filter(m => m.user_email?.toLowerCase() !== actor_email.toLowerCase());
   if (!recipients.length) return Response.json({ success: true, sent: 0 });
 
-  // Fetch only the specific recipient users by email
+  // Fetch recipient users in parallel
   const recipientEmails = recipients.map(r => r.user_email).filter(Boolean);
-  const recipientUsers = await Promise.all(
+  const recipientUsers = (await Promise.all(
     recipientEmails.map(email => base44.asServiceRole.entities.User.filter({ email }))
-  ).then(results => results.flat());
+  )).flat();
 
   const subjectMap = {
     partner_logs:     'Your partner logged a new moment 💛',
