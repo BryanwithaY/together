@@ -37,9 +37,11 @@ Deno.serve(async (req) => {
       base44.asServiceRole.entities.Comment.list(undefined, 500),
     ]);
 
-    // User stats
-    const activeUsers7d  = allUsers.filter(u => u.last_active_at >= day7).length;
-    const activeUsers30d = allUsers.filter(u => u.last_active_at >= day30).length;
+    // User stats - active = users who triggered events in the period
+    const usersActive7d = new Set(recentEvents.filter(e => e.occurred_at >= day7).map(e => e.user_email));
+    const usersActive30d = new Set(recentEvents.filter(e => e.occurred_at >= day30).map(e => e.user_email));
+    const activeUsers7d  = usersActive7d.size;
+    const activeUsers30d = usersActive30d.size;
     const newUsers7d     = allUsers.filter(u => u.created_date >= day7).length;
     const newUsers30d    = allUsers.filter(u => u.created_date >= day30).length;
 
