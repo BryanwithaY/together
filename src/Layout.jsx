@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import BottomTabBar from './components/BottomTabBar';
 import useSystemTheme from './components/hooks/useSystemTheme';
 import { RelationshipProvider } from './components/relationship/RelationshipContext.jsx';
 import AppLoadingScreen from './components/AppLoadingScreen';
+import { PageLoadingProvider } from './components/PageLoadingContext.jsx';
 
 function PageLoadingOverlay({ locationKey }) {
   const [visible, setVisible] = useState(false);
