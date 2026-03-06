@@ -119,6 +119,8 @@ function HomeContent() {
             typeFilter={typeFilter}
             ownerFilter={ownerFilter}
             currentUser={currentUser}
+            scrollToId={scrollToId}
+            ownerFilter2={ownerParam}
           />
         )}
       </div>
