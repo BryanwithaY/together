@@ -15,34 +15,28 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Title and description are required' }, { status: 400 });
     }
 
-    const attachmentLinks = attachments && attachments.length > 0
-      ? '\n\nAttachments:\n' + attachments.map(att => `- ${att.name}: ${att.url}`).join('\n')
-      : '';
+    // Persist to BugReport entity + send email in parallel
+    const [bugReport] = await Promise.all([
+      base44.asServiceRole.entities.BugReport.create({
+        reporter_email: user.email,
+        reporter_name: user.full_name,
+        title,
+        description,
+        type: type || 'support',
+        status: 'open',
+        priority: 'medium',
+        attachments: attachments || [],
+        admin_notes: '',
+      }),
+      base44.integrations.Core.SendEmail({
+        to: 'bryan.atkins@gmail.com',
+        subject: `[${type || 'Support'}] ${title}`,
+        from_name: 'Together App Support',
+        body: `New ${type || 'Support'} Report\n\nUser: ${user.full_name}\nEmail: ${user.email}\n\nTitle: ${title}\n\nDescription:\n${description}${attachments?.length ? '\n\nAttachments:\n' + attachments.map(a => `- ${a.name}: ${a.url}`).join('\n') : ''}\n\n---\nSubmitted on: ${new Date().toLocaleString()}`,
+      }),
+    ]);
 
-    const emailBody = `
-New ${type || 'Support'} Report
-
-User: ${user.full_name}
-Email: ${user.email}
-
-Title: ${title}
-
-Description:
-${description}
-${attachmentLinks}
-
----
-Submitted on: ${new Date().toLocaleString()}
-    `;
-
-    await base44.integrations.Core.SendEmail({
-      to: 'bryan.atkins@gmail.com',
-      subject: `[${type || 'Support'}] ${title}`,
-      from_name: 'Together App Support',
-      body: emailBody
-    });
-
-    return Response.json({ success: true });
+    return Response.json({ success: true, id: bugReport.id });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
