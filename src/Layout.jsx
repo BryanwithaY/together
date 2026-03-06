@@ -6,45 +6,56 @@ import useSystemTheme from './components/hooks/useSystemTheme';
 import { RelationshipProvider } from './components/relationship/RelationshipContext.jsx';
 import AppLoadingScreen from './components/AppLoadingScreen';
 
-function PageLoadingBar({ locationKey }) {
-  const [progress, setProgress] = useState(0);
+function PageLoadingOverlay({ locationKey }) {
   const [visible, setVisible] = useState(false);
-  const timerRef = useRef(null);
   const showTimerRef = useRef(null);
+  const hideTimerRef = useRef(null);
 
   useEffect(() => {
-    setProgress(0);
     setVisible(false);
-    clearTimeout(timerRef.current);
     clearTimeout(showTimerRef.current);
+    clearTimeout(hideTimerRef.current);
 
-    // Only show the bar if loading takes >250ms
+    // Show overlay if navigation takes >150ms
     showTimerRef.current = setTimeout(() => {
       setVisible(true);
-      setProgress(70);
-      timerRef.current = setTimeout(() => {
-        setProgress(100);
-        setTimeout(() => setVisible(false), 300);
-      }, 600);
-    }, 250);
+      // Auto-hide after 1.2s as a fallback
+      hideTimerRef.current = setTimeout(() => setVisible(false), 1200);
+    }, 150);
 
     return () => {
-      clearTimeout(timerRef.current);
       clearTimeout(showTimerRef.current);
+      clearTimeout(hideTimerRef.current);
     };
   }, [locationKey]);
 
-  if (!visible) return null;
-
   return (
-    <div className="fixed top-0 left-0 right-0 z-[9998] h-0.5 bg-stone-100">
-      <motion.div
-        className="h-full bg-stone-600"
-        initial={{ width: '0%' }}
-        animate={{ width: `${progress}%` }}
-        transition={{ duration: progress === 70 ? 0.4 : 0.3, ease: 'easeOut' }}
-      />
-    </div>
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          key="page-loader"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-[9998] bg-stone-50 flex flex-col items-center justify-center gap-4"
+        >
+          <div className="w-10 h-10 rounded-2xl bg-stone-800 flex items-center justify-center">
+            <span className="text-white text-lg">✦</span>
+          </div>
+          <div className="flex gap-1.5">
+            {[0, 1, 2].map(i => (
+              <motion.div
+                key={i}
+                className="w-1.5 h-1.5 rounded-full bg-stone-400"
+                animate={{ opacity: [0.3, 1, 0.3] }}
+                transition={{ duration: 1, repeat: Infinity, delay: i * 0.18 }}
+              />
+            ))}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
