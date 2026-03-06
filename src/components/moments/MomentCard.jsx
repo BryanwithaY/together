@@ -54,15 +54,16 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
   const subtype = subtypeConfig[moment.subtype] || subtypeConfig.general;
   const Icon = isEgoAside ? subtype.icon : isReflection ? ShieldAlert : Sparkles;
   const isOwner = moment.created_by === currentUser?.email;
-  const isReviewed = !!moment.reviewed_by;
+  const isReviewed = !!(moment.reviewed_by || moment.reviews?.length);
   const canReview = !isOwner && !isReviewed && !isReflection;
   const isPrivate = moment.is_private && !moment.shared_with_partner;
   const editable = isOwner && canEdit(moment.created_date);
 
   const { data: comments = [] } = useQuery({
     queryKey: ['comments', moment.id],
-    queryFn: () => base44.entities.Comment.filter({ moment_id: moment.id }, '-created_date'),
+    queryFn: () => base44.entities.Comment.filter({ moment_id: moment.id }, '-created_date', 50),
     enabled: expanded,
+    staleTime: 30_000,
   });
 
   const markReviewedMutation = useMutation({
@@ -196,7 +197,7 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0, x: swipeX > 0 ? -swipeX : -swipeX }}
-          transition={swiping ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 40, delay: index * 0.05 }}
+          transition={swiping ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 40, delay: Math.min(index * 0.05, 0.3) }}
           className="relative rounded-2xl bg-white border border-stone-200/60 shadow-sm"
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
