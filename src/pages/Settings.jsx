@@ -108,6 +108,13 @@ export default function Settings() {
           <AppearanceSettings user={user} />
         </div>
 
+        {/* Personal Stats */}
+        <div className="bg-white rounded-2xl border border-stone-200/60 shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-stone-800 mb-1">Your Stats</h2>
+          <p className="text-sm text-stone-500 mb-5">Your personal moment history and streaks.</p>
+          <PersonalStats user={user} />
+        </div>
+
         {/* Invite Friends */}
         <div className="bg-white rounded-2xl border border-stone-200/60 shadow-sm p-6">
           <h2 className="text-lg font-semibold text-stone-800 mb-1">Invite Friends</h2>
