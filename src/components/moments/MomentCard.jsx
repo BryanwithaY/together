@@ -74,13 +74,16 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
       reviews: [...(moment.reviews || []), { user_email: currentUser.email, reviewed_at: new Date().toISOString() }],
     }),
     onSuccess: () => {
-      // Precise invalidation — only invalidate this relationship's moments
       queryClient.invalidateQueries({ queryKey: ['moments', moment.relationship_id] });
+      base44.functions.invoke('logAppEvent', {
+        event_type: 'moment_reviewed',
+        relationship_id: moment.relationship_id,
+        moment_type: moment.type,
+      }).catch(() => {});
       base44.functions.invoke('sendEventNotification', {
         event_type: 'partner_reviews',
         relationship_id: moment.relationship_id,
         actor_email: currentUser.email,
-        context: moment.what_happened || moment.how_it_felt || '',
       }).catch(() => {});
     },
   });
