@@ -72,6 +72,18 @@ Deno.serve(async (req) => {
       return acc;
     }, {});
     const connectedPairs = Object.values(multiMemberRels).filter(n => n >= 2).length;
+    
+    // Users with multiple relationships
+    const userRelationshipCount = allMembers
+      .filter(m => m.status === 'active')
+      .reduce((acc, m) => {
+        acc[m.user_email] = (acc[m.user_email] || 0) + 1;
+        return acc;
+      }, {});
+    const usersWithMultipleRels = Object.values(userRelationshipCount).filter(n => n > 1).length;
+    const avgRelsPerUser = allUsers.length > 0 
+      ? (Object.values(userRelationshipCount).reduce((a, b) => a + b, 0) / allUsers.length).toFixed(2)
+      : 0;
 
     // Bug reports
     const openBugs     = bugReports.filter(b => b.status === 'open').length;
