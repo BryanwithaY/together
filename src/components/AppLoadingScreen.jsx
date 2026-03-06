@@ -26,9 +26,10 @@ function TypewriterText({ text, onComplete }) {
       setDisplayed(text.slice(0, indexRef.current));
       if (indexRef.current >= text.length) {
         clearInterval(interval);
-        if (onComplete) setTimeout(onComplete, 1800);
+        // Wait 2s after fully typed before calling complete
+        if (onComplete) setTimeout(onComplete, 2000);
       }
-    }, 28);
+    }, 30);
     return () => clearInterval(interval);
   }, [text]);
 
@@ -40,15 +41,15 @@ function TypewriterText({ text, onComplete }) {
   );
 }
 
-export default function AppLoadingScreen() {
-  const [quoteIndex, setQuoteIndex] = useState(() => Math.floor(Math.random() * QUOTES.length));
+export default function AppLoadingScreen({ onReady }) {
+  const [quoteIndex] = useState(() => Math.floor(Math.random() * QUOTES.length));
   const [visible, setVisible] = useState(true);
 
-  const advanceQuote = () => {
+  const handleComplete = () => {
     setVisible(false);
+    // Give the fade-out animation time, then signal ready
     setTimeout(() => {
-      setQuoteIndex(i => (i + 1) % QUOTES.length);
-      setVisible(true);
+      if (onReady) onReady();
     }, 400);
   };
 
