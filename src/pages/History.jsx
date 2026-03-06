@@ -232,6 +232,10 @@ function HistoryContent() {
     gcTime: 10 * 60_000,
   });
 
+  useEffect(() => {
+    if (!isLoading) setPageReady();
+  }, [isLoading]);
+
   // Build only months that have at least one moment
   const allMoments = [...moments, ...privateReflections];
   const monthsWithData = allMoments.reduce((acc, m) => {

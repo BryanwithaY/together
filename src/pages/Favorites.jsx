@@ -20,7 +20,7 @@ function FavoritesContent() {
   const { setPageReady } = usePageLoading();
   const [tab, setTab] = useState('favorites');
 
-  const { data: favorites = [] } = useQuery({
+  const { data: favorites = [], isLoading: loadingFavorites } = useQuery({
     queryKey: ['favorites', activeRelationship?.id],
     queryFn: () => base44.entities.Moment.filter({
       relationship_id: activeRelationship.id,
