@@ -215,48 +215,68 @@ export default function MomentForm({ onSubmit, onClose }) {
               <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-3">
                 What happened? <span className="text-stone-400 font-normal">(optional)</span>
               </p>
-              <Textarea
-                value={whatHappened}
-                onChange={e => setWhatHappened(e.target.value)}
-                placeholder={type === 'ego_aside' ? "Describe the situation..." : type === 'self_reflection' ? "What did you do or say? Be honest with yourself..." : "What are you grateful for?"}
-                className="resize-none rounded-xl border-stone-200 focus:border-stone-400 min-h-[120px] text-base"
-                style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
-              />
+              <div className="relative">
+                <Textarea
+                  value={whatHappened}
+                  onChange={e => setWhatHappened(e.target.value)}
+                  placeholder={type === 'ego_aside' ? "Describe the situation..." : type === 'self_reflection' ? "What did you do or say? Be honest with yourself..." : "What are you grateful for?"}
+                  className="resize-none rounded-xl border-stone-200 focus:border-stone-400 min-h-[120px] text-base pr-12"
+                  style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
+                />
+                <div className="absolute bottom-2 right-2">
+                  <VoiceInput onTranscript={t => setWhatHappened(prev => prev ? prev + ' ' + t : t)} />
+                </div>
+              </div>
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-3">
                 How did it make you feel? <span className="text-stone-400 font-normal">(optional)</span>
               </p>
-              <Textarea
-                value={howItFelt}
-                onChange={e => setHowItFelt(e.target.value)}
-                placeholder={type === 'self_reflection' ? "What would you do differently? What can you learn from this?" : "Share your emotions and reflections..."}
-                className="resize-none rounded-xl border-stone-200 focus:border-stone-400 min-h-[120px] text-base"
-                style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
-              />
+              <div className="relative">
+                <Textarea
+                  value={howItFelt}
+                  onChange={e => setHowItFelt(e.target.value)}
+                  placeholder={type === 'self_reflection' ? "What would you do differently? What can you learn from this?" : "Share your emotions and reflections..."}
+                  className="resize-none rounded-xl border-stone-200 focus:border-stone-400 min-h-[120px] text-base pr-12"
+                  style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
+                />
+                <div className="absolute bottom-2 right-2">
+                  <VoiceInput onTranscript={t => setHowItFelt(prev => prev ? prev + ' ' + t : t)} />
+                </div>
+              </div>
             </div>
             {type === 'self_reflection' && (
               <div className="space-y-4 border border-violet-100 bg-violet-50/40 rounded-xl p-4">
                 <p className="text-xs font-semibold uppercase tracking-wider text-violet-600">Follow-up</p>
                 <div>
                   <p className="text-xs font-semibold text-stone-500 mb-2">What could you have done better? <span className="text-stone-400 font-normal">(optional)</span></p>
-                  <Textarea
-                    value={couldHaveDoneBetter}
-                    onChange={e => setCouldHaveDoneBetter(e.target.value)}
-                    placeholder="Be honest and specific with yourself..."
-                    className="resize-none rounded-xl border-violet-200 focus:border-violet-400 min-h-[90px] text-base bg-white"
-                    style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
-                  />
+                  <div className="relative">
+                    <Textarea
+                      value={couldHaveDoneBetter}
+                      onChange={e => setCouldHaveDoneBetter(e.target.value)}
+                      placeholder="Be honest and specific with yourself..."
+                      className="resize-none rounded-xl border-violet-200 focus:border-violet-400 min-h-[90px] text-base bg-white pr-12"
+                      style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
+                    />
+                    <div className="absolute bottom-2 right-2">
+                      <VoiceInput onTranscript={t => setCouldHaveDoneBetter(prev => prev ? prev + ' ' + t : t)} />
+                    </div>
+                  </div>
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-stone-500 mb-2">How do you hope to show up next time? <span className="text-stone-400 font-normal">(optional)</span></p>
-                  <Textarea
-                    value={showUpNextTime}
-                    onChange={e => setShowUpNextTime(e.target.value)}
-                    placeholder="What intention do you want to set for similar situations?"
-                    className="resize-none rounded-xl border-violet-200 focus:border-violet-400 min-h-[90px] text-base bg-white"
-                    style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
-                  />
+                  <div className="relative">
+                    <Textarea
+                      value={showUpNextTime}
+                      onChange={e => setShowUpNextTime(e.target.value)}
+                      placeholder="What intention do you want to set for similar situations?"
+                      className="resize-none rounded-xl border-violet-200 focus:border-violet-400 min-h-[90px] text-base bg-white pr-12"
+                      style={{ userSelect: 'text', WebkitUserSelect: 'text', fontSize: '16px' }}
+                    />
+                    <div className="absolute bottom-2 right-2">
+                      <VoiceInput onTranscript={t => setShowUpNextTime(prev => prev ? prev + ' ' + t : t)} />
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
