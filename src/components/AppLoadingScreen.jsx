@@ -85,7 +85,7 @@ export default function AppLoadingScreen({ onReady }) {
               transition={{ duration: 0.3 }}
               className="text-lg font-medium text-stone-700 leading-relaxed min-h-[5rem]"
             >
-              <TypewriterText text={QUOTES[quoteIndex]} onComplete={advanceQuote} />
+              <TypewriterText text={QUOTES[quoteIndex]} onComplete={handleComplete} />
             </motion.p>
           )}
         </AnimatePresence>
