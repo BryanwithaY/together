@@ -6,6 +6,9 @@ import EngagementAnalysis from '@/components/analytics/EngagementAnalysis';
 import { usePageLoading } from '@/components/PageLoadingContext';
 
 export default function Analytics() {
+  const { setPageReady } = usePageLoading();
+  useEffect(() => { setPageReady(); }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <div className="max-w-5xl mx-auto">

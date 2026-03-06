@@ -91,8 +91,11 @@ const features = [
 export default function Help() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { setPageReady } = usePageLoading();
   const [tourOpen, setTourOpen] = useState(false);
   const canGoBack = location.key !== 'default';
+
+  useEffect(() => { setPageReady(); }, []);
 
   return (
     <div className="min-h-screen bg-stone-50">
