@@ -62,8 +62,10 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
   const { data: comments = [] } = useQuery({
     queryKey: ['comments', moment.id],
     queryFn: () => base44.entities.Comment.filter({ moment_id: moment.id }, '-created_date', 50),
+    // Only fetch when the card is expanded — avoids N queries on page load
     enabled: expanded,
-    staleTime: 30_000,
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
   });
 
   const markReviewedMutation = useMutation({
