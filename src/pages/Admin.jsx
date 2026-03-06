@@ -11,6 +11,7 @@ import FeatureUsageChart from '../components/admin/FeatureUsageChart';
 import BugReportList from '../components/admin/BugReportList';
 import EventFeed from '../components/admin/EventFeed';
 import ChurnPanel from '../components/admin/ChurnPanel';
+import AppLoadingScreen from '../components/AppLoadingScreen';
 import { useEffect } from 'react';
 
 export default function Admin() {
