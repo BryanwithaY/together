@@ -49,8 +49,8 @@ function HomeContent() {
       created_by: currentUser.email,
     }, '-date', 50),
     enabled: !!activeRelationship?.id && !!currentUser?.email,
-    staleTime: 30_000,
-    gcTime: 5 * 60 * 1000,
+    staleTime: 60_000,
+    gcTime: 10 * 60_000,
   });
 
   const createMutation = useMutation({
