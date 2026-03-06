@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { ArrowLeft, Heart, HandHeart, Sparkles, ShieldAlert, BarChart2, Bookmark, Play, MessageCircle, Users, Eye, Star } from 'lucide-react';
