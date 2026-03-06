@@ -20,7 +20,8 @@ export default function Admin() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('overview');
 
-  const isAdmin = currentUser?.role === 'admin';
+  const SYSTEM_ADMIN_EMAILS = ['bryan.atkins@gmail.com'];
+  const isAdmin = currentUser && SYSTEM_ADMIN_EMAILS.includes(currentUser.email);
 
   const { data: stats, isLoading, refetch } = useQuery({
     queryKey: ['adminStats'],
