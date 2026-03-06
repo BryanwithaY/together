@@ -25,6 +25,7 @@ Deno.serve(async (req) => {
       bugReports,
       deletedUsers,
       recentEvents,
+      allComments,
     ] = await Promise.all([
       base44.asServiceRole.entities.User.list(undefined, 500),
       base44.asServiceRole.entities.Moment.list('-created_date', 500),
@@ -33,6 +34,7 @@ Deno.serve(async (req) => {
       base44.asServiceRole.entities.BugReport.list('-created_date', 100),
       base44.asServiceRole.entities.DeletedUser.list('-deleted_at', 100),
       base44.asServiceRole.entities.AppEvent.list('-occurred_at', 200),
+      base44.asServiceRole.entities.Comment.list(undefined, 500),
     ]);
 
     // User stats
