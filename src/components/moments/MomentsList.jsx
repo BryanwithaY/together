@@ -98,7 +98,9 @@ export default function MomentsList({ moments, privateReflections = [], typeFilt
   return (
     <div className="space-y-3">
       {visible.map((moment, index) => (
-        <MomentCard key={moment.id} moment={moment} index={index} currentUser={currentUser} />
+        <div key={moment.id} id={`moment-${moment.id}`} className="transition-all duration-500 rounded-2xl">
+          <MomentCard moment={moment} index={index} currentUser={currentUser} />
+        </div>
       ))}
       {hasMore && (
         <div ref={sentinelRef} className="flex justify-center py-4">
