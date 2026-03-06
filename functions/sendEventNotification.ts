@@ -55,23 +55,20 @@ Deno.serve(async (req) => {
   const prefKey = event_type; // matches notification_partner_logs etc.
   const emailPrefKey = `${event_type}_email`; // e.g. notification_partner_logs_email
 
-  let sent = 0;
-  for (const recipUser of recipientUsers) {
-    // Check if user has this notification type enabled (default true)
-    const notifEnabled = recipUser[`notification_${prefKey}`] ?? true;
-    if (!notifEnabled) continue;
+  // Send all emails in parallel
+  const emailTasks = recipientUsers
+    .filter(u => {
+      const notifEnabled = u[`notification_${prefKey}`] ?? true;
+      const emailEnabled = u[`notification_${emailPrefKey}`] ?? true;
+      return notifEnabled && emailEnabled && u.email;
+    })
+    .map(u => base44.asServiceRole.integrations.Core.SendEmail({
+      to: u.email,
+      subject: subjectMap[event_type] || 'New activity in your relationship space',
+      body: `Hi ${u.full_name || 'there'},\n\n${bodyMap[event_type] || ''}\n\nhttps://app.base44.app`,
+    }));
 
-    // Email: send if they have _email pref true (default true for backward compat)
-    const emailEnabled = recipUser[`notification_${emailPrefKey}`] ?? true;
-    if (emailEnabled && recipUser.email) {
-      await base44.asServiceRole.integrations.Core.SendEmail({
-        to: recipUser.email,
-        subject: subjectMap[event_type] || 'New activity in your relationship space',
-        body: `Hi ${recipUser.full_name || 'there'},\n\n${bodyMap[event_type] || ''}\n\nhttps://app.base44.app`,
-      });
-      sent++;
-    }
-  }
+  await Promise.all(emailTasks);
 
-  return Response.json({ success: true, sent });
+  return Response.json({ success: true, sent: emailTasks.length });
 });
