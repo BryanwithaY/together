@@ -16,6 +16,34 @@ export default function MomentsList({ moments, privateReflections = [], typeFilt
     scrolledRef.current = false;
   }, [typeFilter, ownerFilter]);
 
+  // If coming from History with a specific scrollToId, ensure we show enough items
+  useEffect(() => {
+    if (!scrollToId || scrolledRef.current) return;
+    // Find how far down the target moment is and ensure it's in the visible window
+    const allCombined = [
+      ...moments.filter(m => m.type === 'self_reflection' || m.type !== 'self_reflection'),
+      ...privateReflections,
+    ].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const idx = allCombined.findIndex(m => m.id === scrollToId);
+    if (idx !== -1 && idx + 1 > visibleCount) {
+      setVisibleCount(idx + 5);
+    }
+  }, [scrollToId, moments, privateReflections]);
+
+  // Scroll to target moment after render
+  useEffect(() => {
+    if (!scrollToId || scrolledRef.current) return;
+    const el = document.getElementById(`moment-${scrollToId}`);
+    if (el) {
+      scrolledRef.current = true;
+      setTimeout(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.add('ring-2', 'ring-stone-400', 'ring-offset-2');
+        setTimeout(() => el.classList.remove('ring-2', 'ring-stone-400', 'ring-offset-2'), 2000);
+      }, 150);
+    }
+  }, [scrollToId, visibleCount]);
+
   const displayMoments = typeFilter === 'self_reflection'
     ? [
         ...moments.filter(m => m.type === 'self_reflection'),
