@@ -107,6 +107,7 @@ export default function MomentsList({ moments, privateReflections = [], typeFilt
           <div className="w-5 h-5 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" />
         </div>
       )}
+      
     </div>
   );
 }
