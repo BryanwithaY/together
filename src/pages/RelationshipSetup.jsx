@@ -95,6 +95,25 @@ export default function RelationshipSetup() {
     });
     await refreshRelationships();
     await setActiveRelationship(rel);
+
+    // Attribute referral if a code was stored
+    const refCode = sessionStorage.getItem('referral_code');
+    if (refCode && currentUser?.email) {
+      const records = await base44.entities.Referral.filter({ code: refCode, status: 'pending' });
+      const primary = records.find(r => !r.referred_email);
+      if (primary && primary.referrer_email !== currentUser.email) {
+        await base44.entities.Referral.create({
+          referrer_email: primary.referrer_email,
+          code: refCode,
+          referred_email: currentUser.email,
+          referred_user_id: currentUser.id,
+          signup_date: new Date().toISOString(),
+          status: 'completed',
+        });
+        sessionStorage.removeItem('referral_code');
+      }
+    }
+
     setSaving(false);
     navigate(createPageUrl('Home'));
   };
