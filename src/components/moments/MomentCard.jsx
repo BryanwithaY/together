@@ -360,16 +360,36 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
                   </Button>
                 )}
                 {isReflection && isOwner && isPrivate && (
-                  <Button
-                    onClick={() => shareWithPartnerMutation.mutate()}
-                    disabled={shareWithPartnerMutation.isPending}
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 text-xs text-violet-600 hover:text-violet-700 hover:bg-violet-50 select-none"
-                  >
-                    <Share2 className="w-3.5 h-3.5 mr-1" />
-                    Share with Partner
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        disabled={shareWithPartnerMutation.isPending}
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 text-xs text-violet-600 hover:text-violet-700 hover:bg-violet-50 select-none"
+                      >
+                        <Share2 className="w-3.5 h-3.5 mr-1" />
+                        Share with Partner
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Share this reflection?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Your partner will be able to see this self-reflection. This cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Keep Private</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => shareWithPartnerMutation.mutate()}
+                          className="bg-violet-600 hover:bg-violet-700 text-white"
+                        >
+                          Share
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 )}
               </div>
             </div>
