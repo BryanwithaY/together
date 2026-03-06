@@ -111,18 +111,15 @@ function HomeContent() {
         />
 
         {momentsLoading ? null : (
-          <>
-            {setPageReady()}
-            <MomentsList
-              moments={moments}
-              privateReflections={privateReflections}
-              typeFilter={typeFilter}
-              ownerFilter={ownerFilter}
-              currentUser={currentUser}
-              scrollToId={scrollToId}
-              ownerFilter2={ownerParam}
-            />
-          </>
+          <MomentsList
+            moments={moments}
+            privateReflections={privateReflections}
+            typeFilter={typeFilter}
+            ownerFilter={ownerFilter}
+            currentUser={currentUser}
+            scrollToId={scrollToId}
+            ownerFilter2={ownerParam}
+          />
         )}
       </div>
 
