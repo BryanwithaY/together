@@ -192,29 +192,8 @@ export default function Admin() {
 
             {/* CHURN */}
             {activeTab === 'churn' && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-3">
-                  <AdminStatCard label="Deleted (7d)" value={s.users.deleted_7d} color="red" />
-                  <AdminStatCard label="Deleted (30d)" value={s.users.deleted_30d} sub={`${s.users.deleted_total} total`} color="red" />
-                </div>
-                {s.users.deletion_reasons?.length > 0 && (
-                  <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
-                    <h3 className="text-sm font-semibold text-stone-700 mb-3">Self-Reported Reasons</h3>
-                    <div className="space-y-2">
-                      {s.users.deletion_reasons.map((r, i) => (
-                        <div key={i} className="text-sm border border-stone-100 rounded-xl p-3">
-                          <p className="text-stone-700">"{r.reason}"</p>
-                          <p className="text-xs text-stone-400 mt-1">{r.days}d as user · {r.moments} moments</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {!s.users.deletion_reasons?.length && (
-                  <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
-                    <p className="text-sm text-stone-400 text-center py-4">No deletion reasons captured yet</p>
-                  </div>
-                )}
+              <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
+                <ChurnPanel />
               </div>
             )}
 
