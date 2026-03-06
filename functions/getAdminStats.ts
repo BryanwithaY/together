@@ -55,6 +55,10 @@ Deno.serve(async (req) => {
         const subkey = `ego_aside:${m.subtype}`;
         acc[subkey] = (acc[subkey] || 0) + 1;
       }
+      // Count additional features
+      if (m.is_favorite) acc['favorited'] = (acc['favorited'] || 0) + 1;
+      if (m.is_saved) acc['saved'] = (acc['saved'] || 0) + 1;
+      if (m.media_url) acc['photos_videos'] = (acc['photos_videos'] || 0) + 1;
       return acc;
     }, {});
 
@@ -62,8 +66,31 @@ Deno.serve(async (req) => {
     const featureUsage30d = moments30d.reduce((acc, m) => {
       const key = m.type || 'unknown';
       acc[key] = (acc[key] || 0) + 1;
+      if (m.is_favorite) acc['favorited'] = (acc['favorited'] || 0) + 1;
+      if (m.is_saved) acc['saved'] = (acc['saved'] || 0) + 1;
+      if (m.media_url) acc['photos_videos'] = (acc['photos_videos'] || 0) + 1;
       return acc;
     }, {});
+    
+    // Comments
+    const commentCount = allComments.length;
+    const comments7d = allComments.filter(c => c.created_date >= day7).length;
+    const comments30d = allComments.filter(c => c.created_date >= day30).length;
+    const momentsWithComments = allMoments.filter(m => m.has_comments).length;
+    
+    // Shares
+    const momentsShared = allMoments.filter(m => m.shared_with_partner).length;
+    
+    // Reviews (moments reviewed)
+    const momentsReviewed = allMoments.filter(m => m.reviewed_by || (m.reviews && m.reviews.length > 0)).length;
+    
+    // Profile pictures and relationship pictures
+    const usersWithProfilePics = allUsers.filter(u => u.photo_url).length;
+    const relsWithPhotos = activeRels.filter(r => r.photo_url).length;
+    
+    // Invites (from AppEvent tracking)
+    const invitesSentToJoinApp = recentEvents.filter(e => e.event_type === 'member_invited').length;
+    const joinsFromInvites = recentEvents.filter(e => e.event_type === 'member_joined').length;
 
     // Relationship stats
     const activeRels = allRelationships.filter(r => !r.is_deleted && !r.is_archived);
