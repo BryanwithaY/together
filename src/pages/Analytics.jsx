@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import EngagementAnalysis from '@/components/analytics/EngagementAnalysis';
+import { usePageLoading } from '@/components/PageLoadingContext';
 
 export default function Analytics() {
   return (

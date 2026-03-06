@@ -5,6 +5,7 @@ import { ArrowLeft, Heart, HandHeart, Sparkles, ShieldAlert, BarChart2, Bookmark
 import { Button } from '@/components/ui/button';
 import AppTour from '../components/help/AppTour.jsx';
 import BugReportForm from '../components/support/BugReportForm.jsx';
+import { usePageLoading } from '../components/PageLoadingContext';
 
 const principles = [
   {
