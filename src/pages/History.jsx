@@ -222,10 +222,13 @@ function HistoryContent() {
     return acc;
   }, new Set());
 
-  // Determine the earliest relevant date: relationship creation or user creation
+  // Determine the earliest date from actual moment data
+  const earliestMomentDate = allMoments.length > 0
+    ? new Date(Math.min(...allMoments.map(m => new Date(m.date).getTime())))
+    : null;
   const relationshipCreated = activeRelationship?.created_date ? new Date(activeRelationship.created_date) : null;
   const userCreated = currentUser?.created_date ? new Date(currentUser.created_date) : null;
-  const earliestDate = relationshipCreated || userCreated || subMonths(new Date(), 11);
+  const earliestDate = earliestMomentDate || relationshipCreated || userCreated || subMonths(new Date(), 11);
 
   const now = new Date();
   const monthsRange = eachMonthOfInterval({ start: startOfMonth(earliestDate), end: now })
