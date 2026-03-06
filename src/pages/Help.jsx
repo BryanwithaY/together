@@ -176,7 +176,6 @@ export default function Help() {
                     <p className="font-semibold text-stone-800 text-sm">{f.title}</p>
                     <p className="text-xs text-stone-500 mt-0.5 leading-relaxed">{f.description}</p>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-stone-300 flex-shrink-0 mt-1" />
                 </div>
               );
             })}
