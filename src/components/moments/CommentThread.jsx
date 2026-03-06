@@ -183,7 +183,7 @@ export default function CommentThread({ momentId, comments, currentUser, moment 
               }}
             />
             <div className="absolute bottom-2 right-2">
-              <VoiceInput onTranscript={t => setNewComment(prev => prev ? prev + ' ' + t : t)} />
+              <VoiceInput value={newComment} onChange={setNewComment} />
             </div>
           </div>
           <MediaUpload currentUrl={mediaUrl} onUpload={setMediaUrl} onClear={() => setMediaUrl('')} />

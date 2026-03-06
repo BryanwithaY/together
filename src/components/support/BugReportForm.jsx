@@ -106,7 +106,7 @@ export default function BugReportForm() {
               required
               className="flex-1 px-3 py-2 border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400"
             />
-            <VoiceInput onTranscript={t => setTitle(prev => prev ? prev + ' ' + t : t)} />
+            <VoiceInput value={title} onChange={setTitle} />
           </div>
         </div>
 
@@ -122,7 +122,7 @@ export default function BugReportForm() {
               className="w-full px-3 py-2 border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400 resize-none pr-12"
             />
             <div className="absolute bottom-2 right-2">
-              <VoiceInput onTranscript={t => setDescription(prev => prev ? prev + ' ' + t : t)} />
+              <VoiceInput value={description} onChange={setDescription} />
             </div>
           </div>
         </div>
