@@ -214,9 +214,23 @@ function HistoryContent() {
     gcTime: 10 * 60_000,
   });
 
-  // Build last 12 months
+  // Build only months that have at least one moment
+  const allMoments = [...moments, ...privateReflections];
+  const monthsWithData = allMoments.reduce((acc, m) => {
+    const key = format(new Date(m.date), 'yyyy-MM');
+    acc.add(key);
+    return acc;
+  }, new Set());
+
+  // Determine the earliest relevant date: relationship creation or user creation
+  const relationshipCreated = activeRelationship?.created_date ? new Date(activeRelationship.created_date) : null;
+  const userCreated = currentUser?.created_date ? new Date(currentUser.created_date) : null;
+  const earliestDate = relationshipCreated || userCreated || subMonths(new Date(), 11);
+
   const now = new Date();
-  const monthsRange = eachMonthOfInterval({ start: subMonths(now, 11), end: now }).reverse();
+  const monthsRange = eachMonthOfInterval({ start: startOfMonth(earliestDate), end: now })
+    .reverse()
+    .filter(month => monthsWithData.has(format(month, 'yyyy-MM')));
 
   return (
     <div className="min-h-screen bg-stone-50">
