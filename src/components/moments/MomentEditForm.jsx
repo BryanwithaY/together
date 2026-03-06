@@ -30,18 +30,28 @@ export default function MomentEditForm({ moment, onClose, onSaved }) {
         </button>
       </div>
       <div className="space-y-3">
-        <Textarea
-          value={whatHappened}
-          onChange={e => setWhatHappened(e.target.value)}
-          placeholder="What happened?"
-          className="resize-none rounded-xl border-stone-200 text-sm min-h-[60px]"
-        />
-        <Textarea
-          value={howItFelt}
-          onChange={e => setHowItFelt(e.target.value)}
-          placeholder="How did it feel?"
-          className="resize-none rounded-xl border-stone-200 text-sm min-h-[60px]"
-        />
+        <div className="relative">
+          <Textarea
+            value={whatHappened}
+            onChange={e => setWhatHappened(e.target.value)}
+            placeholder="What happened?"
+            className="resize-none rounded-xl border-stone-200 text-sm min-h-[60px] pr-12"
+          />
+          <div className="absolute bottom-2 right-2">
+            <VoiceInput onTranscript={t => setWhatHappened(prev => prev ? prev + ' ' + t : t)} />
+          </div>
+        </div>
+        <div className="relative">
+          <Textarea
+            value={howItFelt}
+            onChange={e => setHowItFelt(e.target.value)}
+            placeholder="How did it feel?"
+            className="resize-none rounded-xl border-stone-200 text-sm min-h-[60px] pr-12"
+          />
+          <div className="absolute bottom-2 right-2">
+            <VoiceInput onTranscript={t => setHowItFelt(prev => prev ? prev + ' ' + t : t)} />
+          </div>
+        </div>
         <MediaUpload
           currentUrl={mediaUrl}
           onUpload={setMediaUrl}
