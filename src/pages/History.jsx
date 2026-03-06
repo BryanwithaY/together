@@ -268,6 +268,8 @@ function HistoryContent() {
               relationshipId={activeRelationship?.id}
               currentUserEmail={currentUser?.email}
               members={members}
+              statsData={moments}
+              privateStatsData={privateReflections}
             />
           ))
         )}
