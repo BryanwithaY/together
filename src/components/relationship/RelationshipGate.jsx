@@ -16,11 +16,7 @@ export default function RelationshipGate({ children }) {
   const navigate = useNavigate();
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-stone-400 animate-spin" />
-      </div>
-    );
+    return <AppLoadingScreen />;
   }
 
   if (!activeRelationship) {
