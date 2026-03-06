@@ -96,7 +96,7 @@ export default function Layout({ children, currentPageName }) {
             transition={{ duration: 0.5 }}
             style={{ position: 'fixed', inset: 0, zIndex: 9999 }}
           >
-            <AppLoadingScreen />
+            <AppLoadingScreen onReady={handleSplashReady} />
           </motion.div>
         )}
       </AnimatePresence>
