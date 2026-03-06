@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Heart, Settings, BarChart2, Bookmark } from 'lucide-react';
+import { Heart, Settings, BarChart2, Bookmark, ShieldCheck } from 'lucide-react';
 import { useRelationship } from './relationship/RelationshipContext';
 
 const BASE_TABS = [
