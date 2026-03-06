@@ -172,15 +172,20 @@ export default function CommentThread({ momentId, comments, currentUser, moment 
       )}
       <form onSubmit={handleSubmit} className="flex gap-2 items-end">
         <div className="flex-1">
-          <Textarea
-            value={newComment}
-            onChange={e => setNewComment(e.target.value)}
-            placeholder="Add a comment..."
-            className="resize-none rounded-xl border-stone-200 focus:border-stone-400 min-h-[60px] text-sm"
-            onKeyDown={e => {
-              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(e); }
-            }}
-          />
+          <div className="relative">
+            <Textarea
+              value={newComment}
+              onChange={e => setNewComment(e.target.value)}
+              placeholder="Add a comment..."
+              className="resize-none rounded-xl border-stone-200 focus:border-stone-400 min-h-[60px] text-sm pr-12"
+              onKeyDown={e => {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(e); }
+              }}
+            />
+            <div className="absolute bottom-2 right-2">
+              <VoiceInput onTranscript={t => setNewComment(prev => prev ? prev + ' ' + t : t)} />
+            </div>
+          </div>
           <MediaUpload currentUrl={mediaUrl} onUpload={setMediaUrl} onClear={() => setMediaUrl('')} />
         </div>
         <Button
