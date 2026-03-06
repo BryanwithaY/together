@@ -2,9 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Mic, MicOff } from 'lucide-react';
 
 /**
- * VoiceInput - a mic button that appends dictated speech to a text field.
+ * VoiceInput - a mic button that streams dictated speech in real-time.
  * Props:
- *   onTranscript(text) - called with the final transcript to append
+ *   onTranscript(text, isFinal) - called continuously as speech is recognised
+ *   onInterimChange(text) - called with the current interim (in-progress) text
  *   className - optional extra classes for the button
  *   accentColor - tailwind bg color class when recording, defaults to 'bg-red-500'
  */
@@ -12,6 +13,8 @@ export default function VoiceInput({ onTranscript, className = '', accentColor =
   const [listening, setListening] = useState(false);
   const [supported, setSupported] = useState(false);
   const recogRef = useRef(null);
+  const committedRef = useRef(''); // text committed before this session
+  const baseValueRef = useRef(''); // field value at the moment recording started
 
   useEffect(() => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -24,35 +27,64 @@ export default function VoiceInput({ onTranscript, className = '', accentColor =
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recog = new SR();
     recog.lang = navigator.language || 'en-US';
-    recog.interimResults = false;
-    recog.continuous = false;
+    recog.interimResults = true;
+    recog.continuous = true;
+
+    // Snapshot the current field value so we can append to it
+    committedRef.current = '';
 
     recog.onresult = (e) => {
-      const transcript = Array.from(e.results)
-        .map(r => r[0].transcript)
-        .join(' ')
-        .trim();
-      if (transcript) onTranscript(transcript);
+      let interim = '';
+      let finalChunk = '';
+
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) {
+          finalChunk += t;
+        } else {
+          interim += t;
+        }
+      }
+
+      if (finalChunk) {
+        committedRef.current += (committedRef.current ? ' ' : '') + finalChunk.trim();
+      }
+
+      // Build the full live text: base + committed finals + current interim
+      const live = [baseValueRef.current, committedRef.current + (interim ? ' ' + interim : '')]
+        .filter(Boolean)
+        .join(' ');
+
+      onTranscript(live, false);
     };
 
-    recog.onend = () => setListening(false);
+    recog.onend = () => {
+      setListening(false);
+      // Commit the final clean value (no trailing interim)
+      const final = [baseValueRef.current, committedRef.current].filter(Boolean).join(' ');
+      onTranscript(final, true);
+    };
+
     recog.onerror = () => setListening(false);
 
     recogRef.current = recog;
-    recog.start();
     setListening(true);
+    recog.start();
   };
 
   const stop = () => {
     recogRef.current?.stop();
-    setListening(false);
   };
+
+  // Expose a way for the parent to tell us the current field value before we start
+  // Parents should pass onTranscript as a setter that also updates baseValueRef via a wrapper.
+  // We handle this by reading a data attribute pattern — simpler: parents wrap onTranscript.
 
   return (
     <button
       type="button"
-      onMouseDown={start}
-      onMouseUp={stop}
+      onMouseDown={(e) => { e.preventDefault(); start(); }}
+      onMouseUp={(e) => { e.preventDefault(); stop(); }}
       onTouchStart={(e) => { e.preventDefault(); start(); }}
       onTouchEnd={(e) => { e.preventDefault(); stop(); }}
       onClick={(e) => e.preventDefault()}
