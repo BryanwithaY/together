@@ -103,13 +103,19 @@ function HomeContent() {
           onOwnerChange={setOwnerFilter}
         />
 
-        <MomentsList
-          moments={moments}
-          privateReflections={privateReflections}
-          typeFilter={typeFilter}
-          ownerFilter={ownerFilter}
-          currentUser={currentUser}
-        />
+        {momentsLoading ? (
+          <div className="flex justify-center py-16">
+            <div className="w-6 h-6 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" />
+          </div>
+        ) : (
+          <MomentsList
+            moments={moments}
+            privateReflections={privateReflections}
+            typeFilter={typeFilter}
+            ownerFilter={ownerFilter}
+            currentUser={currentUser}
+          />
+        )}
       </div>
 
       <NewUserWelcome />
