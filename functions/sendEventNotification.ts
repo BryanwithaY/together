@@ -34,12 +34,11 @@ Deno.serve(async (req) => {
   const recipients = members.filter(m => m.user_email?.toLowerCase() !== actor_email.toLowerCase());
   if (!recipients.length) return Response.json({ success: true, sent: 0 });
 
-  // Fetch only the specific recipient users (no need to list ALL users)
-  const recipientEmails = recipients.map(r => r.user_email?.toLowerCase()).filter(Boolean);
-  const allUsers = await base44.asServiceRole.entities.User.list();
-  const recipientUsers = allUsers.filter(u =>
-    recipientEmails.includes(u.email?.toLowerCase())
-  );
+  // Fetch only the specific recipient users by email
+  const recipientEmails = recipients.map(r => r.user_email).filter(Boolean);
+  const recipientUsers = await Promise.all(
+    recipientEmails.map(email => base44.asServiceRole.entities.User.filter({ email }))
+  ).then(results => results.flat());
 
   const subjectMap = {
     partner_logs:     'Your partner logged a new moment 💛',
