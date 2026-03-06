@@ -70,58 +70,6 @@ function MemberMonthRow({ member, moments, privateReflections, currentUserEmail,
   );
 }
 
-function MonthCard({ month, moments, privateReflections, members, currentUserEmail }) {
-  const [expanded, setExpanded] = useState(false);
-  const label = format(month, 'MMMM yyyy');
-
-  const monthStart = startOfMonth(month);
-  const monthEnd = endOfMonth(month);
-  const monthMoments = moments.filter(m => {
-    const d = new Date(m.date);
-    return d >= monthStart && d <= monthEnd;
-  });
-  const monthPrivate = privateReflections.filter(m => {
-    const d = new Date(m.date);
-    return d >= monthStart && d <= monthEnd;
-  });
-
-  if (monthMoments.length === 0 && monthPrivate.length === 0) return null;
-
-  const total = monthMoments.length + monthPrivate.length;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-2xl border border-stone-200/60 shadow-sm overflow-hidden"
-    >
-      <button
-        className="w-full flex items-center justify-between px-5 py-4"
-        onClick={() => setExpanded(v => !v)}
-      >
-        <div className="text-left">
-          <p className="font-semibold text-stone-800">{label}</p>
-          <p className="text-xs text-stone-400 mt-0.5">{total} moment{total !== 1 ? 's' : ''}</p>
-        </div>
-        {expanded ? <ChevronUp className="w-4 h-4 text-stone-400" /> : <ChevronDown className="w-4 h-4 text-stone-400" />}
-      </button>
-
-      {expanded && (
-        <div className="border-t border-stone-100 px-5 pb-4 divide-y divide-stone-50">
-          {members.map(member => (
-            <MemberMonthRow
-              key={member.id}
-              member={member}
-              moments={monthMoments}
-              privateReflections={monthPrivate}
-              currentUserEmail={currentUserEmail}
-            />
-          ))}
-        </div>
-      )}
-    </motion.div>
-  );
-}
 
 function MonthCardLazy({ month, currentUserEmail, relationshipId, members, statsData, privateStatsData }) {
   const [expanded, setExpanded] = useState(false);
