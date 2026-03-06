@@ -65,28 +65,22 @@ export default function Layout({ children, currentPageName }) {
   const alreadyLoaded = useRef(sessionStorage.getItem(SESSION_KEY) === '1');
   const [showSplash, setShowSplash] = useState(false);
 
+  const handleSplashReady = () => {
+    setShowSplash(false);
+    sessionStorage.setItem(SESSION_KEY, '1');
+  };
+
   useEffect(() => {
     if (alreadyLoaded.current) return;
 
-    // Show splash only if the app takes >250ms to be "ready"
-    // We schedule the splash to appear after 250ms; if the page loads faster,
-    // we cancel it and skip the splash entirely.
     let splashShown = false;
     const showTimer = setTimeout(() => {
       splashShown = true;
       setShowSplash(true);
     }, 250);
 
-    // After 3s total (from mount), hide it
-    const hideTimer = setTimeout(() => {
-      setShowSplash(false);
-      sessionStorage.setItem(SESSION_KEY, '1');
-    }, 3000);
-
-    // If the component unmounts before 250ms (i.e. page loaded fast), cancel both
     return () => {
       clearTimeout(showTimer);
-      clearTimeout(hideTimer);
       if (!splashShown) sessionStorage.setItem(SESSION_KEY, '1');
     };
   }, []);
