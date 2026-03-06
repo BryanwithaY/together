@@ -64,6 +64,10 @@ export default function Admin() {
     );
   }
 
+  if (isLoading) {
+    return <AppLoadingScreen />;
+  }
+
   const s = stats;
   const tabs = [
     { id: 'overview', label: 'Overview', icon: Activity },
