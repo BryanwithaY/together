@@ -19,14 +19,15 @@ function HomeContent() {
   const [ownerFilter, setOwnerFilter] = useState('all');
   const queryClient = useQueryClient();
 
-  const { data: moments = [] } = useQuery({
+  const { data: moments = [], isLoading: momentsLoading } = useQuery({
     queryKey: ['moments', activeRelationship?.id],
     queryFn: () => base44.entities.Moment.filter({
       relationship_id: activeRelationship.id,
       is_private: false,
-    }, '-date', 200),
+    }, '-date', 100),
     enabled: !!activeRelationship?.id,
     staleTime: 30_000,
+    gcTime: 5 * 60 * 1000,
   });
 
   const { data: privateReflections = [] } = useQuery({
@@ -35,9 +36,10 @@ function HomeContent() {
       relationship_id: activeRelationship.id,
       is_private: true,
       created_by: currentUser.email,
-    }, '-date', 100),
+    }, '-date', 50),
     enabled: !!activeRelationship?.id && !!currentUser?.email,
     staleTime: 30_000,
+    gcTime: 5 * 60 * 1000,
   });
 
   const createMutation = useMutation({
