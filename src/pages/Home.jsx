@@ -13,6 +13,7 @@ import FilterTabs from '../components/moments/FilterTabs';
 import NewUserWelcome from '../components/help/NewUserWelcome';
 import { usePageLoading } from '../components/PageLoadingContext';
 import { Analytics } from '../components/lib/analytics';
+import { initializeGA4 } from '../components/lib/initGA4';
 
 function HomeContent() {
   const { activeRelationship, currentUser } = useRelationship();
@@ -43,7 +44,10 @@ function HomeContent() {
     if (!momentsLoading) setPageReady();
   }, [momentsLoading]);
 
-  useEffect(() => { Analytics.pageViewed('home'); }, []);
+  useEffect(() => {
+    initializeGA4();
+    Analytics.pageViewed('home');
+  }, []);
 
   const { data: privateReflections = [] } = useQuery({
     queryKey: ['moments-private', activeRelationship?.id, currentUser?.email],
