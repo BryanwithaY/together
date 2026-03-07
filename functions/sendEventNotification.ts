@@ -10,11 +10,13 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
  *   - context: string  (short description shown in the email)
  */
 
-function getFirstName(user) {
+function getGreeting(user) {
   const name = user.full_name || '';
-  const cleaned = name.includes('@') ? name.split('@')[0] : name;
-  const first = cleaned.split(/[\s.+_-]/)[0];
-  return first ? first.charAt(0).toUpperCase() + first.slice(1).toLowerCase() : 'there';
+  if (name && !name.includes('@')) {
+    const first = name.split(/\s+/)[0];
+    return first || 'there';
+  }
+  return 'there';
 }
 
 Deno.serve(async (req) => {
