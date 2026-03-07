@@ -71,7 +71,7 @@ Deno.serve(async (req) => {
     .map(u => base44.asServiceRole.integrations.Core.SendEmail({
       to: u.email,
       subject: subjectMap[event_type] || 'New activity in your relationship space',
-      body: `Hi ${getGreeting(u)},\n\n${bodyMap[event_type] || 'You have new activity in your relationship space.'}\n\nhttps://app.base44.app`,
+      body: `Hi ${greeting(u)},\n\n${bodyMap[event_type] || 'You have new activity in your relationship space.'}\n\nhttps://app.base44.app`,
     }));
 
   await Promise.all(emailTasks);
