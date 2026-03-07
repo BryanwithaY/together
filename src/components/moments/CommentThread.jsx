@@ -150,6 +150,7 @@ export default function CommentThread({ momentId, comments, currentUser, moment 
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['comments', momentId] });
+      queryClient.invalidateQueries({ queryKey: ['comment-count', momentId] });
     },
     onSuccess: () => {
       if (moment?.relationship_id) {
