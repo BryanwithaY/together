@@ -7,6 +7,15 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
  * Runs every 5 minutes via scheduled automation.
  */
 
+function getFirstName(user) {
+  const name = user.full_name || '';
+  // If it looks like an email or contains @, extract the local part before @
+  const cleaned = name.includes('@') ? name.split('@')[0] : name;
+  // Take the first word/segment (handles "Bryan Atkins" → "Bryan", "bryan.atkins+together" → "Bryan")
+  const first = cleaned.split(/[\s.+_-]/)[0];
+  return first ? first.charAt(0).toUpperCase() + first.slice(1).toLowerCase() : 'there';
+}
+
 function getNowInTimezone(tz) {
   try {
     const now = new Date();
