@@ -24,6 +24,7 @@ import AppearanceSettings from '../components/settings/AppearanceSettings';
 import RelationshipSettings from '../components/settings/RelationshipSettings';
 import InviteCard from '../components/settings/InviteCard';
 import PersonalStats from '../components/analytics/PersonalStats';
+import SubscriptionSettings from '../components/settings/SubscriptionSettings';
 
 export default function Settings() {
   const navigate = useNavigate();
