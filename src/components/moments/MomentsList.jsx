@@ -5,7 +5,7 @@ import { Heart } from 'lucide-react';
 
 const PAGE_SIZE = 20;
 
-export default function MomentsList({ moments, privateReflections = [], typeFilter, ownerFilter, currentUser, scrollToId, ownerFilter2 }) {
+export default function MomentsList({ moments, privateReflections = [], typeFilter, ownerFilter, currentUser, scrollToId }) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const sentinelRef = useRef(null);
   const scrolledRef = useRef(false);
