@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import EngagementAnalysis from '@/components/analytics/EngagementAnalysis';
 import { usePageLoading } from '@/components/PageLoadingContext';
+import { Analytics } from '@/components/lib/analytics';
 
 export default function Analytics() {
   const { setPageReady } = usePageLoading();
-  useEffect(() => { setPageReady(); }, []);
+  useEffect(() => { setPageReady(); Analytics.pageViewed('analytics'); }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
