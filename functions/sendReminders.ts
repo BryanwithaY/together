@@ -7,14 +7,9 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
  * Runs every 5 minutes via scheduled automation.
  */
 
-function getGreeting(user) {
-  const name = user.full_name || '';
-  // Only use the name if it doesn't look like an email address
-  if (name && !name.includes('@')) {
-    const first = name.split(/\s+/)[0];
-    return first || 'there';
-  }
-  return 'there';
+function greeting(user) {
+  const first = (user.full_name || '').trim().split(/\s+/)[0];
+  return first || 'there';
 }
 
 function getNowInTimezone(tz) {
