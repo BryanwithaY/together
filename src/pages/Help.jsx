@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import AppTour from '../components/help/AppTour.jsx';
 import BugReportForm from '../components/support/BugReportForm.jsx';
 import { usePageLoading } from '../components/PageLoadingContext';
+import { Analytics } from '../components/lib/analytics';
 
 const principles = [
   {
@@ -95,7 +96,7 @@ export default function Help() {
   const [tourOpen, setTourOpen] = useState(false);
   const canGoBack = location.key !== 'default';
 
-  useEffect(() => { setPageReady(); }, []);
+  useEffect(() => { setPageReady(); Analytics.pageViewed('help'); }, []);
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -134,7 +135,7 @@ export default function Help() {
             New to Together? Take the tour to learn what each section does and how to make the most of it.
           </p>
           <Button
-            onClick={() => setTourOpen(true)}
+            onClick={() => { setTourOpen(true); Analytics.appTourStarted(); }}
             className="bg-white text-stone-900 hover:bg-stone-100 font-medium"
           >
             <Play className="w-4 h-4 mr-2" />
