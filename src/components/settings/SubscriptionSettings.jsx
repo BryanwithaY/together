@@ -51,12 +51,25 @@ export default function SubscriptionSettings() {
   const paidTotal = subscription?.amount_paid_usd;
   const lastPayment = subscription?.last_payment_at;
 
-  // Plans available to upgrade/switch to
-  const upgradePlans = [
-    { slug: 'monthly', label: 'Monthly', price: '$7.99/mo', stripe_price_id: plan?.stripe_price_id },
-    { slug: 'annual',  label: 'Annual',  price: '$59.99/yr', note: 'Save 37%' },
-    { slug: 'lifetime',label: 'Lifetime',price: '$149 once', note: 'Best value' },
-  ].filter(p => p.slug !== plan_slug);
+  const formatPlanPrice = (p) => {
+    if (!p) return '';
+    if (p.interval === 'free' || p.price_usd === 0) return 'Free';
+    if (p.interval === 'month') return `$${p.price_usd}/mo`;
+    if (p.interval === 'year') return `$${p.price_usd}/yr`;
+    if (p.interval === 'once') return `$${p.price_usd} once`;
+    return `$${p.price_usd}`;
+  };
+
+  // Plans available to upgrade/switch to — driven by DB
+  const upgradePlans = allPlans
+    .filter(p => p.slug !== 'free' && p.slug !== plan_slug && p.stripe_price_id)
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+    .map(p => ({
+      slug: p.slug,
+      label: p.name,
+      price: formatPlanPrice(p),
+      note: p.slug === 'annual' ? 'Save more' : p.slug === 'lifetime' ? 'Best value' : null,
+    }));
 
   const handleUpgrade = async (targetPlan) => {
     setUpgrading(targetPlan.slug);
