@@ -92,7 +92,7 @@ export default function MomentsList({ moments, privateReflections = [], typeFilt
   }
 
   return (
-    <div className="space-y-3 pb-6">
+    <div className="space-y-3 pb-24">
       {visible.map((moment, index) => (
         <div key={moment.id} id={`moment-${moment.id}`} className="transition-all duration-500 rounded-2xl">
           <MomentCard moment={moment} index={index} currentUser={currentUser} />
