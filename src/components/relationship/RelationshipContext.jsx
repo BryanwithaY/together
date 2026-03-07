@@ -103,13 +103,14 @@ export function RelationshipProvider({ children }) {
     });
     const relIds = memberships.map(m => m.relationship_id);
     const allRelArrays = await Promise.all(relIds.map(id => base44.entities.Relationship.filter({ id })));
-    const allRels = allRelArrays.flat()
+    const sortRels = (rels) => rels
       .filter(r => r && !r.is_deleted)
       .sort((a, b) => {
         if (a.is_archived && !b.is_archived) return 1;
         if (!a.is_archived && b.is_archived) return -1;
         return 0;
       });
+    const allRels = sortRels(allRelArrays.flat());
     setMyRelationships(allRels);
 
     if (activeRelationship) {
