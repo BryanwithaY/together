@@ -264,7 +264,7 @@ export default function Admin() {
             {/* CHURN */}
             {activeTab === 'churn' && (
               <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
-                <ChurnPanel />
+                <ChurnPanel churn={s.churn} />
               </div>
             )}
 
