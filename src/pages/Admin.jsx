@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRelationship } from '../components/relationship/RelationshipContext';
 import { usePageLoading } from '../components/PageLoadingContext';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, RefreshCw, Users, Activity, Bug, Heart, TrendingDown, GitFork } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Users, Activity, Bug, Heart, TrendingDown, GitFork, CreditCard } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AdminStatCard from '../components/admin/AdminStatCard';
 import FeatureUsageChart from '../components/admin/FeatureUsageChart';
@@ -12,6 +12,10 @@ import BugReportList from '../components/admin/BugReportList';
 import EventFeed from '../components/admin/EventFeed';
 import ChurnPanel from '../components/admin/ChurnPanel';
 import AppLoadingScreen from '../components/AppLoadingScreen';
+import PlansManager from '../components/admin/subscriptions/PlansManager';
+import FeaturesMatrix from '../components/admin/subscriptions/FeaturesMatrix';
+import SubscribersList from '../components/admin/subscriptions/SubscribersList';
+import RevenueOverview from '../components/admin/subscriptions/RevenueOverview';
 import { useEffect } from 'react';
 
 export default function Admin() {
