@@ -126,10 +126,9 @@ function HomeContent() {
             moments={moments}
             privateReflections={privateReflections}
             typeFilter={typeFilter}
-            ownerFilter={ownerFilter}
+            ownerFilter={ownerFilter || ownerParam || 'all'}
             currentUser={currentUser}
             scrollToId={scrollToId}
-            ownerFilter2={ownerParam}
           />
         )}
       </div>
