@@ -1,6 +1,4 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
 import { formatDistanceToNow } from 'date-fns';
 import { AlertTriangle, UserX, TrendingDown } from 'lucide-react';
 
@@ -33,25 +31,9 @@ function UserRow({ user, variant }) {
   );
 }
 
-export default function ChurnPanel() {
-  const { data, isLoading } = useQuery({
-    queryKey: ['churnData'],
-    queryFn: async () => {
-      const res = await base44.functions.invoke('detectChurn', {});
-      return res.data;
-    },
-    staleTime: 5 * 60_000,
-  });
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center py-8">
-        <div className="w-6 h-6 border-2 border-stone-300 border-t-stone-700 rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  const { summary, churned = [], at_risk = [], recently_deleted = [] } = data || {};
+// Accepts churn data directly from the parent (getAdminStats) — no extra API call needed
+export default function ChurnPanel({ churn }) {
+  const { summary, churned = [], at_risk = [], recently_deleted = [] } = churn || {};
 
   return (
     <div className="space-y-5">

@@ -1,17 +1,17 @@
 import React from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { Sparkles, HandHeart, ShieldAlert, MessageCircle, Star, Share2, Users, Trash2, UserPlus } from 'lucide-react';
+import { Sparkles, MessageCircle, Star, Heart, Share2, Users, Trash2, UserPlus, Eye } from 'lucide-react';
 
 const EVENT_CONFIG = {
-  moment_created:     { icon: Sparkles,      color: 'text-emerald-500', label: 'logged a moment' },
-  moment_reviewed:    { icon: Star,          color: 'text-amber-500',   label: 'reviewed a moment' },
-  comment_posted:     { icon: MessageCircle, color: 'text-blue-500',    label: 'posted a comment' },
-  moment_favorited:   { icon: Star,          color: 'text-amber-400',   label: 'favorited a moment' },
-  moment_shared:      { icon: Share2,        color: 'text-violet-500',  label: 'shared a reflection' },
-  relationship_created:{ icon: Users,        color: 'text-stone-600',   label: 'created a space' },
-  member_invited:     { icon: UserPlus,      color: 'text-blue-500',    label: 'invited a member' },
-  member_joined:      { icon: UserPlus,      color: 'text-emerald-500', label: 'joined a space' },
-  account_deleted:    { icon: Trash2,        color: 'text-red-500',     label: 'deleted their account' },
+  moment_created:      { icon: Sparkles,      color: 'text-emerald-500', label: 'logged a moment' },
+  moment_reviewed:     { icon: Eye,           color: 'text-amber-500',   label: 'reviewed a moment' },
+  comment_posted:      { icon: MessageCircle, color: 'text-blue-500',    label: 'posted a comment' },
+  moment_favorited:    { icon: Heart,         color: 'text-pink-500',    label: 'favorited a moment' },
+  moment_shared:       { icon: Share2,        color: 'text-violet-500',  label: 'shared a reflection' },
+  relationship_created:{ icon: Users,         color: 'text-stone-600',   label: 'created a space' },
+  member_invited:      { icon: UserPlus,      color: 'text-blue-500',    label: 'invited a member' },
+  member_joined:       { icon: UserPlus,      color: 'text-emerald-500', label: 'joined a space' },
+  account_deleted:     { icon: Trash2,        color: 'text-red-500',     label: 'deleted their account' },
 };
 
 export default function EventFeed({ events }) {
