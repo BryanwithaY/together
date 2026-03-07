@@ -152,7 +152,7 @@ export default function CommentThread({ momentId, comments, currentUser, moment 
       queryClient.invalidateQueries({ queryKey: ['comments', momentId] });
       queryClient.invalidateQueries({ queryKey: ['comment-count', momentId] });
     },
-    onSuccess: () => {
+    onSuccess: (_data, { content }) => {
       if (moment?.relationship_id) {
         base44.functions.invoke('logAppEvent', {
           event_type: 'comment_posted',
@@ -162,7 +162,7 @@ export default function CommentThread({ momentId, comments, currentUser, moment 
           event_type: 'partner_comments',
           relationship_id: moment.relationship_id,
           actor_email: currentUser?.email,
-          context: newComment.trim(),
+          context: content,
         }).catch(() => {});
       }
     },
