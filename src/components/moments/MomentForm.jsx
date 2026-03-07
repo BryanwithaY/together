@@ -64,9 +64,7 @@ export default function MomentForm({ onSubmit, onClose }) {
         is_private: type === 'self_reflection',
         shared_with_partner: false,
       });
-      if (type === 'gratitude') {
-        base44.analytics.track({ eventName: 'gratitude_moment_logged' });
-      }
+      Analytics.momentLogged(type, finalSubtype, !!mediaUrl);
     } finally {
       setIsSubmitting(false);
     }
@@ -90,7 +88,7 @@ export default function MomentForm({ onSubmit, onClose }) {
         <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-3">What kind of moment?</p>
         <div className="grid grid-cols-3 gap-2">
           <button
-            onClick={() => { setType('ego_aside'); setSubtype(null); }}
+            onClick={() => { setType('ego_aside'); setSubtype(null); Analytics.momentTypeSelected('ego_aside'); }}
             className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 ${
               type === 'ego_aside' ? 'border-amber-400 bg-amber-50 shadow-sm' : 'border-stone-200 hover:border-stone-300 bg-white'
             }`}
@@ -99,7 +97,7 @@ export default function MomentForm({ onSubmit, onClose }) {
             <span className={`text-xs font-medium text-center ${type === 'ego_aside' ? 'text-amber-800' : 'text-stone-600'}`}>Ego Aside</span>
           </button>
           <button
-            onClick={() => { setType('gratitude'); setSubtype(null); }}
+            onClick={() => { setType('gratitude'); setSubtype(null); Analytics.momentTypeSelected('gratitude'); }}
             className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 ${
               type === 'gratitude' ? 'border-emerald-400 bg-emerald-50 shadow-sm' : 'border-stone-200 hover:border-stone-300 bg-white'
             }`}
@@ -108,7 +106,7 @@ export default function MomentForm({ onSubmit, onClose }) {
             <span className={`text-xs font-medium text-center ${type === 'gratitude' ? 'text-emerald-800' : 'text-stone-600'}`}>Gratitude</span>
           </button>
           <button
-            onClick={() => { setType('self_reflection'); setSubtype(null); }}
+            onClick={() => { setType('self_reflection'); setSubtype(null); Analytics.momentTypeSelected('self_reflection'); }}
             className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 ${
               type === 'self_reflection' ? 'border-violet-400 bg-violet-50 shadow-sm' : 'border-stone-200 hover:border-stone-300 bg-white'
             }`}
