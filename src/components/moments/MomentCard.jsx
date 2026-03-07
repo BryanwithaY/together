@@ -59,10 +59,21 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
   const isPrivate = moment.is_private && !moment.shared_with_partner;
   const editable = isOwner && canEdit(moment.created_date);
 
+  // Always fetch count (lightweight) so the counter is accurate before expanding
+  const { data: commentCount = 0 } = useQuery({
+    queryKey: ['comment-count', moment.id],
+    queryFn: async () => {
+      const res = await base44.entities.Comment.filter({ moment_id: moment.id }, '-created_date', 50);
+      return res.length;
+    },
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
+  });
+
+  // Full comment list only fetched when expanded
   const { data: comments = [] } = useQuery({
     queryKey: ['comments', moment.id],
     queryFn: () => base44.entities.Comment.filter({ moment_id: moment.id }, '-created_date', 50),
-    // Only fetch when the card is expanded — avoids N queries on page load
     enabled: expanded,
     staleTime: 60_000,
     gcTime: 5 * 60_000,
