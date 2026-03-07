@@ -280,6 +280,22 @@ export default function Admin() {
                 <EventFeed events={s.event_feed} />
               </div>
             )}
+
+            {/* SUBSCRIPTIONS */}
+            {activeTab === 'subscriptions' && (
+              <div className="space-y-6">
+                <RevenueOverview />
+                <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
+                  <PlansManager />
+                </div>
+                <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
+                  <FeaturesMatrix />
+                </div>
+                <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
+                  <SubscribersList />
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
