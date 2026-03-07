@@ -22,7 +22,7 @@ function HomeContent() {
   const queryClient = useQueryClient();
 
   // Handle deep-link from History tab — stable across renders
-  const [scrollToId, ownerParam] = React.useMemo(() => {
+  const [scrollToId, ownerParam] = useMemo(() => {
     const p = new URLSearchParams(window.location.search);
     return [p.get('scrollTo'), p.get('owner')];
   }, []);
