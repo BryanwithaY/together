@@ -9,10 +9,15 @@ export default function MediaUpload({ onUpload, currentUrl, onClear }) {
   const handleFile = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    // Reset input so same file can be re-selected after clearing
+    e.target.value = '';
     setUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    onUpload(file_url);
-    setUploading(false);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      onUpload(file_url);
+    } finally {
+      setUploading(false);
+    }
   };
 
   if (currentUrl) {
