@@ -91,6 +91,13 @@ export default function Settings() {
           <ProfileSettings user={user} />
         </div>
 
+        {/* Subscription */}
+        <div className="bg-white rounded-2xl border border-stone-200/60 shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-stone-800 mb-1">Subscription</h2>
+          <p className="text-sm text-stone-500 mb-5">Your plan, billing, and payment management.</p>
+          <SubscriptionSettings />
+        </div>
+
         {/* Relationship Settings */}
         <div className="bg-white rounded-2xl border border-stone-200/60 shadow-sm p-6">
           <h2 className="text-lg font-semibold text-stone-800 mb-4">Relationship Space</h2>
