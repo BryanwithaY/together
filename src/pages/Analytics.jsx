@@ -8,7 +8,7 @@ import { Analytics as track } from '@/components/lib/analytics';
 
 export default function Analytics() {
   const { setPageReady } = usePageLoading();
-  useEffect(() => { setPageReady(); Analytics.pageViewed('analytics'); }, []);
+  useEffect(() => { setPageReady(); track.pageViewed('analytics'); }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
