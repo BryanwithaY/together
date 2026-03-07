@@ -30,7 +30,7 @@ export default function BottomTabBar({ currentPageName }) {
   return (
     <nav
       className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-t border-stone-200/60 select-none"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 12px)' }}
     >
       <div className="flex items-center justify-around h-14">
         {tabs.map(({ label, icon: Icon, page }) => {
