@@ -338,11 +338,20 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
               )}
 
               {moment.media_url && (
-                <div className="mt-2 rounded-xl overflow-hidden border border-stone-100">
+                <div className="mt-3 rounded-xl overflow-hidden border border-stone-100 bg-stone-50">
                   {isVideo(moment.media_url) ? (
-                    <video src={moment.media_url} controls className="w-full max-h-48 object-cover" />
+                    <video
+                      src={moment.media_url}
+                      controls
+                      playsInline
+                      className="w-full max-h-72 object-contain"
+                    />
                   ) : (
-                    <img src={moment.media_url} alt="moment media" className="w-full max-h-48 object-cover" />
+                    <img
+                      src={moment.media_url}
+                      alt="moment media"
+                      className="w-full max-h-72 object-contain"
+                    />
                   )}
                 </div>
               )}
