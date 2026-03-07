@@ -170,7 +170,9 @@ export default function CommentThread({ momentId, comments, currentUser, moment 
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (newComment.trim() || mediaUrl) addCommentMutation.mutate();
+    if (newComment.trim() || mediaUrl) {
+      addCommentMutation.mutate({ content: newComment.trim(), media: mediaUrl });
+    }
   };
 
   return (
