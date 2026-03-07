@@ -92,6 +92,7 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
       reviews: [...(moment.reviews || []), { user_email: currentUser.email, reviewed_at: new Date().toISOString() }],
     }),
     onSuccess: () => {
+      Analytics.momentReviewed(moment.type);
       queryClient.invalidateQueries({ queryKey: ['moments', moment.relationship_id] });
       base44.functions.invoke('logAppEvent', {
         event_type: 'moment_reviewed',
@@ -109,6 +110,7 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
   const shareWithPartnerMutation = useMutation({
     mutationFn: () => base44.entities.Moment.update(moment.id, { shared_with_partner: true, is_private: false }),
     onSuccess: () => {
+      Analytics.momentSharedWithPartner();
       queryClient.invalidateQueries({ queryKey: ['moments', moment.relationship_id] });
       queryClient.invalidateQueries({ queryKey: ['moments-private', moment.relationship_id] });
     },
@@ -116,6 +118,7 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
 
   const favoriteMutation = useMutation({
     mutationFn: () => base44.entities.Moment.update(moment.id, { is_favorite: !moment.is_favorite }),
+    onSuccess: () => { Analytics.momentFavorited(moment.type, !moment.is_favorite); },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['moments', moment.relationship_id] });
       queryClient.invalidateQueries({ queryKey: ['favorites', moment.relationship_id] });
@@ -124,6 +127,7 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
 
   const saveMutation = useMutation({
     mutationFn: () => base44.entities.Moment.update(moment.id, { is_saved: !moment.is_saved }),
+    onSuccess: () => { Analytics.momentSaved(!moment.is_saved); },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['moments', moment.relationship_id] });
       queryClient.invalidateQueries({ queryKey: ['saved', moment.relationship_id] });
@@ -378,7 +382,7 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
 
               <div className="flex items-center gap-2 mt-3">
                 <button
-                  onClick={() => { if (swipeX === 0) setExpanded(!expanded); else resetSwipe(); }}
+                  onClick={() => { if (swipeX === 0) { if (!expanded) Analytics.commentThreadOpened(moment.type); setExpanded(!expanded); } else resetSwipe(); }}
                   className="flex items-center gap-1.5 text-xs text-stone-500 hover:text-stone-700 transition-colors select-none"
                 >
                   <MessageCircle className="w-3.5 h-3.5" />
