@@ -62,15 +62,19 @@ function CommentItem({ comment, currentUser, momentId }) {
           </div>
         ) : (
           <>
-            <div className={`rounded-xl px-3 py-2 max-w-[85%] ${
-              isOwner ? 'bg-stone-800 text-white' : 'bg-stone-100 text-stone-700'
-            }`}>
-              {comment.content ? <p className="text-sm leading-relaxed">{comment.content}</p> : null}
+            <div className="max-w-[85%]">
+              {comment.content && (
+                <div className={`rounded-xl px-3 py-2 ${
+                  isOwner ? 'bg-stone-800 text-white' : 'bg-stone-100 text-stone-700'
+                }`}>
+                  <p className="text-sm leading-relaxed">{comment.content}</p>
+                </div>
+              )}
               {comment.media_url && (
-                <div className={comment.content ? 'mt-2' : ''}>
+                <div className={`rounded-xl overflow-hidden border border-stone-200 bg-stone-50 ${comment.content ? 'mt-1.5' : ''}`}>
                   {isVideo(comment.media_url)
-                    ? <video src={comment.media_url} controls className="w-full rounded-lg" />
-                    : <img src={comment.media_url} alt="attachment" className="w-full rounded-lg block" />
+                    ? <video src={comment.media_url} controls playsInline className="w-full max-h-64 object-contain" />
+                    : <img src={comment.media_url} alt="attachment" className="w-full max-h-64 object-contain block" />
                   }
                 </div>
               )}
