@@ -69,8 +69,8 @@ function CommentItem({ comment, currentUser, momentId }) {
               {comment.media_url && (
                 <div className="mt-1.5 rounded-lg overflow-hidden">
                   {isVideo(comment.media_url)
-                    ? <video src={comment.media_url} controls className="max-h-36 w-full object-cover" />
-                    : <img src={comment.media_url} alt="attachment" className="max-h-36 w-full object-cover" />
+                    ? <video src={comment.media_url} controls className="w-full max-h-64 rounded-lg" />
+                    : <img src={comment.media_url} alt="attachment" className="w-full rounded-lg" style={{ maxHeight: '320px', objectFit: 'contain', background: 'transparent' }} />
                   }
                 </div>
               )}
@@ -162,7 +162,7 @@ export default function CommentThread({ momentId, comments, currentUser, moment 
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (newComment.trim()) addCommentMutation.mutate();
+    if (newComment.trim() || mediaUrl) addCommentMutation.mutate();
   };
 
   return (
@@ -194,7 +194,7 @@ export default function CommentThread({ momentId, comments, currentUser, moment 
         </div>
         <Button
           type="submit"
-          disabled={!newComment.trim() || addCommentMutation.isPending}
+          disabled={(!newComment.trim() && !mediaUrl) || addCommentMutation.isPending}
           className="h-[60px] px-4 rounded-xl bg-stone-800 hover:bg-stone-900"
         >
           <Send className="w-4 h-4" />
