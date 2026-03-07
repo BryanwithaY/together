@@ -12,6 +12,7 @@ import MomentsList from '../components/moments/MomentsList';
 import FilterTabs from '../components/moments/FilterTabs';
 import NewUserWelcome from '../components/help/NewUserWelcome';
 import { usePageLoading } from '../components/PageLoadingContext';
+import { Analytics } from '../components/lib/analytics';
 
 function HomeContent() {
   const { activeRelationship, currentUser } = useRelationship();

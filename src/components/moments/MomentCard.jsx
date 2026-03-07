@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { HandHeart, Sparkles, Ear, BookOpen, Flag, Users, MessageCircle, CheckCircle, ChevronDown, Pencil, Trash2, Star, ShieldAlert, Lock, Share2, Zap, VolumeX, PhoneOff, Frown, Power, Bookmark, ChevronRight } from 'lucide-react';
 import { format, isToday, isYesterday, differenceInMinutes } from 'date-fns';
 import { base44 } from '@/api/base44Client';
+import { Analytics } from '@/components/lib/analytics';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import CommentThread from './CommentThread';
 import MomentEditForm from './MomentEditForm';
