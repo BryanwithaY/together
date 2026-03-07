@@ -34,6 +34,10 @@ function CommentItem({ comment, currentUser, momentId }) {
   const deleteMutation = useMutation({
     mutationFn: () => base44.entities.Comment.delete(comment.id),
     onSuccess: () => {
+      // Optimistically remove from list
+      queryClient.setQueryData(['comments', momentId], (old = []) =>
+        old.filter(c => c.id !== comment.id)
+      );
       queryClient.invalidateQueries({ queryKey: ['comments', momentId] });
       queryClient.invalidateQueries({ queryKey: ['comment-count', momentId] });
     },
