@@ -11,9 +11,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Calendar, Clock, MapPin, Link2, Zap } from 'lucide-react';
-import { generateEventDescription } from '../lib/connectionGuidance';
+import { generateEventDescription, getFocusAreasForType } from '../lib/connectionGuidance';
 
-export default function ScheduleConnectionForm({ relationshipId, linkedMoments = [], onSuccess }) {
+export default function ScheduleConnectionForm({ relationshipId, relationshipType = 'other', linkedMoments = [], onSuccess }) {
   const [title, setTitle] = useState('Connection Time');
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('');
@@ -24,6 +24,7 @@ export default function ScheduleConnectionForm({ relationshipId, linkedMoments =
   const [notes, setNotes] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const focusAreas = getFocusAreasForType(relationshipType);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,7 +34,7 @@ export default function ScheduleConnectionForm({ relationshipId, linkedMoments =
       const startDateTime = new Date(`${date}T${startTime}`);
       const endDateTime = new Date(`${date}T${endTime}`);
 
-      const description = generateEventDescription(focusArea, linkedMoments);
+      const description = generateEventDescription(relationshipType, focusArea, linkedMoments);
 
       await base44.entities.ScheduledConnection.create({
         relationship_id: relationshipId,
@@ -65,7 +66,7 @@ export default function ScheduleConnectionForm({ relationshipId, linkedMoments =
     }
   };
 
-  const eventDescription = generateEventDescription(focusArea, linkedMoments);
+  const eventDescription = generateEventDescription(relationshipType, focusArea, linkedMoments);
 
   return (
     <div className="space-y-6">
@@ -144,11 +145,11 @@ export default function ScheduleConnectionForm({ relationshipId, linkedMoments =
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="general">General Connection</SelectItem>
-              <SelectItem value="listening">Active Listening</SelectItem>
-              <SelectItem value="appreciation">Gratitude & Appreciation</SelectItem>
-              <SelectItem value="growth">Learning & Growth</SelectItem>
-              <SelectItem value="intimacy">Emotional Intimacy</SelectItem>
+              {focusAreas.map(area => (
+                <SelectItem key={area} value={area}>
+                  {area.charAt(0).toUpperCase() + area.slice(1).replace(/_/g, ' ')}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
