@@ -8,7 +8,7 @@ Deno.serve(async (req) => {
   const { accessToken } = await base44.asServiceRole.connectors.getConnection('github');
 
   const body = await req.json().catch(() => ({}));
-  const owner = body.owner || 'your-org';
+  const owner = body.owner || 'BryanwithaY';
   const repo = body.repo || 'together';
 
   const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/issues?state=open&per_page=50`, {
