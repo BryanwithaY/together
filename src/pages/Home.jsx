@@ -43,6 +43,8 @@ function HomeContent() {
     if (!momentsLoading) setPageReady();
   }, [momentsLoading]);
 
+  useEffect(() => { Analytics.pageViewed('home'); }, []);
+
   const { data: privateReflections = [] } = useQuery({
     queryKey: ['moments-private', activeRelationship?.id, currentUser?.email],
     queryFn: () => base44.entities.Moment.filter({
@@ -88,7 +90,7 @@ function HomeContent() {
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
           <RelationshipSwitcher />
           <button
-            onClick={() => setShowForm(v => !v)}
+            onClick={() => { if (!showForm) Analytics.newMomentButtonTapped(); setShowForm(v => !v); }}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-colors ${
               showForm ? 'bg-stone-100 text-stone-600' : 'bg-stone-800 text-white hover:bg-stone-900'
             }`}

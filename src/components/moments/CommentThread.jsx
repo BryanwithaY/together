@@ -158,6 +158,7 @@ export default function CommentThread({ momentId, comments, currentUser, moment 
       queryClient.invalidateQueries({ queryKey: ['comment-count', momentId] });
     },
     onSuccess: (_data, { content }) => {
+      Analytics.commentPosted(moment?.type);
       if (moment?.relationship_id) {
         base44.functions.invoke('logAppEvent', {
           event_type: 'comment_posted',
