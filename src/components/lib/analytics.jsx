@@ -4,6 +4,7 @@
  * All events follow: {noun}_{verb} naming convention.
  */
 import { base44 } from '@/api/base44Client';
+import { GA4 } from './ga4Tracking';
 
 const track = (eventName, properties = {}) => {
   base44.analytics.track({ eventName, properties });
@@ -68,6 +69,34 @@ export const Analytics = {
   upgradeButtonTapped: (source) =>
     track('upgrade_button_tapped', { source }),
 
-  subscriptionCancelled: () =>
-    track('subscription_cancelled'),
+  subscriptionCancelled: (plan) => {
+    track('subscription_cancelled');
+    GA4.subscriptionCancelled(plan);
+  },
+
+  // ─── Conversion Tracking ────────────────────────────────────────────
+  signupComplete: (source) => {
+    track('signup_complete', { source });
+    GA4.signupComplete(source);
+  },
+
+  subscriptionUpgraded: (plan, price, previousPlan) => {
+    track('subscription_upgraded', { plan, price, previous_plan: previousPlan });
+    GA4.subscriptionUpgrade(plan, price, previousPlan);
+  },
+
+  partnerInviteSent: (relationshipType) => {
+    track('partner_invite_sent', { relationship_type: relationshipType });
+    GA4.partnerInviteSent(relationshipType);
+  },
+
+  partnerAccepted: (relationshipType) => {
+    track('partner_accepted', { relationship_type: relationshipType });
+    GA4.partnerAccepted(relationshipType);
+  },
+
+  firstMomentLogged: (type) => {
+    track('first_moment_logged', { moment_type: type });
+    GA4.firstMomentLogged(type);
+  },
 };
