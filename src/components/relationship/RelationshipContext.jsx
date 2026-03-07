@@ -52,18 +52,21 @@ export function RelationshipProvider({ children }) {
         const relIds = membershipsResult.map(m => m.relationship_id);
         const savedId = localStorage.getItem('active_relationship_id');
 
-        // Fetch all relationships in parallel
+        // Fetch all relationships in parallel — one call per relationship
+        // For most users this is 1-3 relationships so N+1 is acceptable here
         const allRelArrays = await Promise.all(relIds.map(id => base44.entities.Relationship.filter({ id })));
 
         if (cancelled) return;
 
-        const allRels = allRelArrays.flat()
+        const sortRels = (rels) => rels
           .filter(r => r && !r.is_deleted)
           .sort((a, b) => {
             if (a.is_archived && !b.is_archived) return 1;
             if (!a.is_archived && b.is_archived) return -1;
             return 0;
           });
+
+        const allRels = sortRels(allRelArrays.flat());
 
         setMyRelationships(allRels);
 
