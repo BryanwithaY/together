@@ -74,11 +74,12 @@ export default function Admin() {
 
   const s = stats;
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: Activity },
-    { id: 'features', label: 'Features', icon: Heart },
-    { id: 'bugs',     label: `Bugs ${s?.bugs?.open ? `(${s.bugs.open})` : ''}`, icon: Bug },
-    { id: 'churn',    label: 'Churn',    icon: TrendingDown },
-    { id: 'events',   label: 'Events',   icon: GitFork },
+    { id: 'overview',       label: 'Overview',     icon: Activity },
+    { id: 'features',       label: 'Features',     icon: Heart },
+    { id: 'bugs',           label: `Bugs ${s?.bugs?.open ? `(${s.bugs.open})` : ''}`, icon: Bug },
+    { id: 'churn',          label: 'Churn',        icon: TrendingDown },
+    { id: 'events',         label: 'Events',       icon: GitFork },
+    { id: 'subscriptions',  label: 'Subscriptions', icon: CreditCard },
   ];
 
   return (
