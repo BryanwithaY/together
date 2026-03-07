@@ -107,7 +107,7 @@ Deno.serve(async (req) => {
         await base44.asServiceRole.integrations.Core.SendEmail({
           to: user.email,
           subject: "Time to log a moment 💛",
-          body: `Hi ${getFirstName(user)},\n\nThis is your reminder to log a moment in your relationship space.\n\nSmall consistent check-ins make a big difference over time.\n\nOpen the app and record something — even a brief note counts.\n\nhttps://app.base44.app`,
+          body: `Hi ${getGreeting(user)},\n\nThis is your reminder to log a moment in your relationship space.\n\nSmall consistent check-ins make a big difference over time.\n\nOpen the app and record something — even a brief note counts.\n\nhttps://app.base44.app`,
         });
         sentThisCycle = true;
       }
