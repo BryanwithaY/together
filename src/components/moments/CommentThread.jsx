@@ -124,23 +124,23 @@ export default function CommentThread({ momentId, comments, currentUser, moment 
   const queryClient = useQueryClient();
 
   const addCommentMutation = useMutation({
-    mutationFn: () => base44.entities.Comment.create({
+    mutationFn: ({ content, media }) => base44.entities.Comment.create({
       moment_id: momentId,
-      content: newComment.trim(),
-      media_url: mediaUrl || undefined,
+      content: content,
+      media_url: media || undefined,
     }),
-    onMutate: async () => {
+    onMutate: async ({ content, media }) => {
       await queryClient.cancelQueries({ queryKey: ['comments', momentId] });
       const prev = queryClient.getQueryData(['comments', momentId]);
       const optimistic = {
         id: `optimistic-${Date.now()}`,
         moment_id: momentId,
-        content: newComment.trim(),
-        media_url: mediaUrl || undefined,
+        content: content,
+        media_url: media || undefined,
         created_date: new Date().toISOString(),
-        created_by: '__optimistic__',
+        created_by: currentUser?.email,
       };
-      queryClient.setQueryData(['comments', momentId], (old) => [optimistic, ...(old || [])]);
+      queryClient.setQueryData(['comments', momentId], (old) => [...(old || []), optimistic]);
       setNewComment('');
       setMediaUrl('');
       return { prev };
