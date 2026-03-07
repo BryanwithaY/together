@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import EngagementAnalysis from '@/components/analytics/EngagementAnalysis';
 import { usePageLoading } from '@/components/PageLoadingContext';
-import { Analytics } from '@/components/lib/analytics';
+import { Analytics as track } from '@/components/lib/analytics';
 
 export default function Analytics() {
   const { setPageReady } = usePageLoading();
