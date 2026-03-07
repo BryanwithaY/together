@@ -373,7 +373,7 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
                   className="flex items-center gap-1.5 text-xs text-stone-500 hover:text-stone-700 transition-colors select-none"
                 >
                   <MessageCircle className="w-3.5 h-3.5" />
-                  <span>{comments.length} {comments.length === 1 ? 'comment' : 'comments'}</span>
+                  <span>{commentCount} {commentCount === 1 ? 'comment' : 'comments'}</span>
                   <ChevronDown className={`w-3 h-3 transition-transform ${expanded ? 'rotate-180' : ''}`} />
                 </button>
                 {canReview && (
