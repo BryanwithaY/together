@@ -34,6 +34,12 @@ export default function SubscriptionSettings() {
   const [portaling, setPortaling] = useState(false);
   const [cancelling, setCancelling] = useState(false);
 
+  const { data: allPlans = [] } = useQuery({
+    queryKey: ['subscriptionPlans'],
+    queryFn: () => base44.entities.SubscriptionPlan.filter({ is_active: true }),
+    staleTime: 10 * 60 * 1000,
+  });
+
   const meta = PLAN_META[plan_slug] || PLAN_META.free;
   const Icon = meta.icon;
 
