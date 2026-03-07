@@ -54,8 +54,8 @@ import Help from './pages/Help';
 import History from './pages/History';
 import Home from './pages/Home';
 import RelationshipSetup from './pages/RelationshipSetup';
-import Settings from './pages/Settings';
 import Schedule from './pages/Schedule';
+import Settings from './pages/Settings';
 import __Layout from './Layout.jsx';
 
 
@@ -67,8 +67,8 @@ export const PAGES = {
     "History": History,
     "Home": Home,
     "RelationshipSetup": RelationshipSetup,
-    "Settings": Settings,
     "Schedule": Schedule,
+    "Settings": Settings,
 }
 
 export const pagesConfig = {

@@ -11,6 +11,7 @@ import { useRelationship } from '../components/relationship/RelationshipContext'
 import { usePageLoading } from '../components/PageLoadingContext';
 import ScheduleConnectionForm from '../components/scheduling/ScheduleConnectionForm';
 import ScheduleList from '../components/scheduling/ScheduleList';
+import SchedulingGuideLink from '../components/scheduling/SchedulingGuideLink';
 import { Analytics } from '../components/lib/analytics';
 
 function ScheduleContent() {
@@ -58,8 +59,8 @@ function ScheduleContent() {
       {/* Header */}
       <div className="bg-white border-b border-stone-200/60 sticky top-0 z-20">
         <div className="max-w-2xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex-1">
               <h1 className="text-2xl font-semibold text-stone-800 flex items-center gap-2">
                 <Calendar className="w-6 h-6" />
                 Connection Schedule
@@ -68,13 +69,16 @@ function ScheduleContent() {
                 Plan in-person time to discuss moments and deepen your connection
               </p>
             </div>
-            <Button
-              onClick={() => setShowForm(!showForm)}
-              className="bg-stone-800 hover:bg-stone-900 gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Schedule
-            </Button>
+            <div className="flex gap-2">
+              <SchedulingGuideLink />
+              <Button
+                onClick={() => setShowForm(!showForm)}
+                className="bg-stone-800 hover:bg-stone-900 gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Schedule
+              </Button>
+            </div>
           </div>
         </div>
       </div>
