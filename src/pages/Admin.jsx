@@ -262,6 +262,7 @@ export default function Admin() {
                 <BugReportList
                   bugs={allBugs}
                   onUpdate={(id, data) => updateBugMutation.mutate({ id, data })}
+                  onRefetch={() => queryClient.invalidateQueries({ queryKey: ['allBugReports'] })}
                 />
               </div>
             )}
