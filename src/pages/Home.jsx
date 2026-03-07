@@ -21,10 +21,11 @@ function HomeContent() {
   const [ownerFilter, setOwnerFilter] = useState('all');
   const queryClient = useQueryClient();
 
-  // Handle deep-link from History tab
-  const urlParams = new URLSearchParams(window.location.search);
-  const scrollToId = urlParams.get('scrollTo');
-  const ownerParam = urlParams.get('owner');
+  // Handle deep-link from History tab — stable across renders
+  const [scrollToId, ownerParam] = React.useMemo(() => {
+    const p = new URLSearchParams(window.location.search);
+    return [p.get('scrollTo'), p.get('owner')];
+  }, []);
 
   const { data: moments = [], isLoading: momentsLoading } = useQuery({
     queryKey: ['moments', activeRelationship?.id],
