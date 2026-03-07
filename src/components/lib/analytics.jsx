@@ -99,4 +99,10 @@ export const Analytics = {
     track('first_moment_logged', { moment_type: type });
     GA4.firstMomentLogged(type);
   },
+
+  // ─── Schedule Tracking ──────────────────────────────────────────────
+  connectionScheduled: () => track('connection_scheduled'),
+  connectionDeleted: () => track('connection_deleted'),
+  eventDescriptionCopied: () => track('event_description_copied'),
+  pageViewed: (page) => track(`${page}_viewed`),
 };
