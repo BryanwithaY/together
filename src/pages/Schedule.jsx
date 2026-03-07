@@ -93,6 +93,7 @@ function ScheduleContent() {
               <h2 className="text-lg font-semibold text-stone-800 mb-4">Schedule Connection Time</h2>
               <ScheduleConnectionForm
                 relationshipId={activeRelationship.id}
+                relationshipType={activeRelationship.type}
                 onSuccess={() => {
                   setShowForm(false);
                   Analytics.connectionScheduled();
