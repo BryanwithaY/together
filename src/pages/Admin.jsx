@@ -34,7 +34,7 @@ export default function Admin() {
       const res = await base44.functions.invoke('getAdminStats', {});
       return res.data;
     },
-    enabled: isAdmin,
+    enabled: !!isAdmin,
     staleTime: 2 * 60_000,
   });
 
@@ -42,7 +42,7 @@ export default function Admin() {
   const { data: allBugs = [] } = useQuery({
     queryKey: ['allBugReports'],
     queryFn: () => base44.entities.BugReport.list('-created_date', 100),
-    enabled: isAdmin && activeTab === 'bugs',
+    enabled: !!isAdmin && activeTab === 'bugs',
     staleTime: 60_000,
   });
 
