@@ -59,17 +59,24 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
   const isPrivate = moment.is_private && !moment.shared_with_partner;
   const editable = isOwner && canEdit(moment.created_date);
 
-  // Fetch count only when the moment might have comments — avoids N queries on page load
+  // Count: if comments are already loaded (expanded), derive from cache. Otherwise fetch only when needed.
+  const cachedComments = useQueryClient().getQueryData(['comments', moment.id]);
   const { data: commentCount = 0 } = useQuery({
     queryKey: ['comment-count', moment.id],
     queryFn: async () => {
-      const res = await base44.entities.Comment.filter({ moment_id: moment.id }, '-created_date', 50);
+      const res = await base44.entities.Comment.filter({ moment_id: moment.id }, 'created_date', 50);
       return res.length;
     },
-    enabled: !!(moment.has_comments),
+    // Skip network call if we already have the full list loaded, or if moment never had comments
+    enabled: !cachedComments && !!(moment.has_comments),
     staleTime: 2 * 60_000,
     gcTime: 10 * 60_000,
+    // When comments are loaded, use their length as the authoritative count
+    select: (n) => n,
   });
+
+  // Use live comment list length when available (after expanding)
+  const displayCount = cachedComments ? cachedComments.length : commentCount;
 
   // Full comment list only fetched when expanded — chronological order (oldest first)
   const { data: comments = [] } = useQuery({
