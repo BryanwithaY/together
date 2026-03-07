@@ -64,6 +64,9 @@ export default function MomentForm({ onSubmit, onClose }) {
         is_private: type === 'self_reflection',
         shared_with_partner: false,
       });
+      if (type === 'gratitude') {
+        base44.analytics.track({ eventName: 'gratitude_moment_logged' });
+      }
     } finally {
       setIsSubmitting(false);
     }
