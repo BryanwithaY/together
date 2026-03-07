@@ -33,7 +33,10 @@ function CommentItem({ comment, currentUser, momentId }) {
 
   const deleteMutation = useMutation({
     mutationFn: () => base44.entities.Comment.delete(comment.id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['comments', momentId] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['comments', momentId] });
+      queryClient.invalidateQueries({ queryKey: ['comment-count', momentId] });
+    },
   });
 
   const isVideo = (url) => url && url.match(/\.(mp4|mov|webm|ogg)/i);
