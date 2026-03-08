@@ -10,6 +10,7 @@ import { formatDistanceToNow, format } from 'date-fns';
 import FacilitatorExportPanel from './FacilitatorExportPanel';
 
 export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
+  const { currentUser } = useRelationship();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('overview');
   const [noteContent, setNoteContent] = useState('');
