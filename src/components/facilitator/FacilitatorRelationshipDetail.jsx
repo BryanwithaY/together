@@ -35,6 +35,7 @@ export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
     if (!noteContent.trim()) return;
     setSavingNote(true);
     await base44.entities.FacilitatorNote.create({
+      facilitator_email: currentUser?.email,
       relationship_id: facRelId,
       content: noteContent.trim(),
       session_date: new Date().toISOString(),
