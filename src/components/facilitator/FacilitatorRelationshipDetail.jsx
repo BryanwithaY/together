@@ -330,6 +330,7 @@ export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
             placeholder="Write a message to the relationship or a member..."
             className="resize-none min-h-[120px]"
           />
+          {messageError && <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{messageError}</p>}
           <Button
             onClick={handleSendMessage}
             disabled={sendingMessage || !messageContent.trim() || (messageTarget === 'member' && !messageTargetEmail)}
