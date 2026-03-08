@@ -105,4 +105,31 @@ export const Analytics = {
   connectionDeleted: () => track('connection_deleted'),
   eventDescriptionCopied: () => track('event_description_copied'),
   pageViewed: (page) => track(`${page}_viewed`),
+
+  // ─── Facilitator ────────────────────────────────────────────────────
+  facilitatorPortalViewed: () =>
+    track('facilitator_portal_viewed'),
+
+  facilitatorApplicationStarted: (type) =>
+    track('facilitator_application_started', { facilitator_type: type }),
+
+  facilitatorApplicationSubmitted: (type) => {
+    track('facilitator_application_submitted', { facilitator_type: type });
+    GA4.facilitatorApplicationSubmitted(type);
+  },
+
+  facilitatorRelationshipViewed: (relationshipId) =>
+    track('facilitator_relationship_viewed', { relationship_id: relationshipId }),
+
+  facilitatorNoteCreated: () =>
+    track('facilitator_note_created'),
+
+  facilitatorMessageSent: (targetType) =>
+    track('facilitator_message_sent', { target_type: targetType }),
+
+  facilitatorExportTriggered: (format) =>
+    track('facilitator_export_triggered', { format }),
+
+  facilitatorAccessRequested: () =>
+    track('facilitator_access_requested'),
 };
