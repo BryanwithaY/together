@@ -37,6 +37,75 @@ function downloadICS(connection) {
   URL.revokeObjectURL(url);
 }
 
+function getGoogleCalendarUrl(connection) {
+  const fmt = (d) => new Date(d).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: connection.title,
+    dates: `${fmt(connection.start_time)}/${fmt(connection.end_time)}`,
+    details: connection.description || '',
+    location: connection.location || '',
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+function getOutlookUrl(connection) {
+  const fmt = (d) => new Date(d).toISOString();
+  const params = new URLSearchParams({
+    path: '/calendar/action/compose',
+    rru: 'addevent',
+    subject: connection.title,
+    startdt: fmt(connection.start_time),
+    enddt: fmt(connection.end_time),
+    body: connection.description || '',
+    location: connection.location || '',
+  });
+  return `https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`;
+}
+
+function AddToCalendarMenu({ connection }) {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          className="p-2 rounded-xl hover:bg-stone-100 text-stone-400 hover:text-stone-600 transition-colors"
+          title="Add to Calendar"
+        >
+          <CalendarPlus className="w-4 h-4" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-48 p-1.5 rounded-xl shadow-lg">
+        <p className="text-xs text-stone-400 font-medium px-2 pt-1 pb-1.5">Add to calendar</p>
+        <a
+          href={getGoogleCalendarUrl(connection)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2.5 w-full px-2 py-2 text-sm text-stone-700 rounded-lg hover:bg-stone-100 transition-colors"
+        >
+          <img src="https://www.google.com/favicon.ico" alt="" className="w-4 h-4" />
+          Google Calendar
+        </a>
+        <a
+          href={getOutlookUrl(connection)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2.5 w-full px-2 py-2 text-sm text-stone-700 rounded-lg hover:bg-stone-100 transition-colors"
+        >
+          <img src="https://outlook.live.com/favicon.ico" alt="" className="w-4 h-4" />
+          Outlook
+        </a>
+        <button
+          onClick={() => downloadICS(connection)}
+          className="flex items-center gap-2.5 w-full px-2 py-2 text-sm text-stone-700 rounded-lg hover:bg-stone-100 transition-colors"
+        >
+          <Calendar className="w-4 h-4 text-stone-500" />
+          Apple / Other (.ics)
+        </button>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 const RECURRENCE_LABEL = {
   none: null,
   weekly: 'Weekly',
