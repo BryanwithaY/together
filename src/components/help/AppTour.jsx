@@ -259,6 +259,9 @@ const steps = [
             <strong className="text-stone-700">Remove members:</strong> admins can remove users with three options — archive content, anonymize, or hard delete.
           </div>
         </div>
+        <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs">
+          <strong className="text-stone-700">Facilitator Portal:</strong> apply to guide other relationships, or manage who oversees yours.
+        </div>
         <div className="bg-rose-50 border border-rose-100 rounded-xl p-3 text-xs text-rose-800">
           ❤️ Together works best when everyone in the group is engaged. Invite the people who matter.
         </div>
