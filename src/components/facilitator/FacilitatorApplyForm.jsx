@@ -72,18 +72,24 @@ export default function FacilitatorApplyForm({ user, existingApplication, onAppl
     e.preventDefault();
     if (!bio.trim() || !motivation.trim()) return;
     setSubmitting(true);
-    await base44.entities.FacilitatorApplication.create({
-      applicant_email: user.email,
-      facilitator_type: facilitatorType,
-      professional_role: facilitatorType === 'professional' ? professionalRole : '',
-      bio: bio.trim(),
-      motivation: motivation.trim(),
-      status: 'pending'
-    });
-    Analytics.facilitatorApplicationSubmitted(facilitatorType);
-    setSubmitting(false);
-    setSubmitted(true);
-    if (onApplied) onApplied();
+    setError(null);
+    try {
+      await base44.entities.FacilitatorApplication.create({
+        applicant_email: user.email,
+        facilitator_type: facilitatorType,
+        professional_role: facilitatorType === 'professional' ? professionalRole : '',
+        bio: bio.trim(),
+        motivation: motivation.trim(),
+        status: 'pending'
+      });
+      Analytics.facilitatorApplicationSubmitted(facilitatorType);
+      setSubmitted(true);
+      if (onApplied) onApplied();
+    } catch (err) {
+      setError(err?.message || 'Something went wrong. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
