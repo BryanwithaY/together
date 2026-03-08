@@ -218,6 +218,7 @@ function ScheduleContent() {
                   connection={c}
                   onDelete={setDeleteTarget}
                   onCopy={handleCopy}
+                  onAddToCalendar={downloadICS}
                   isPast={false}
                 />
               ))}
@@ -239,6 +240,7 @@ function ScheduleContent() {
                   connection={c}
                   onDelete={setDeleteTarget}
                   onCopy={handleCopy}
+                  onAddToCalendar={downloadICS}
                   isPast={true}
                 />
               ))}
