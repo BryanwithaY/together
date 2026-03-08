@@ -207,6 +207,43 @@ const steps = [
     ),
   },
   {
+    title: 'Facilitator Support',
+    icon: Shield,
+    iconColor: 'text-violet-600',
+    iconBg: 'bg-violet-50',
+    content: (
+      <div className="space-y-3 text-sm text-stone-600 leading-relaxed">
+        <p>You can invite a <strong className="text-stone-800">Facilitator</strong> — a therapist, coach, mentor, or trusted person — to guide and support your relationship.</p>
+        <div className="space-y-2">
+          <div className="flex items-start gap-3 bg-violet-50 rounded-xl p-3">
+            <UserCheck className="w-4 h-4 text-violet-600 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="font-semibold text-violet-800 text-xs">How to invite</p>
+              <p className="text-xs text-violet-700 mt-0.5">Share your Relationship ID from Settings → Relationship. Each member must individually consent before access is granted.</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3 bg-emerald-50 rounded-xl p-3">
+            <Eye className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="font-semibold text-emerald-800 text-xs">What they see</p>
+              <p className="text-xs text-emerald-700 mt-0.5">Only relationship-visible moments you allow. You can hide self-reflections or specific moments at any time.</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3 bg-stone-50 rounded-xl p-3 border border-stone-200">
+            <Lock className="w-4 h-4 text-stone-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="font-semibold text-stone-700 text-xs">Revoke anytime</p>
+              <p className="text-xs text-stone-500 mt-0.5">Remove a facilitator's access instantly from Relationship Settings. You stay in control.</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 text-xs text-amber-800">
+          💡 Want to support others? Apply to become a facilitator yourself in Settings → Facilitator Portal.
+        </div>
+      </div>
+    ),
+  },
+  {
     title: 'Settings & Roles',
     icon: Settings,
     iconColor: 'text-stone-600',
