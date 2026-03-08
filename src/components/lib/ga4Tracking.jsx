@@ -92,6 +92,14 @@ export const GA4 = {
     return utm;
   },
 
+  // ─── Facilitator ────────────────────────────────────────────────────
+  facilitatorApplicationSubmitted: (facilitatorType) => {
+    window.gtag?.('event', 'generate_lead', {
+      event_category: 'facilitator',
+      facilitator_type: facilitatorType,
+    });
+  },
+
   // ─── Custom Events ──────────────────────────────────────────────────
   customEvent: (eventName, params = {}) => {
     window.gtag?.('event', eventName, params);
