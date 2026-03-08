@@ -1,0 +1,192 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+
+/**
+ * Consent-aware data fetching for facilitators.
+ * Returns moments filtered by each member's consent preferences.
+ */
+Deno.serve(async (req) => {
+  try {
+    const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me();
+
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    if (user.role !== 'facilitator' && user.role !== 'admin') {
+      return Response.json({ error: 'Forbidden: Facilitator access required' }, { status: 403 });
+    }
+
+    const body = await req.json();
+    const { relationship_id, action } = body;
+
+    // --- Get all facilitator relationships for this facilitator ---
+    if (action === 'list_relationships') {
+      const facRels = await base44.asServiceRole.entities.FacilitatorRelationship.filter({
+        facilitator_email: user.email
+      }, '-created_date', 50);
+      return Response.json({ success: true, facilitator_relationships: facRels });
+    }
+
+    // --- Get detailed data for a specific relationship ---
+    if (!relationship_id) {
+      return Response.json({ error: 'relationship_id required' }, { status: 400 });
+    }
+
+    // Verify facilitator has active access
+    const facRels = await base44.asServiceRole.entities.FacilitatorRelationship.filter({
+      facilitator_email: user.email,
+      relationship_id,
+      status: 'active'
+    });
+
+    if (!facRels.length) {
+      return Response.json({ error: 'No active access to this relationship' }, { status: 403 });
+    }
+
+    const facRel = facRels[0];
+
+    // Fetch consent records
+    const consents = await base44.asServiceRole.entities.FacilitatorConsent.filter({
+      facilitator_relationship_id: facRel.id
+    });
+
+    // Build consent map: member_email -> consent config
+    const consentMap = {};
+    consents.forEach(c => {
+      consentMap[c.member_email] = {
+        status: c.status,
+        hide_self_reflections: c.hide_self_reflections || false,
+        hidden_moment_ids: c.hidden_moment_ids || []
+      };
+    });
+
+    // Fetch moments (only relationship-visible ones)
+    const allMoments = await base44.asServiceRole.entities.Moment.filter({
+      relationship_id,
+      visibility: 'relationship'
+    }, '-date', 200);
+
+    // Filter based on consent
+    const filteredMoments = allMoments.filter(moment => {
+      const consent = consentMap[moment.created_by];
+      // No consent record = member hasn't responded yet, hide self-reflections by default
+      if (!consent || consent.status !== 'approved') {
+        return moment.type !== 'self_reflection';
+      }
+      // Check specific moment hide
+      if (consent.hidden_moment_ids.includes(moment.id)) return false;
+      // Check self-reflection hide toggle
+      if (consent.hide_self_reflections && moment.type === 'self_reflection') return false;
+      return true;
+    });
+
+    // Fetch members
+    const members = await base44.asServiceRole.entities.RelationshipMember.filter({
+      relationship_id,
+      status: 'active'
+    });
+
+    // Compute stats
+    const now = Date.now();
+    const oneWeekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const twoWeeksAgo = new Date(now - 14 * 24 * 60 * 60 * 1000).toISOString();
+    const recentMoments = filteredMoments.filter(m => m.date >= oneWeekAgo);
+
+    const stats = {
+      total_moments: filteredMoments.length,
+      ego_aside_count: filteredMoments.filter(m => m.type === 'ego_aside').length,
+      gratitude_count: filteredMoments.filter(m => m.type === 'gratitude').length,
+      self_reflection_count: filteredMoments.filter(m => m.type === 'self_reflection').length,
+      last_activity: filteredMoments[0]?.date || null,
+      recent_count_7d: recentMoments.length,
+      member_activity: {}
+    };
+
+    members.forEach(member => {
+      const memberMoments = filteredMoments.filter(m => m.created_by === member.user_email);
+      const memberRecent = recentMoments.filter(m => m.created_by === member.user_email);
+      stats.member_activity[member.user_email] = {
+        total: memberMoments.length,
+        recent_7d: memberRecent.length,
+        last_activity: memberMoments[0]?.date || null,
+        display_name: member.display_name || member.user_email
+      };
+    });
+
+    // Flag concerning patterns
+    const concerns = [];
+    const conflictSubtypes = ['reacted_poorly', 'shut_down', 'was_dismissive', 'unkind', 'not_present'];
+    const conflictMoments = recentMoments.filter(m => conflictSubtypes.includes(m.subtype));
+    const positiveMoments = filteredMoments.filter(m => m.type === 'gratitude' || m.type === 'ego_aside');
+
+    if (conflictMoments.length >= 3) {
+      concerns.push({
+        type: 'high_conflict',
+        message: `${conflictMoments.length} conflict-related moments logged in the past 7 days`,
+        severity: 'high'
+      });
+    }
+
+    members.forEach(member => {
+      const memberAllTime = filteredMoments.filter(m => m.created_by === member.user_email);
+      const memberRecent = recentMoments.filter(m => m.created_by === member.user_email);
+      if (memberAllTime.length >= 5 && memberRecent.length === 0) {
+        concerns.push({
+          type: 'disengagement',
+          message: `A member has not logged any moments in 7+ days after previously active engagement`,
+          severity: 'medium',
+          member_email: member.user_email
+        });
+      }
+    });
+
+    // Check contribution imbalance
+    if (members.length >= 2) {
+      const memberTotals = members.map(m => ({
+        email: m.user_email,
+        total: filteredMoments.filter(mo => mo.created_by === m.user_email).length
+      }));
+      const total = memberTotals.reduce((sum, m) => sum + m.total, 0);
+      if (total >= 10) {
+        const maxMember = memberTotals.reduce((a, b) => a.total > b.total ? a : b);
+        if (maxMember.total / total > 0.75) {
+          concerns.push({
+            type: 'contribution_imbalance',
+            message: 'One member is contributing significantly more than others (>75% of all moments)',
+            severity: 'medium'
+          });
+        }
+      }
+    }
+
+    // Check positivity deficit over 2 weeks
+    const twoWeekMoments = filteredMoments.filter(m => m.date >= twoWeeksAgo);
+    const twoWeekPositive = twoWeekMoments.filter(m => m.type === 'gratitude' || m.type === 'ego_aside').length;
+    const twoWeekConflict = twoWeekMoments.filter(m => conflictSubtypes.includes(m.subtype)).length;
+    if (twoWeekConflict >= 3 && twoWeekPositive < twoWeekConflict / 3) {
+      concerns.push({
+        type: 'positivity_deficit',
+        message: `Low positive-to-conflict moment ratio over 14 days (${twoWeekPositive} positive vs ${twoWeekConflict} conflict)`,
+        severity: 'medium'
+      });
+    }
+
+    // Get session notes for this relationship
+    const notes = await base44.entities.FacilitatorNote.filter({
+      facilitator_email: user.email,
+      relationship_id
+    }, '-session_date', 20);
+
+    return Response.json({
+      success: true,
+      facilitator_relationship: facRel,
+      moments: filteredMoments,
+      members,
+      stats,
+      concerns,
+      consent_map: consentMap,
+      notes
+    });
+
+  } catch (error) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+});
