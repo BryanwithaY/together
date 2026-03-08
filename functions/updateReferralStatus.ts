@@ -2,8 +2,9 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 /**
  * Called when a user loads the app with a ?ref=CODE param.
- * Finds the referral record by code and marks it as completed,
- * attributing it to the currently authenticated user.
+ * Validates the code, then creates a new completed referral record
+ * attributing the sign-up to the code owner.
+ * The owner's code record stays pending so it can be used by future signups.
  *
  * Payload: { ref_code: string }
  */
@@ -22,29 +23,43 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'ref_code is required' }, { status: 400 });
     }
 
-    // Find the referral record by code — must not already have a referred_email
-    // (i.e. it's the "owner" record, not already completed)
-    const referrals = await base44.asServiceRole.entities.Referral.filter({
-      code: ref_code.toUpperCase(),
+    const code = ref_code.toUpperCase();
+
+    // Find the owner's code record (no referred_email = the canonical code record)
+    const ownerRecords = await base44.asServiceRole.entities.Referral.filter({
+      code,
       status: 'pending',
     });
 
-    // Filter to the owner record (no referred_email) and ensure it's not self-referral
-    const ownerRecord = referrals.find(
-      r => !r.referred_email && r.referrer_email?.toLowerCase() !== user.email?.toLowerCase()
-    );
+    const ownerRecord = ownerRecords.find(r => !r.referred_email);
 
     if (!ownerRecord) {
-      // Already completed, self-referral, or invalid code — silently succeed
-      return Response.json({ success: true, matched: false });
+      return Response.json({ success: true, matched: false, reason: 'invalid_code' });
     }
 
-    // Mark as completed and record who signed up
-    await base44.asServiceRole.entities.Referral.update(ownerRecord.id, {
-      status: 'completed',
+    // Prevent self-referral
+    if (ownerRecord.referrer_email?.toLowerCase() === user.email?.toLowerCase()) {
+      return Response.json({ success: true, matched: false, reason: 'self_referral' });
+    }
+
+    // Prevent double-counting: check if this user already used this code
+    const existing = await base44.asServiceRole.entities.Referral.filter({
+      code,
+      referred_email: user.email,
+    });
+
+    if (existing.length > 0) {
+      return Response.json({ success: true, matched: false, reason: 'already_redeemed' });
+    }
+
+    // Create a new completed referral record — leave the owner record untouched
+    await base44.asServiceRole.entities.Referral.create({
+      referrer_email: ownerRecord.referrer_email,
+      code,
       referred_email: user.email,
       referred_user_id: user.id,
       signup_date: new Date().toISOString(),
+      status: 'completed',
     });
 
     // Log the event
