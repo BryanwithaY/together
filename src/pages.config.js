@@ -56,6 +56,7 @@ import Home from './pages/Home';
 import RelationshipSetup from './pages/RelationshipSetup';
 import Schedule from './pages/Schedule';
 import Settings from './pages/Settings';
+import Coach from './pages/Coach';
 import __Layout from './Layout.jsx';
 
 
@@ -69,6 +70,7 @@ export const PAGES = {
     "RelationshipSetup": RelationshipSetup,
     "Schedule": Schedule,
     "Settings": Settings,
+    "Coach": Coach,
 }
 
 export const pagesConfig = {

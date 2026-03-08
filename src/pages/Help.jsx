@@ -38,8 +38,8 @@ const principles = [
     color: 'text-violet-500',
     bg: 'bg-violet-50',
     border: 'border-violet-100',
-    title: 'Use discomfort as your compass',
-    body: 'The most valuable conversations are often the hardest ones. If something feels uncomfortable to share with your partner, that\'s usually a signal it\'s worth saying out loud — not logging and forgetting. Use self-reflections to prepare, then have the conversation.',
+    title: 'Growth requires discomfort',
+    body: 'The most valuable conversations are often the hardest ones. If something feels uncomfortable to share with your partner, that\'s usually a signal it\'s worth saying out loud. True growth rarely comes from validation — it comes from honest, sometimes difficult self-examination.',
   },
   {
     icon: Star,
@@ -48,6 +48,14 @@ const principles = [
     border: 'border-sky-100',
     title: 'Review together, grow together',
     body: 'Set aside regular time — even just 10 minutes a week — to look at each other\'s logged moments together. This ritual builds transparency and gives you both a shared language for your relationship.',
+  },
+  {
+    icon: Sparkles,
+    color: 'text-indigo-500',
+    bg: 'bg-indigo-50',
+    border: 'border-indigo-100',
+    title: 'One story is never the whole story',
+    body: 'When conflict or tension arises, we naturally present our own narrative. But every situation has at least three perspectives: yours, theirs, and a neutral observer\'s. The AI coach is designed to help you see all three — including where you may be contributing to the dynamic.',
   },
 ];
 
