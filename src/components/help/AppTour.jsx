@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, ChevronRight, ChevronLeft, Heart, HandHeart, Sparkles, ShieldAlert,
-  BarChart2, Bookmark, Settings, MessageCircle, Share2, Star, Users, Eye, Lock, Tag
+  BarChart2, Bookmark, Settings, MessageCircle, Share2, Star, Users, Eye, Lock, Tag, Shield, UserCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
