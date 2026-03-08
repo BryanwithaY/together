@@ -82,6 +82,26 @@ export default function Layout({ children, currentPageName }) {
     pageLoadingRef.current = false;
   }, []);
 
+  // Capture referral code from URL on first load
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const refCode = params.get('ref');
+    if (!refCode) return;
+    // Store it so we can use it after auth is confirmed
+    sessionStorage.setItem('pending_ref_code', refCode.toUpperCase());
+  }, []);
+
+  // Once user is authenticated, redeem any pending referral code
+  useEffect(() => {
+    const refCode = sessionStorage.getItem('pending_ref_code');
+    if (!refCode) return;
+    base44.auth.isAuthenticated().then(authed => {
+      if (!authed) return;
+      sessionStorage.removeItem('pending_ref_code');
+      base44.functions.invoke('updateReferralStatus', { ref_code: refCode }).catch(() => {});
+    });
+  }, [location.key]);
+
   useEffect(() => {
     if (alreadyLoaded.current) return;
 
