@@ -250,6 +250,7 @@ export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
               placeholder="Write a session note... (only visible to you)"
               className="resize-none min-h-[120px]"
             />
+            {noteError && <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{noteError}</p>}
             <Button
               onClick={handleSaveNote}
               disabled={savingNote || !noteContent.trim()}
