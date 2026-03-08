@@ -29,7 +29,9 @@ export default function Analytics() {
         </div>
 
         {/* Content */}
-        <EngagementAnalysis />
+        <div className="px-4 py-4">
+          <EngagementAnalysis />
+        </div>
       </div>
     </div>
   );
