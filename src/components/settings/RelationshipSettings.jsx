@@ -125,6 +125,21 @@ export default function RelationshipSettings() {
         </div>
       )}
 
+      {/* Relationship ID (for sharing with facilitators) */}
+      <div className="bg-stone-50 border border-stone-100 rounded-xl p-3 flex items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Relationship ID</p>
+          <p className="text-xs font-mono text-stone-600 mt-0.5 break-all">{activeRelationship.id}</p>
+          <p className="text-xs text-stone-400 mt-0.5">Share with a facilitator so they can request access</p>
+        </div>
+        <button
+          onClick={() => navigator.clipboard.writeText(activeRelationship.id)}
+          className="text-xs text-stone-400 hover:text-stone-700 border border-stone-200 rounded-lg px-2.5 py-1.5 transition-colors flex-shrink-0"
+        >
+          Copy
+        </button>
+      </div>
+
       {/* Relationship identity */}
       <div className="flex items-center gap-4">
         <div className="relative">
