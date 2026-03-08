@@ -294,7 +294,7 @@ export default function AppTour({ onClose }) {
   const isFirst = step === 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm px-4 pb-8">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm px-4" style={{ paddingBottom: 'calc(64px + env(safe-area-inset-bottom))' }}>
       <AnimatePresence mode="wait">
         <motion.div
           key={step}
@@ -322,7 +322,7 @@ export default function AppTour({ onClose }) {
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <div className="mb-6">{current.content}</div>
+            <div className="mb-6 overflow-y-auto max-h-[45vh]">{current.content}</div>
             <div className="flex items-center gap-3">
               {!isFirst && (
                 <Button variant="outline" onClick={() => setStep(s => s - 1)} className="flex-none">
