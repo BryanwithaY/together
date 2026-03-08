@@ -51,6 +51,7 @@ export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
     if (!messageContent.trim()) return;
     setSendingMessage(true);
     await base44.entities.FacilitatorMessage.create({
+      facilitator_email: currentUser?.email,
       relationship_id: facRelId,
       content: messageContent.trim(),
       target_type: messageTarget,
