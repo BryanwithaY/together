@@ -1,0 +1,225 @@
+import React, { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
+import { useRelationship } from '../components/relationship/RelationshipContext';
+import { usePageLoading } from '../components/PageLoadingContext';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, Users, Sparkles, RefreshCw, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import FacilitatorApplyForm from '../components/facilitator/FacilitatorApplyForm';
+import FacilitatorRelationshipCard from '../components/facilitator/FacilitatorRelationshipCard';
+import FacilitatorRelationshipDetail from '../components/facilitator/FacilitatorRelationshipDetail';
+import AddRelationshipDialog from '../components/facilitator/AddRelationshipDialog';
+
+export default function FacilitatorPortal() {
+  const { currentUser } = useRelationship();
+  const { setPageReady } = usePageLoading();
+  const navigate = useNavigate();
+  const [selectedRelId, setSelectedRelId] = useState(null);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+
+  const isFacilitator = currentUser?.role === 'facilitator' || currentUser?.role === 'admin';
+
+  // Check for existing application if not yet a facilitator
+  const { data: existingApp, isLoading: appLoading } = useQuery({
+    queryKey: ['myFacilitatorApp'],
+    queryFn: () => base44.entities.FacilitatorApplication.filter({ applicant_email: currentUser?.email }),
+    enabled: !!currentUser && !isFacilitator,
+  });
+
+  // Load relationships for facilitators
+  const { data: facRelsData, isLoading: relsLoading, refetch } = useQuery({
+    queryKey: ['facilitatorRelationships'],
+    queryFn: async () => {
+      const res = await base44.functions.invoke('getFacilitatorData', { action: 'list_relationships' });
+      return res.data?.facilitator_relationships || [];
+    },
+    enabled: isFacilitator,
+  });
+
+  // Load stats for each active relationship
+  const { data: enrichedRels = [], isLoading: statsLoading } = useQuery({
+    queryKey: ['facilitatorRelStats', facRelsData?.map(r => r.id).join(',')],
+    queryFn: async () => {
+      const active = (facRelsData || []).filter(r => r.status === 'active');
+      const results = await Promise.all(
+        active.map(async fr => {
+          const res = await base44.functions.invoke('getFacilitatorData', {
+            action: 'get_detail',
+            relationship_id: fr.relationship_id
+          });
+          return {
+            ...fr,
+            stats: res.data?.stats || {},
+            concerns: res.data?.concerns || []
+          };
+        })
+      );
+      const pending = (facRelsData || []).filter(r => r.status !== 'active');
+      return [...results, ...pending];
+    },
+    enabled: !!facRelsData?.length && isFacilitator,
+  });
+
+  const isLoading = appLoading || relsLoading;
+
+  useEffect(() => {
+    if (!isLoading) setPageReady();
+  }, [isLoading]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stone-800" />
+      </div>
+    );
+  }
+
+  const pendingApp = existingApp?.[0];
+
+  return (
+    <div className="min-h-screen bg-stone-50">
+      {/* Header */}
+      <div className="bg-white border-b border-stone-200/60 sticky top-0 z-30">
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
+          <button onClick={() => navigate(-1)} className="p-2 hover:bg-stone-100 rounded-lg transition-colors">
+            <ArrowLeft className="w-5 h-5 text-stone-600" />
+          </button>
+          <div className="flex-1">
+            <h1 className="text-lg font-bold text-stone-800 flex items-center gap-2">
+              <Users className="w-5 h-5 text-violet-600" />
+              Facilitator Portal
+            </h1>
+            {isFacilitator && (
+              <p className="text-xs text-stone-400 capitalize">
+                {currentUser?.facilitator_type || 'facilitator'} · {currentUser?.facilitator_tier || 'free'} plan
+              </p>
+            )}
+          </div>
+          {isFacilitator && (
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="ghost" onClick={() => refetch()} className="text-stone-400">
+                <RefreshCw className="w-4 h-4" />
+              </Button>
+              <Button size="sm" onClick={() => setShowAddDialog(true)} className="bg-stone-800 hover:bg-stone-900">
+                <Plus className="w-4 h-4 mr-1" />
+                Add
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="max-w-2xl mx-auto px-4 py-6">
+        <AnimatePresence mode="wait">
+          {/* NOT A FACILITATOR — show apply form */}
+          {!isFacilitator && (
+            <motion.div
+              key="apply"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-2xl border border-stone-200/60 shadow-sm p-6"
+            >
+              <FacilitatorApplyForm
+                user={currentUser}
+                existingApplication={pendingApp}
+                onApplied={() => {}}
+              />
+            </motion.div>
+          )}
+
+          {/* FACILITATOR — show detail view */}
+          {isFacilitator && selectedRelId && (
+            <motion.div
+              key={`detail-${selectedRelId}`}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="bg-white rounded-2xl border border-stone-200/60 shadow-sm p-4"
+            >
+              <FacilitatorRelationshipDetail
+                facRelId={selectedRelId}
+                onBack={() => setSelectedRelId(null)}
+              />
+            </motion.div>
+          )}
+
+          {/* FACILITATOR — show dashboard */}
+          {isFacilitator && !selectedRelId && (
+            <motion.div
+              key="dashboard"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-4"
+            >
+              {/* AI Coach entry */}
+              <div className="bg-gradient-to-br from-violet-50 to-violet-100 border border-violet-200 rounded-2xl p-4 flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-violet-200 flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="w-5 h-5 text-violet-700" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-violet-900 text-sm">AI Facilitation Guide</p>
+                  <p className="text-xs text-violet-700 mt-0.5">
+                    Get pattern analysis, intervention suggestions, and session prep — powered by your relationship data.
+                  </p>
+                  {(currentUser?.facilitator_tier === 'free') ? (
+                    <p className="text-xs text-violet-500 mt-1.5 font-medium">Upgrade to Pro to unlock AI insights</p>
+                  ) : (
+                    <p className="text-xs text-violet-600 mt-1.5">Available in the Coach tab</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Tier limit warning */}
+              {currentUser?.facilitator_tier === 'free' && (facRelsData || []).filter(r => r.status === 'active').length >= 2 && (
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                  <p className="text-xs text-amber-700 font-medium">Free tier limit reached (2 active relationships)</p>
+                  <p className="text-xs text-amber-600 mt-0.5">Upgrade to Pro to oversee up to 10 relationships.</p>
+                </div>
+              )}
+
+              {/* Relationships list */}
+              {enrichedRels.length === 0 && !statsLoading && (
+                <div className="text-center py-12 bg-white rounded-2xl border border-stone-200/60">
+                  <Users className="w-10 h-10 text-stone-300 mx-auto mb-3" />
+                  <p className="text-stone-600 font-medium">No relationships yet</p>
+                  <p className="text-sm text-stone-400 mt-1">Request access to a relationship or wait for an invitation.</p>
+                  <Button
+                    onClick={() => setShowAddDialog(true)}
+                    className="mt-4 bg-stone-800 hover:bg-stone-900"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Request Access
+                  </Button>
+                </div>
+              )}
+
+              {statsLoading && (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-stone-800 mx-auto" />
+                  <p className="text-xs text-stone-400 mt-2">Loading relationship data...</p>
+                </div>
+              )}
+
+              {enrichedRels.map(rel => (
+                <FacilitatorRelationshipCard
+                  key={rel.id}
+                  facRel={rel}
+                  onClick={() => rel.status === 'active' ? setSelectedRelId(rel.relationship_id) : null}
+                />
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {showAddDialog && (
+        <AddRelationshipDialog
+          onClose={() => setShowAddDialog(false)}
+          onSuccess={() => { setShowAddDialog(false); refetch(); }}
+        />
+      )}
+    </div>
+  );
+}

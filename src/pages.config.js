@@ -49,6 +49,7 @@
  */
 import Admin from './pages/Admin';
 import Analytics from './pages/Analytics';
+import Coach from './pages/Coach';
 import Favorites from './pages/Favorites';
 import Help from './pages/Help';
 import History from './pages/History';
@@ -56,13 +57,14 @@ import Home from './pages/Home';
 import RelationshipSetup from './pages/RelationshipSetup';
 import Schedule from './pages/Schedule';
 import Settings from './pages/Settings';
-import Coach from './pages/Coach';
+import FacilitatorPortal from './pages/FacilitatorPortal';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Admin": Admin,
     "Analytics": Analytics,
+    "Coach": Coach,
     "Favorites": Favorites,
     "Help": Help,
     "History": History,
@@ -70,7 +72,7 @@ export const PAGES = {
     "RelationshipSetup": RelationshipSetup,
     "Schedule": Schedule,
     "Settings": Settings,
-    "Coach": Coach,
+    "FacilitatorPortal": FacilitatorPortal,
 }
 
 export const pagesConfig = {
