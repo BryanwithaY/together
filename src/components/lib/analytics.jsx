@@ -41,10 +41,6 @@ export const Analytics = {
   commentThreadOpened: (momentType) =>
     track('comment_thread_opened', { moment_type: momentType }),
 
-  // ─── Navigation / Page Views ────────────────────────────────────
-  pageViewed: (pageName) =>
-    track('page_viewed', { page: pageName }),
-
   // ─── Onboarding / Engagement ────────────────────────────────────
   newMomentButtonTapped: () =>
     track('new_moment_button_tapped'),
@@ -100,11 +96,13 @@ export const Analytics = {
     GA4.firstMomentLogged(type);
   },
 
+  // ─── Navigation / Page Views ────────────────────────────────────
+  pageViewed: (page) => track(`${page}_viewed`),
+
   // ─── Schedule Tracking ──────────────────────────────────────────────
   connectionScheduled: () => track('connection_scheduled'),
   connectionDeleted: () => track('connection_deleted'),
   eventDescriptionCopied: () => track('event_description_copied'),
-  pageViewed: (page) => track(`${page}_viewed`),
 
   // ─── Facilitator ────────────────────────────────────────────────────
   facilitatorPortalViewed: () =>

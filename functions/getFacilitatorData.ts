@@ -169,8 +169,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Get session notes for this relationship
-    const notes = await base44.entities.FacilitatorNote.filter({
+    // Get session notes for this relationship (service role to match all other fetches)
+    const notes = await base44.asServiceRole.entities.FacilitatorNote.filter({
       facilitator_email: user.email,
       relationship_id
     }, '-session_date', 20);
