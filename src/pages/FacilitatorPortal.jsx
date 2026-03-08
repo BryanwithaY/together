@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { Analytics } from '../components/lib/analytics';
 import { useQuery } from '@tanstack/react-query';
 import { useRelationship } from '../components/relationship/RelationshipContext';
 import { usePageLoading } from '../components/PageLoadingContext';

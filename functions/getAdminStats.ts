@@ -28,6 +28,8 @@ Deno.serve(async (req) => {
       deletedUsers,
       allEvents,
       allComments,
+      allFacilitatorRels,
+      allFacilitatorApps,
     ] = await Promise.all([
       base44.asServiceRole.entities.User.list(undefined, 500),
       base44.asServiceRole.entities.Moment.list('-created_date', 500),
@@ -37,6 +39,8 @@ Deno.serve(async (req) => {
       base44.asServiceRole.entities.DeletedUser.list('-deleted_at', 100),
       base44.asServiceRole.entities.AppEvent.list('-occurred_at', 500),
       base44.asServiceRole.entities.Comment.list(undefined, 500),
+      base44.asServiceRole.entities.FacilitatorRelationship.list(undefined, 200),
+      base44.asServiceRole.entities.FacilitatorApplication.list('-created_date', 100),
     ]);
 
     // ── User stats ──────────────────────────────────────────────────────────
