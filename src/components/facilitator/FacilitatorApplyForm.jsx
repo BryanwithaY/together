@@ -14,6 +14,7 @@ export default function FacilitatorApplyForm({ user, existingApplication, onAppl
   const [motivation, setMotivation] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState(null);
 
   if (existingApplication?.status === 'pending') {
     return (
