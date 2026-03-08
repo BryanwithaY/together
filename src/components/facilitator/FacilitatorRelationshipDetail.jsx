@@ -19,6 +19,8 @@ export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
   const [messageTargetEmail, setMessageTargetEmail] = useState('');
   const [savingNote, setSavingNote] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [noteError, setNoteError] = useState(null);
+  const [messageError, setMessageError] = useState(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['facilitatorDetail', facRelId],
