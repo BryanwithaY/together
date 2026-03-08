@@ -38,6 +38,7 @@ export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
       session_date: new Date().toISOString(),
       is_private: true
     });
+    Analytics.facilitatorNoteCreated();
     setNoteContent('');
     setSavingNote(false);
     queryClient.invalidateQueries({ queryKey: ['facilitatorDetail', facRelId] });
@@ -53,6 +54,7 @@ export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
       target_email: messageTarget === 'member' ? messageTargetEmail : null,
       read_by: []
     });
+    Analytics.facilitatorMessageSent(messageTarget);
     setMessageContent('');
     setSendingMessage(false);
     queryClient.invalidateQueries({ queryKey: ['facilitatorDetail', facRelId] });
