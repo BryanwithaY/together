@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
+import { base44 } from '@/api/base44Client';
 import { AnimatePresence, motion } from 'framer-motion';
 import BottomTabBar from './components/BottomTabBar';
 import useSystemTheme from './components/hooks/useSystemTheme';

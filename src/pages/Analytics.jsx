@@ -11,21 +11,19 @@ export default function Analytics() {
   useEffect(() => { setPageReady(); track.pageViewed('analytics'); }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen bg-stone-50">
+      <div className="max-w-2xl mx-auto">
         {/* Header */}
-        <div className="p-4 border-b bg-white dark:bg-slate-800 dark:border-slate-700">
-          <div className="flex items-center gap-3 mb-4">
+        <div className="bg-white border-b border-stone-200/60 sticky top-0 z-30">
+          <div className="px-4 py-3 flex items-center gap-3">
             <a href={createPageUrl('Settings')}>
               <Button variant="ghost" size="icon">
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-5 h-5 text-stone-600" />
               </Button>
             </a>
             <div>
-              <h1 className="text-2xl font-bold">Analytics</h1>
-              <p className="text-sm text-muted-foreground">
-                Understand which moments drive the most engagement
-              </p>
+              <h1 className="text-lg font-bold text-stone-800">Engagement Analytics</h1>
+              <p className="text-xs text-stone-500">Which moment types drive the most engagement</p>
             </div>
           </div>
         </div>

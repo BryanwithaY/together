@@ -1,10 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 /**
- * Called when a new user signs up — checks if their email matches a pending referral
- * and marks it as completed.
- * 
- * Payload: { new_user_email: string }
+ * Called when a user loads the app with a ?ref=CODE param.
+ * Finds the referral record by code and marks it as completed,
+ * attributing it to the currently authenticated user.
+ *
+ * Payload: { ref_code: string }
  */
 Deno.serve(async (req) => {
   try {
@@ -15,38 +16,47 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { new_user_email } = await req.json().catch(() => ({}));
-    const targetEmail = (new_user_email || user.email).toLowerCase();
+    const { ref_code } = await req.json().catch(() => ({}));
 
-    // Find a pending referral for this email
+    if (!ref_code) {
+      return Response.json({ error: 'ref_code is required' }, { status: 400 });
+    }
+
+    // Find the referral record by code — must not already have a referred_email
+    // (i.e. it's the "owner" record, not already completed)
     const referrals = await base44.asServiceRole.entities.Referral.filter({
-      referred_email: targetEmail,
+      code: ref_code.toUpperCase(),
       status: 'pending',
     });
 
-    if (!referrals.length) {
+    // Filter to the owner record (no referred_email) and ensure it's not self-referral
+    const ownerRecord = referrals.find(
+      r => !r.referred_email && r.referrer_email?.toLowerCase() !== user.email?.toLowerCase()
+    );
+
+    if (!ownerRecord) {
+      // Already completed, self-referral, or invalid code — silently succeed
       return Response.json({ success: true, matched: false });
     }
 
-    // Mark all matching referrals as completed (should only be 1)
-    await Promise.all(referrals.map(r =>
-      base44.asServiceRole.entities.Referral.update(r.id, {
-        status: 'completed',
-        referred_user_id: user.id,
-        signup_date: new Date().toISOString(),
-      })
-    ));
+    // Mark as completed and record who signed up
+    await base44.asServiceRole.entities.Referral.update(ownerRecord.id, {
+      status: 'completed',
+      referred_email: user.email,
+      referred_user_id: user.id,
+      signup_date: new Date().toISOString(),
+    });
 
     // Log the event
     await base44.asServiceRole.entities.AppEvent.create({
-      user_email: targetEmail,
+      user_email: user.email,
       user_id: user.id,
       event_type: 'member_joined',
-      metadata: { referral_completed: true, referred_by: referrals[0].referrer_email },
+      metadata: { referral_completed: true, referred_by: ownerRecord.referrer_email },
       occurred_at: new Date().toISOString(),
     });
 
-    return Response.json({ success: true, matched: true, count: referrals.length });
+    return Response.json({ success: true, matched: true });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
