@@ -94,6 +94,13 @@ function HomeContent() {
       <div className="bg-white border-b border-stone-200/60 sticky top-0 z-30">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
           <RelationshipSwitcher />
+          <Link
+            to={createPageUrl('Favorites')}
+            className="p-2 rounded-xl text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-colors"
+            title="Saved & Favorites"
+          >
+            <Star className="w-5 h-5" />
+          </Link>
           <button
             onClick={() => { if (!showForm) Analytics.newMomentButtonTapped(); setShowForm(v => !v); }}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-colors ${

@@ -182,6 +182,13 @@ function HistoryContent() {
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <RelationshipSwitcher />
           <h1 className="text-lg font-bold text-stone-800 ml-auto">History</h1>
+          <Link
+            to={createPageUrl('Favorites')}
+            className="p-2 rounded-xl text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-colors"
+            title="Saved & Favorites"
+          >
+            <Star className="w-5 h-5" />
+          </Link>
           {activeRelationship?.allow_export !== false && (
             <ExportButton
               moments={moments}
