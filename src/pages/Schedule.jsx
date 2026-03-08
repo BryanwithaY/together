@@ -43,7 +43,7 @@ const RECURRENCE_LABEL = {
   monthly: 'Monthly',
 };
 
-function ConnectionCard({ connection, onDelete, onCopy, isPast }) {
+function ConnectionCard({ connection, onDelete, onCopy, onAddToCalendar, isPast }) {
   const dateStr = new Date(connection.start_time).toLocaleDateString('en-US', {
     weekday: 'short', month: 'short', day: 'numeric',
   });
@@ -104,6 +104,13 @@ function ConnectionCard({ connection, onDelete, onCopy, isPast }) {
             </div>
           </div>
           <div className="flex gap-1 shrink-0">
+            <button
+              onClick={() => onAddToCalendar(connection)}
+              className="p-2 rounded-xl hover:bg-stone-100 text-stone-400 hover:text-stone-600 transition-colors"
+              title="Add to Calendar"
+            >
+              <CalendarPlus className="w-4 h-4" />
+            </button>
             {!isPast && connection.description && (
               <button
                 onClick={() => onCopy(connection.description)}
