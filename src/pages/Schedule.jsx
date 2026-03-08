@@ -113,7 +113,7 @@ const RECURRENCE_LABEL = {
   monthly: 'Monthly',
 };
 
-function ConnectionCard({ connection, onDelete, onCopy, onAddToCalendar, isPast }) {
+function ConnectionCard({ connection, onDelete, onCopy, isPast }) {
   const dateStr = new Date(connection.start_time).toLocaleDateString('en-US', {
     weekday: 'short', month: 'short', day: 'numeric',
   });
