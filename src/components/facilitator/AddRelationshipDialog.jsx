@@ -15,17 +15,22 @@ export default function AddRelationshipDialog({ onClose, onSuccess }) {
     if (!relationshipId.trim()) return;
     setLoading(true);
     setError('');
-    const res = await base44.functions.invoke('manageFacilitatorAccess', {
-      action: 'request_access',
-      relationship_id: relationshipId.trim(),
-      facilitator_email: currentUser?.email,
-      initiated_by_type: 'facilitator'
-    });
-    setLoading(false);
-    if (res.data?.success) {
-      onSuccess?.();
-    } else {
-      setError(res.data?.error || 'Could not request access. Check the relationship ID and try again.');
+    try {
+      const res = await base44.functions.invoke('manageFacilitatorAccess', {
+        action: 'request_access',
+        relationship_id: relationshipId.trim(),
+        facilitator_email: currentUser?.email,
+        initiated_by_type: 'facilitator'
+      });
+      if (res.data?.success) {
+        onSuccess?.();
+      } else {
+        setError(res.data?.error || 'Could not request access. Check the relationship ID and try again.');
+      }
+    } catch (err) {
+      setError(err?.message || 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
