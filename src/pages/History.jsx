@@ -3,9 +3,9 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { format, startOfMonth, endOfMonth, eachMonthOfInterval, subMonths } from 'date-fns';
 
-import { HandHeart, Sparkles, ShieldAlert, Heart, ChevronDown, ChevronUp } from 'lucide-react';
+import { HandHeart, Sparkles, ShieldAlert, Heart, ChevronDown, ChevronUp, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
 import RelationshipGate from '../components/relationship/RelationshipGate';
