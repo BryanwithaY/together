@@ -217,6 +217,29 @@ export default function Help() {
           </ul>
         </div>
 
+        {/* AI Coach CTA */}
+        <div className="bg-indigo-900 rounded-2xl p-6 text-white">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-lg leading-tight">AI Relationship Coach</h2>
+              <p className="text-indigo-300 text-sm">Honest reflection. Real growth.</p>
+            </div>
+          </div>
+          <p className="text-indigo-200 text-sm mb-4 leading-relaxed">
+            Your AI coach doesn't just validate how you feel — it helps you see situations clearly, understand other perspectives, and take constructive action to strengthen your relationships.
+          </p>
+          <Button
+            onClick={() => navigate(createPageUrl('Coach'))}
+            className="bg-white text-indigo-900 hover:bg-indigo-50 font-medium"
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            Open AI Coach
+          </Button>
+        </div>
+
         {/* Bug Report / Support */}
         <BugReportForm />
 
