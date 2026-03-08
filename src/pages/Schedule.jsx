@@ -14,6 +14,28 @@ import ScheduleConnectionForm from '../components/scheduling/ScheduleConnectionF
 import SchedulingGuideLink from '../components/scheduling/SchedulingGuideLink';
 import { Analytics } from '../components/lib/analytics';
 
+function generateICS(connection) {
+  const formatDate = (date) =>
+    new Date(date).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+
+  const desc = (connection.description || '').replace(/\n/g, '\\n').replace(/,/g, '\\,');
+
+  return `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Together//Connection Schedule//EN\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\nBEGIN:VEVENT\nUID:${connection.id}@together.app\nDTSTAMP:${formatDate(new Date())}\nDTSTART:${formatDate(connection.start_time)}\nDTEND:${formatDate(connection.end_time)}\nSUMMARY:${connection.title}\nDESCRIPTION:${desc}\nLOCATION:${connection.location || ''}\nSTATUS:CONFIRMED\nSEQUENCE:0\nEND:VEVENT\nEND:VCALENDAR`;
+}
+
+function downloadICS(connection) {
+  const ics = generateICS(connection);
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${connection.title.replace(/\s+/g, '-')}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 const RECURRENCE_LABEL = {
   none: null,
   weekly: 'Weekly',
