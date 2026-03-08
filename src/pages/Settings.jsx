@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LogOut, ArrowLeft, Trash2, HelpCircle, ChevronDown } from 'lucide-react';
+import { LogOut, ArrowLeft, Trash2, HelpCircle, ChevronDown, Users } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -129,6 +129,21 @@ export default function Settings() {
           <p className="text-sm text-stone-500 mb-5">Share Together with people you care about.</p>
           <InviteCard user={user} />
         </div>
+
+        {/* Facilitator Portal */}
+        <Link
+          to={createPageUrl('FacilitatorPortal')}
+          className="bg-white rounded-2xl border border-stone-200/60 shadow-sm p-5 flex items-center gap-4 hover:bg-stone-50 transition-colors"
+        >
+          <div className="w-10 h-10 rounded-xl bg-violet-50 border border-violet-200 flex items-center justify-center flex-shrink-0">
+            <Users className="w-5 h-5 text-violet-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-stone-800 text-sm">Facilitator Portal</p>
+            <p className="text-xs text-stone-500 mt-0.5">Guide and oversee relationships as a coach, therapist, or mentor</p>
+          </div>
+          <svg className="w-4 h-4 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+        </Link>
 
         {/* Help */}
         <Link

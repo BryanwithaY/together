@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { UserPlus, Camera, Users, Clock, ChevronDown, Settings2, Trash2, Archive, ArchiveRestore } from 'lucide-react';
+import { UserPlus, Camera, Users, Clock, ChevronDown, Settings2, Trash2, Archive, ArchiveRestore, Shield } from 'lucide-react';
+import FacilitatorConsentManager from '../facilitator/FacilitatorConsentManager';
+import FacilitatorAccessRequest from '../facilitator/FacilitatorAccessRequest';
 import { useRelationship } from '../relationship/RelationshipContext';
 import MemberRoleBadge from '../relationship/MemberRoleBadge';
 import RemoveMemberDialog from '../relationship/RemoveMemberDialog';
@@ -326,6 +328,15 @@ export default function RelationshipSettings() {
           </AlertDialogContent>
         </AlertDialog>
       )}
+
+      {/* Facilitator Access — for owners/admins: invite, for all members: consent management */}
+      <div className="border-t border-stone-100 pt-4 space-y-4">
+        <p className="text-sm font-semibold text-stone-700 flex items-center gap-1.5">
+          <Shield className="w-4 h-4 text-stone-400" /> Facilitator Oversight
+        </p>
+        {canInvite && <FacilitatorAccessRequest />}
+        <FacilitatorConsentManager />
+      </div>
 
       {/* Remove member dialog */}
       {removingMember && (
