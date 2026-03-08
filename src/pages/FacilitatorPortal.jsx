@@ -66,7 +66,10 @@ export default function FacilitatorPortal() {
   const isLoading = appLoading || relsLoading;
 
   useEffect(() => {
-    if (!isLoading) setPageReady();
+    if (!isLoading) {
+      setPageReady();
+      Analytics.facilitatorPortalViewed();
+    }
   }, [isLoading]);
 
   if (isLoading) {
@@ -103,7 +106,7 @@ export default function FacilitatorPortal() {
               <Button size="sm" variant="ghost" onClick={() => refetch()} className="text-stone-400">
                 <RefreshCw className="w-4 h-4" />
               </Button>
-              <Button size="sm" onClick={() => setShowAddDialog(true)} className="bg-stone-800 hover:bg-stone-900">
+              <Button size="sm" onClick={() => { setShowAddDialog(true); Analytics.facilitatorAccessRequested(); }} className="bg-stone-800 hover:bg-stone-900">
                 <Plus className="w-4 h-4 mr-1" />
                 Add
               </Button>
@@ -187,7 +190,7 @@ export default function FacilitatorPortal() {
                   <p className="text-stone-600 font-medium">No relationships yet</p>
                   <p className="text-sm text-stone-400 mt-1">Request access to a relationship or wait for an invitation.</p>
                   <Button
-                    onClick={() => setShowAddDialog(true)}
+                    onClick={() => { setShowAddDialog(true); Analytics.facilitatorAccessRequested(); }}
                     className="mt-4 bg-stone-800 hover:bg-stone-900"
                   >
                     <Plus className="w-4 h-4 mr-2" />
@@ -207,7 +210,12 @@ export default function FacilitatorPortal() {
                 <FacilitatorRelationshipCard
                   key={rel.id}
                   facRel={rel}
-                  onClick={() => rel.status === 'active' ? setSelectedRelId(rel.relationship_id) : null}
+                  onClick={() => {
+                    if (rel.status === 'active') {
+                      setSelectedRelId(rel.relationship_id);
+                      Analytics.facilitatorRelationshipViewed(rel.relationship_id);
+                    }
+                  }}
                 />
               ))}
             </motion.div>
