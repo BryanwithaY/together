@@ -1,14 +1,14 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Heart, Settings, BarChart2, Bookmark, ShieldCheck, Calendar } from 'lucide-react';
+import { Heart, Settings, BarChart2, Bookmark, ShieldCheck, Calendar, Sparkles } from 'lucide-react';
 import { useRelationship } from './relationship/RelationshipContext';
 
 const BASE_TABS = [
   { label: 'Moments', icon: Heart, page: 'Home' },
   { label: 'Schedule', icon: Calendar, page: 'Schedule' },
+  { label: 'Coach', icon: Sparkles, page: 'Coach' },
   { label: 'History', icon: BarChart2, page: 'History' },
-  { label: 'Saved', icon: Bookmark, page: 'Favorites' },
   { label: 'Settings', icon: Settings, page: 'Settings' },
 ];
 
@@ -22,7 +22,6 @@ export default function BottomTabBar({ currentPageName }) {
   const handleTabClick = (e, page) => {
     const active = currentPageName === page;
     if (active) {
-      // Reset to root of this tab
       e.preventDefault();
       navigate(createPageUrl(page), { replace: true });
     }
@@ -46,7 +45,7 @@ export default function BottomTabBar({ currentPageName }) {
             >
               <Icon
                 className={`w-5 h-5 select-none ${active ? 'text-stone-800' : 'text-stone-400'}`}
-                fill={active && (label === 'Moments' || label === 'Saved') ? 'currentColor' : 'none'}
+                fill={active && label === 'Moments' ? 'currentColor' : 'none'}
                 strokeWidth={active ? 2.5 : 2}
               />
               <span className={`text-[10px] font-medium select-none ${active ? 'text-stone-800' : 'text-stone-400'}`}>
