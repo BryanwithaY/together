@@ -161,6 +161,22 @@ Deno.serve(async (req) => {
         reason: u.reason || null,
       }));
 
+    // ── Facilitator stats ────────────────────────────────────────────────────
+    const facilitatorStats = {
+      total_applications: allFacilitatorApps.length,
+      pending_applications: allFacilitatorApps.filter(a => a.status === 'pending').length,
+      approved_applications: allFacilitatorApps.filter(a => a.status === 'approved').length,
+      rejected_applications: allFacilitatorApps.filter(a => a.status === 'rejected').length,
+      by_type: allFacilitatorApps.reduce((acc, a) => {
+        acc[a.facilitator_type] = (acc[a.facilitator_type] || 0) + 1;
+        return acc;
+      }, {}),
+      active_relationships: allFacilitatorRels.filter(r => r.status === 'active').length,
+      pending_consent: allFacilitatorRels.filter(r => r.status === 'pending_approval').length,
+      revoked: allFacilitatorRels.filter(r => r.status === 'revoked').length,
+      new_applications_7d: allFacilitatorApps.filter(a => a.created_date >= day7).length,
+    };
+
     // ── Event feed (last 50) ─────────────────────────────────────────────────
     const eventFeed = allEvents.slice(0, 50).map(e => ({
       event_type: e.event_type,
@@ -243,6 +259,7 @@ Deno.serve(async (req) => {
         recently_deleted: recentlyDeleted,
       },
       event_feed: eventFeed,
+      facilitators: facilitatorStats,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

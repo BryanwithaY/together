@@ -79,6 +79,7 @@ export default function FacilitatorApplyForm({ user, existingApplication, onAppl
       motivation: motivation.trim(),
       status: 'pending'
     });
+    Analytics.facilitatorApplicationSubmitted(facilitatorType);
     setSubmitting(false);
     setSubmitted(true);
     if (onApplied) onApplied();
