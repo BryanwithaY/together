@@ -83,6 +83,7 @@ export default function Admin() {
     { id: 'events',         label: 'Events',       icon: GitFork },
     { id: 'subscriptions',  label: 'Subscriptions', icon: CreditCard },
     { id: 'facilitators',   label: 'Facilitators',  icon: UserCheck },
+    { id: 'analytics',      label: 'Analytics',     icon: TrendingUp },
   ];
 
   return (
