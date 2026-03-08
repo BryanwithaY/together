@@ -36,34 +36,46 @@ export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
   const handleSaveNote = async () => {
     if (!noteContent.trim()) return;
     setSavingNote(true);
-    await base44.entities.FacilitatorNote.create({
-      facilitator_email: currentUser?.email,
-      relationship_id: facRelId,
-      content: noteContent.trim(),
-      session_date: new Date().toISOString(),
-      is_private: true
-    });
-    Analytics.facilitatorNoteCreated();
-    setNoteContent('');
-    setSavingNote(false);
-    queryClient.invalidateQueries({ queryKey: ['facilitatorDetail', facRelId] });
+    setNoteError(null);
+    try {
+      await base44.entities.FacilitatorNote.create({
+        facilitator_email: currentUser?.email,
+        relationship_id: facRelId,
+        content: noteContent.trim(),
+        session_date: new Date().toISOString(),
+        is_private: true
+      });
+      Analytics.facilitatorNoteCreated();
+      setNoteContent('');
+      queryClient.invalidateQueries({ queryKey: ['facilitatorDetail', facRelId] });
+    } catch (err) {
+      setNoteError(err?.message || 'Failed to save note. Please try again.');
+    } finally {
+      setSavingNote(false);
+    }
   };
 
   const handleSendMessage = async () => {
     if (!messageContent.trim()) return;
     setSendingMessage(true);
-    await base44.entities.FacilitatorMessage.create({
-      facilitator_email: currentUser?.email,
-      relationship_id: facRelId,
-      content: messageContent.trim(),
-      target_type: messageTarget,
-      target_email: messageTarget === 'member' ? messageTargetEmail : null,
-      read_by: []
-    });
-    Analytics.facilitatorMessageSent(messageTarget);
-    setMessageContent('');
-    setSendingMessage(false);
-    queryClient.invalidateQueries({ queryKey: ['facilitatorDetail', facRelId] });
+    setMessageError(null);
+    try {
+      await base44.entities.FacilitatorMessage.create({
+        facilitator_email: currentUser?.email,
+        relationship_id: facRelId,
+        content: messageContent.trim(),
+        target_type: messageTarget,
+        target_email: messageTarget === 'member' ? messageTargetEmail : null,
+        read_by: []
+      });
+      Analytics.facilitatorMessageSent(messageTarget);
+      setMessageContent('');
+      queryClient.invalidateQueries({ queryKey: ['facilitatorDetail', facRelId] });
+    } catch (err) {
+      setMessageError(err?.message || 'Failed to send message. Please try again.');
+    } finally {
+      setSendingMessage(false);
+    }
   };
 
   if (isLoading) return (
