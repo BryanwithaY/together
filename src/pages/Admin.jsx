@@ -6,6 +6,7 @@ import { usePageLoading } from '../components/PageLoadingContext';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, RefreshCw, Users, Activity, Bug, Heart, TrendingDown, GitFork, CreditCard, UserCheck } from 'lucide-react';
 import FacilitatorApplicationsList from '../components/admin/FacilitatorApplicationsList';
+import EngagementAnalysis from '../components/analytics/EngagementAnalysis';
 import { useNavigate } from 'react-router-dom';
 import AdminStatCard from '../components/admin/AdminStatCard';
 import FeatureUsageChart from '../components/admin/FeatureUsageChart';
