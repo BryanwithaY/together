@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Heart, Settings, BarChart2, Bookmark, ShieldCheck, Calendar, Sparkles } from 'lucide-react';
+import { Heart, Settings, BarChart2, ShieldCheck, Calendar, Sparkles, Users } from 'lucide-react';
 import { useRelationship } from './relationship/RelationshipContext';
 
 const BASE_TABS = [
@@ -15,9 +15,14 @@ const BASE_TABS = [
 export default function BottomTabBar({ currentPageName }) {
   const navigate = useNavigate();
   const { currentUser } = useRelationship();
-  const tabs = currentUser?.role === 'admin'
-    ? [...BASE_TABS, { label: 'Admin', icon: ShieldCheck, page: 'Admin' }]
-    : BASE_TABS;
+
+  let tabs = [...BASE_TABS];
+  if (currentUser?.role === 'facilitator') {
+    tabs = [...BASE_TABS, { label: 'Portal', icon: Users, page: 'FacilitatorPortal' }];
+  }
+  if (currentUser?.role === 'admin') {
+    tabs = [...BASE_TABS, { label: 'Admin', icon: ShieldCheck, page: 'Admin' }];
+  }
 
   const handleTabClick = (e, page) => {
     const active = currentPageName === page;

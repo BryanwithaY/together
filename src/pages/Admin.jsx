@@ -4,7 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRelationship } from '../components/relationship/RelationshipContext';
 import { usePageLoading } from '../components/PageLoadingContext';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, RefreshCw, Users, Activity, Bug, Heart, TrendingDown, GitFork, CreditCard } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Users, Activity, Bug, Heart, TrendingDown, GitFork, CreditCard, UserCheck } from 'lucide-react';
+import FacilitatorApplicationsList from '../components/admin/FacilitatorApplicationsList';
 import { useNavigate } from 'react-router-dom';
 import AdminStatCard from '../components/admin/AdminStatCard';
 import FeatureUsageChart from '../components/admin/FeatureUsageChart';
@@ -80,6 +81,7 @@ export default function Admin() {
     { id: 'churn',          label: 'Churn',        icon: TrendingDown },
     { id: 'events',         label: 'Events',       icon: GitFork },
     { id: 'subscriptions',  label: 'Subscriptions', icon: CreditCard },
+    { id: 'facilitators',   label: 'Facilitators',  icon: UserCheck },
   ];
 
   return (
@@ -279,6 +281,17 @@ export default function Admin() {
               <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
                 <h3 className="text-sm font-semibold text-stone-700 mb-3">Live Event Feed</h3>
                 <EventFeed events={s.event_feed} />
+              </div>
+            )}
+
+            {/* FACILITATORS */}
+            {activeTab === 'facilitators' && (
+              <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
+                <h3 className="text-sm font-semibold text-stone-700 mb-4 flex items-center gap-2">
+                  <UserCheck className="w-4 h-4" />
+                  Facilitator Applications
+                </h3>
+                <FacilitatorApplicationsList />
               </div>
             )}
 
