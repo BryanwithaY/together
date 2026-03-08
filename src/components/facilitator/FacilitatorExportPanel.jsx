@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
+import { Analytics } from '../lib/analytics';
 import { Button } from '@/components/ui/button';
 import { Download, Calendar, FileText, FileJson, Mail, Repeat } from 'lucide-react';
 import { format } from 'date-fns';
@@ -33,6 +34,7 @@ export default function FacilitatorExportPanel({ relationshipId, relationshipNam
     } else {
       downloadCSV(data, filename + '.csv');
     }
+    Analytics.facilitatorExportTriggered(exportFormat);
     setLoading(false);
   };
 
