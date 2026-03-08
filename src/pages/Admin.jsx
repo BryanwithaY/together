@@ -348,6 +348,13 @@ export default function Admin() {
               </div>
             )}
 
+            {/* ANALYTICS */}
+            {activeTab === 'analytics' && (
+              <div className="bg-white rounded-2xl border border-stone-200/60 overflow-hidden">
+                <EngagementAnalysis />
+              </div>
+            )}
+
             {/* SUBSCRIPTIONS */}
             {activeTab === 'subscriptions' && (
               <div className="space-y-6">
