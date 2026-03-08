@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRelationship } from '../components/relationship/RelationshipContext';
 import { usePageLoading } from '../components/PageLoadingContext';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, RefreshCw, Users, Activity, Bug, Heart, TrendingDown, GitFork, CreditCard, UserCheck } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Users, Activity, Bug, Heart, TrendingDown, GitFork, CreditCard, UserCheck, TrendingUp } from 'lucide-react';
 import FacilitatorApplicationsList from '../components/admin/FacilitatorApplicationsList';
 import EngagementAnalysis from '../components/analytics/EngagementAnalysis';
 import { useNavigate } from 'react-router-dom';
