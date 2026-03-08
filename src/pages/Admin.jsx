@@ -286,12 +286,63 @@ export default function Admin() {
 
             {/* FACILITATORS */}
             {activeTab === 'facilitators' && (
-              <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
-                <h3 className="text-sm font-semibold text-stone-700 mb-4 flex items-center gap-2">
-                  <UserCheck className="w-4 h-4" />
-                  Facilitator Applications
-                </h3>
-                <FacilitatorApplicationsList />
+              <div className="space-y-4">
+                {s?.facilitators && (
+                  <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
+                    <h3 className="text-sm font-semibold text-stone-700 mb-3 flex items-center gap-2">
+                      <UserCheck className="w-4 h-4" />
+                      Facilitator Activity
+                    </h3>
+                    <div className="grid grid-cols-3 gap-3 mb-3">
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-amber-600">{s.facilitators.pending_applications}</p>
+                        <p className="text-xs text-stone-400 mt-0.5">Pending</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-emerald-600">{s.facilitators.approved_applications}</p>
+                        <p className="text-xs text-stone-400 mt-0.5">Approved</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-violet-600">{s.facilitators.active_relationships}</p>
+                        <p className="text-xs text-stone-400 mt-0.5">Active Rels</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3 pt-3 border-t border-stone-100">
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-sky-600">{s.facilitators.pending_consent}</p>
+                        <p className="text-xs text-stone-400 mt-0.5">Awaiting Consent</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-stone-600">{s.facilitators.total_applications}</p>
+                        <p className="text-xs text-stone-400 mt-0.5">Total Apps</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-blue-600">{s.facilitators.new_applications_7d}</p>
+                        <p className="text-xs text-stone-400 mt-0.5">New (7d)</p>
+                      </div>
+                    </div>
+                    {s.facilitators.by_type && Object.keys(s.facilitators.by_type).length > 0 && (
+                      <div className="pt-3 mt-3 border-t border-stone-100">
+                        <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2">By Type</p>
+                        <div className="flex gap-3">
+                          {Object.entries(s.facilitators.by_type).map(([type, count]) => (
+                            <div key={type} className="flex-1 text-center bg-stone-50 rounded-lg p-2">
+                              <p className="text-lg font-bold text-stone-700">{count}</p>
+                              <p className="text-xs text-stone-400 capitalize">{type}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
+                  <h3 className="text-sm font-semibold text-stone-700 mb-4 flex items-center gap-2">
+                    <UserCheck className="w-4 h-4" />
+                    Facilitator Applications
+                  </h3>
+                  <FacilitatorApplicationsList />
+                </div>
               </div>
             )}
 
