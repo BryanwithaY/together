@@ -3,8 +3,9 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, AlertTriangle, MessageSquare, FileText, Sparkles, Send, Clock, CheckCircle2, Eye, EyeOff, Users } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, MessageSquare, FileText, Send, Eye, EyeOff, Users, Download } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
+import FacilitatorExportPanel from './FacilitatorExportPanel';
 
 export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
   const queryClient = useQueryClient();
@@ -69,6 +70,7 @@ export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
     { id: 'moments', label: 'Moments', icon: Eye },
     { id: 'notes', label: 'Notes', icon: FileText },
     { id: 'messages', label: 'Messages', icon: MessageSquare },
+    { id: 'export', label: 'Export', icon: Download },
   ];
 
   const momentTypeColors = {
@@ -251,6 +253,15 @@ export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
             </div>
           )}
         </div>
+      )}
+
+      {/* EXPORT */}
+      {activeTab === 'export' && (
+        <FacilitatorExportPanel
+          relationshipId={facRelId}
+          relationshipName={facilitator_relationship?.relationship_name}
+          facilitatorRelationship={facilitator_relationship}
+        />
       )}
 
       {/* MESSAGES */}

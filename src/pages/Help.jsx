@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { ArrowLeft, Heart, HandHeart, Sparkles, ShieldAlert, BarChart2, Bookmark, Play, MessageCircle, Users, Eye, Star } from 'lucide-react';
+import { ArrowLeft, Heart, HandHeart, Sparkles, ShieldAlert, BarChart2, Bookmark, Play, MessageCircle, Users, Eye, Star, Shield, UserCheck, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import AppTour from '../components/help/AppTour.jsx';
 import BugReportForm from '../components/support/BugReportForm.jsx';
@@ -214,6 +214,69 @@ export default function Help() {
               </li>
             ))}
           </ul>
+        </div>
+
+        {/* Facilitator Guide */}
+        <div>
+          <h2 className="text-lg font-semibold text-stone-800 mb-3 px-1">Facilitators — Guided Support</h2>
+          <div className="bg-white rounded-2xl border border-violet-100 divide-y divide-stone-100 mb-3">
+            {[
+              {
+                icon: Shield,
+                color: 'text-violet-600',
+                bg: 'bg-violet-50',
+                title: 'What is a Facilitator?',
+                body: 'A facilitator is someone — a therapist, couples coach, trusted mentor, or even a close friend — who you invite to view your relationship\'s moments and patterns. They can send you guidance, take private session notes, and use AI-assisted pattern analysis to help you grow.'
+              },
+              {
+                icon: UserCheck,
+                color: 'text-emerald-600',
+                bg: 'bg-emerald-50',
+                title: 'How to Approve a Facilitator',
+                body: 'Go to Settings → Relationship → Facilitator Oversight. Share your Relationship ID with your facilitator so they can request access. Once they do, each member will be asked to individually approve or decline. Access is only granted when all members consent.'
+              },
+              {
+                icon: Eye,
+                color: 'text-sky-600',
+                bg: 'bg-sky-50',
+                title: 'What They Can & Can\'t See',
+                body: 'Facilitators see only moments you\'ve shared with the relationship (visibility set to "relationship"). You can also hide your self-reflection moments entirely, or hide specific moments one by one. Private moments are never visible. You stay in full control — always.'
+              },
+              {
+                icon: Lock,
+                color: 'text-stone-600',
+                bg: 'bg-stone-100',
+                title: 'Revoke Access Anytime',
+                body: 'You can revoke a facilitator\'s access at any time in Relationship Settings. This immediately and permanently removes their visibility into your data. Their private session notes (visible only to them) are not affected.'
+              },
+              {
+                icon: Users,
+                color: 'text-rose-600',
+                bg: 'bg-rose-50',
+                title: 'Become a Facilitator Yourself',
+                body: 'Do you know a couple or group who could benefit from guided support? If you have the skills, bandwidth, and genuine motivation to help — you can apply to become a facilitator in Settings → Facilitator Portal. Personal mentors and professional practitioners are both welcome. Your role is to guide, not to judge.'
+              }
+            ].map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <div key={i} className="flex items-start gap-4 p-4">
+                  <div className={`w-9 h-9 rounded-xl ${item.bg} flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                    <Icon className={`w-4 h-4 ${item.color}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-stone-800 text-sm">{item.title}</p>
+                    <p className="text-xs text-stone-500 mt-0.5 leading-relaxed">{item.body}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <button
+            onClick={() => navigate(createPageUrl('FacilitatorPortal'))}
+            className="w-full border border-violet-200 bg-violet-50 text-violet-700 text-sm font-medium rounded-xl py-3 hover:bg-violet-100 transition-colors flex items-center justify-center gap-2"
+          >
+            <Users className="w-4 h-4" /> Open Facilitator Portal
+          </button>
         </div>
 
         {/* AI Coach CTA */}
