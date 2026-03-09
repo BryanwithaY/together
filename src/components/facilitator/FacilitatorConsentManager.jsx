@@ -64,7 +64,7 @@ export default function FacilitatorConsentManager() {
       <div className="text-center py-6">
         <Shield className="w-8 h-8 text-stone-300 mx-auto mb-2" />
         <p className="text-sm text-stone-400">No facilitators connected to this relationship.</p>
-        <p className="text-xs text-stone-400 mt-1">A facilitator can request access, or a relationship admin can invite one.</p>
+        <p className="text-xs text-stone-400 mt-1">A facilitator can request access, or a relationship admin can invite one above.</p>
       </div>
     );
   }
