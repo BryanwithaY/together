@@ -305,7 +305,7 @@ export default function Help() {
         {/* Bug Report / Support */}
         <BugReportForm />
 
-        <div className="h-2" />
+        <div className="h-6" />
       </div>
 
       {tourOpen && <AppTour onClose={() => setTourOpen(false)} />}
