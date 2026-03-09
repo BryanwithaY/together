@@ -221,6 +221,25 @@ export default function FacilitatorPortal() {
                 </div>
               )}
 
+              {/* Pending client invitations */}
+              {sentInvitations.filter(i => i.status === 'pending').length > 0 && (
+                <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
+                  <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                    <Mail className="w-3.5 h-3.5" />
+                    Pending Client Invitations
+                  </p>
+                  <div className="space-y-2">
+                    {sentInvitations.filter(i => i.status === 'pending').map(inv => (
+                      <div key={inv.id} className="flex items-center justify-between py-1.5 text-sm">
+                        <span className="text-stone-700 truncate">{inv.invitee_email}</span>
+                        <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5 flex-shrink-0 ml-2">Awaiting signup</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-stone-400 mt-3">They'll be automatically linked once they join and you're connected to their relationship.</p>
+                </div>
+              )}
+
               {enrichedRels.map(rel => (
                 <FacilitatorRelationshipCard
                   key={rel.id}
