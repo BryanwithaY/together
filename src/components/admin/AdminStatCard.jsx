@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function AdminStatCard({ label, value, sub, color = 'stone', icon: Icon }) {
+export default function AdminStatCard({ label, value, sub, color = 'stone', icon: Icon, onClick }) {
   const colorMap = {
     stone: 'bg-stone-50 text-stone-700 border-stone-200',
     green: 'bg-emerald-50 text-emerald-700 border-emerald-200',
