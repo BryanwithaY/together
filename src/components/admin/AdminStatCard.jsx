@@ -11,7 +11,10 @@ export default function AdminStatCard({ label, value, sub, color = 'stone', icon
   };
 
   return (
-    <div className={`rounded-2xl border p-4 ${colorMap[color]}`}>
+    <div
+      className={`rounded-2xl border p-4 ${colorMap[color]} ${onClick ? 'cursor-pointer hover:brightness-95 active:scale-95 transition-all' : ''}`}
+      onClick={onClick}
+    >
       <div className="flex items-center justify-between mb-1">
         <p className="text-xs font-medium uppercase tracking-wider opacity-70">{label}</p>
         {Icon && <Icon className="w-4 h-4 opacity-50" />}
