@@ -63,6 +63,21 @@ export default function FacilitatorPortal() {
     enabled: !!facRelsData?.length && isFacilitator,
   });
 
+  // Auto-link any pending invitations when facilitator loads the portal
+  useEffect(() => {
+    if (!isFacilitator) return;
+    base44.functions.invoke('manageFacilitatorAccess', { action: 'check_pending_invitations' })
+      .then(res => { if (res.data?.processed > 0) refetch(); })
+      .catch(() => {});
+  }, [isFacilitator]);
+
+  // Load sent client invitations so facilitator can see their outbound invites
+  const { data: sentInvitations = [] } = useQuery({
+    queryKey: ['facilitatorSentInvitations'],
+    queryFn: () => base44.entities.FacilitatorInvitation.filter({ inviter_email: currentUser?.email, role_for_invitee: 'member' }),
+    enabled: isFacilitator,
+  });
+
   const isLoading = appLoading || relsLoading;
 
   useEffect(() => {
