@@ -11,19 +11,21 @@ export default function FacilitatorAccessRequest({ onSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [outcome, setOutcome] = useState('');
 
   const handleInvite = async () => {
     if (!facilitatorEmail.trim()) return;
     setLoading(true);
     setError('');
     const res = await base44.functions.invoke('manageFacilitatorAccess', {
-      action: 'request_access',
-      relationship_id: activeRelationship.id,
-      facilitator_email: facilitatorEmail.trim().toLowerCase(),
-      initiated_by_type: 'relationship_member'
+      action: 'invite_to_app',
+      invitee_email: facilitatorEmail.trim().toLowerCase(),
+      role_for_invitee: 'facilitator',
+      relationship_id: activeRelationship?.id
     });
     setLoading(false);
     if (res.data?.success) {
+      setOutcome(res.data.outcome);
       setSuccess(true);
       setFacilitatorEmail('');
       if (onSuccess) onSuccess();
@@ -35,9 +37,13 @@ export default function FacilitatorAccessRequest({ onSuccess }) {
   if (success) {
     return (
       <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
-        <p className="text-sm text-emerald-700 font-medium">Facilitator invited</p>
+        <p className="text-sm text-emerald-700 font-medium">
+          {outcome === 'connected' ? 'Facilitator connected' : 'Invitation sent'}
+        </p>
         <p className="text-xs text-emerald-600 mt-0.5">
-          All members will be asked to approve access before the facilitator can view the relationship.
+          {outcome === 'connected'
+            ? 'All members will be asked to approve access before the facilitator can view the relationship.'
+            : "They'll receive an email invitation. Once they join and get approved as a facilitator, they'll be automatically linked to this relationship."}
         </p>
       </div>
     );

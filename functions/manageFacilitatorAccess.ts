@@ -224,6 +224,138 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, consents: enriched });
     }
 
+    // ── INVITE TO APP ──────────────────────────────────────────────
+    // Used by: members inviting a facilitator, or facilitators inviting clients
+    if (action === 'invite_to_app') {
+      const { invitee_email, role_for_invitee, relationship_id, message } = body;
+      if (!invitee_email || !role_for_invitee) {
+        return Response.json({ error: 'invitee_email and role_for_invitee are required' }, { status: 400 });
+      }
+      const normalizedEmail = invitee_email.trim().toLowerCase();
+
+      if (role_for_invitee === 'facilitator') {
+        // A relationship member is inviting someone to be their facilitator
+        if (relationship_id) {
+          const inviterMembership = await base44.asServiceRole.entities.RelationshipMember.filter({
+            relationship_id, user_email: user.email, status: 'active'
+          });
+          if (!inviterMembership.some(m => ['owner', 'admin'].includes(m.role))) {
+            return Response.json({ error: 'Only relationship owners/admins can invite a facilitator' }, { status: 403 });
+          }
+        }
+
+        // If invitee already has an approved facilitator account — do direct connection
+        const existingUsers = await base44.asServiceRole.entities.User.filter({ email: normalizedEmail });
+        const inviteeUser = existingUsers[0];
+        if (inviteeUser && (inviteeUser.role === 'facilitator' || inviteeUser.role === 'admin') && relationship_id) {
+          const existing = await base44.asServiceRole.entities.FacilitatorRelationship.filter({
+            facilitator_email: normalizedEmail, relationship_id
+          });
+          if (existing.filter(r => ['pending_approval', 'active'].includes(r.status)).length > 0) {
+            return Response.json({ error: 'A facilitator connection already exists or is pending' }, { status: 409 });
+          }
+          const relationship = await base44.asServiceRole.entities.Relationship.filter({ id: relationship_id });
+          const relName = relationship[0]?.name || 'Unknown';
+          const members = await base44.asServiceRole.entities.RelationshipMember.filter({ relationship_id, status: 'active' });
+          const facRel = await base44.asServiceRole.entities.FacilitatorRelationship.create({
+            facilitator_email: normalizedEmail, relationship_id, relationship_name: relName,
+            initiated_by: user.email, initiated_by_type: 'relationship_member',
+            status: 'pending_approval', all_approved: false
+          });
+          await Promise.all(members.map(m => base44.asServiceRole.entities.FacilitatorConsent.create({
+            facilitator_relationship_id: facRel.id, facilitator_email: normalizedEmail,
+            relationship_id, member_email: m.user_email,
+            status: 'pending', hide_self_reflections: false, hidden_moment_ids: []
+          })));
+          return Response.json({ success: true, outcome: 'connected' });
+        }
+
+        // Not yet a facilitator (or no account) — create a pending invitation
+        const existingInvites = await base44.asServiceRole.entities.FacilitatorInvitation.filter({
+          invitee_email: normalizedEmail, inviter_email: user.email, status: 'pending'
+        });
+        if (existingInvites.length > 0) {
+          return Response.json({ error: 'An invitation has already been sent to this person' }, { status: 409 });
+        }
+        await base44.asServiceRole.entities.FacilitatorInvitation.create({
+          inviter_email: user.email, invitee_email: normalizedEmail,
+          role_for_invitee: 'facilitator', relationship_id: relationship_id || null,
+          status: 'pending', message: message || null
+        });
+        await base44.asServiceRole.integrations.Core.SendEmail({
+          to: normalizedEmail,
+          subject: `${user.full_name || user.email} invited you to be a relationship facilitator on Together`,
+          body: `Hi,\n\n${user.full_name || user.email} would like you to be a facilitator for their relationship on Together — a relationship wellness app.\n\nAs a facilitator you can view shared moments, track progress, and provide guidance.\n\nTo get started:\n1. Create your account on the Together app\n2. Apply to become a facilitator in the Facilitator Portal\n3. Once approved, you'll be automatically linked to their relationship space\n\n${message ? `Message from ${user.full_name || user.email}: "${message}"\n\n` : ''}You're receiving this because someone wants you as their relationship guide.`
+        });
+        return Response.json({ success: true, outcome: 'invited' });
+      }
+
+      if (role_for_invitee === 'member') {
+        // A facilitator is inviting a client to join the app
+        if (user.role !== 'facilitator' && user.role !== 'admin') {
+          return Response.json({ error: 'Must be an approved facilitator to invite clients' }, { status: 403 });
+        }
+        const existingInvites = await base44.asServiceRole.entities.FacilitatorInvitation.filter({
+          invitee_email: normalizedEmail, inviter_email: user.email, status: 'pending'
+        });
+        if (existingInvites.length > 0) {
+          return Response.json({ error: 'An invitation has already been sent to this person' }, { status: 409 });
+        }
+        await base44.asServiceRole.entities.FacilitatorInvitation.create({
+          inviter_email: user.email, invitee_email: normalizedEmail,
+          role_for_invitee: 'member', relationship_id: relationship_id || null,
+          status: 'pending', message: message || null
+        });
+        await base44.asServiceRole.integrations.Core.SendEmail({
+          to: normalizedEmail,
+          subject: `${user.full_name || 'Your facilitator'} invited you to Together`,
+          body: `Hi,\n\n${user.full_name || user.email} (your facilitator) has invited you to Together — an app for nurturing meaningful relationships.\n\nTogether helps you and your partner log moments of growth, gratitude, and connection. Your facilitator will be there to guide your journey once you join and approve their access.\n\nTo get started, create your account on the Together app and set up your relationship space. Your facilitator will then be able to connect with you.\n\n${message ? `Message from ${user.full_name || user.email}: "${message}"\n\n` : ''}Looking forward to supporting your relationship journey!`
+        });
+        return Response.json({ success: true, outcome: 'invited' });
+      }
+
+      return Response.json({ error: 'Invalid role_for_invitee' }, { status: 400 });
+    }
+
+    // ── CHECK & AUTO-LINK PENDING INVITATIONS ─────────────────────
+    // Called when a facilitator first loads the portal — auto-links any pending invitations
+    if (action === 'check_pending_invitations') {
+      if (user.role !== 'facilitator' && user.role !== 'admin') {
+        return Response.json({ success: true, processed: 0 });
+      }
+      const pendingInvites = await base44.asServiceRole.entities.FacilitatorInvitation.filter({
+        invitee_email: user.email.toLowerCase(),
+        role_for_invitee: 'facilitator',
+        status: 'pending'
+      });
+
+      let processed = 0;
+      for (const invite of pendingInvites) {
+        if (!invite.relationship_id) continue; // no relationship yet — member will connect manually
+        const existing = await base44.asServiceRole.entities.FacilitatorRelationship.filter({
+          facilitator_email: user.email.toLowerCase(), relationship_id: invite.relationship_id
+        });
+        if (!existing.filter(r => ['pending_approval', 'active'].includes(r.status)).length) {
+          const relationship = await base44.asServiceRole.entities.Relationship.filter({ id: invite.relationship_id });
+          const relName = relationship[0]?.name || 'Unknown';
+          const members = await base44.asServiceRole.entities.RelationshipMember.filter({ relationship_id: invite.relationship_id, status: 'active' });
+          const facRel = await base44.asServiceRole.entities.FacilitatorRelationship.create({
+            facilitator_email: user.email.toLowerCase(), relationship_id: invite.relationship_id,
+            relationship_name: relName, initiated_by: invite.inviter_email,
+            initiated_by_type: 'relationship_member', status: 'pending_approval', all_approved: false
+          });
+          await Promise.all(members.map(m => base44.asServiceRole.entities.FacilitatorConsent.create({
+            facilitator_relationship_id: facRel.id, facilitator_email: user.email.toLowerCase(),
+            relationship_id: invite.relationship_id, member_email: m.user_email,
+            status: 'pending', hide_self_reflections: false, hidden_moment_ids: []
+          })));
+        }
+        await base44.asServiceRole.entities.FacilitatorInvitation.update(invite.id, { status: 'accepted' });
+        processed++;
+      }
+      return Response.json({ success: true, processed });
+    }
+
     return Response.json({ error: 'Unknown action' }, { status: 400 });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

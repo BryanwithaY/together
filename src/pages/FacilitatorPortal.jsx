@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useRelationship } from '../components/relationship/RelationshipContext';
 import { usePageLoading } from '../components/PageLoadingContext';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Users, Sparkles, RefreshCw, Plus } from 'lucide-react';
+import { ArrowLeft, Users, Sparkles, RefreshCw, Plus, Mail } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import FacilitatorApplyForm from '../components/facilitator/FacilitatorApplyForm';
