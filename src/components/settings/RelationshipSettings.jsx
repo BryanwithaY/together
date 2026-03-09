@@ -134,10 +134,15 @@ export default function RelationshipSettings() {
           <p className="text-xs text-stone-400 mt-0.5">Share with a facilitator so they can request access</p>
         </div>
         <button
-          onClick={() => navigator.clipboard.writeText(activeRelationship.id)}
-          className="text-xs text-stone-400 hover:text-stone-700 border border-stone-200 rounded-lg px-2.5 py-1.5 transition-colors flex-shrink-0"
+          onClick={() => {
+            navigator.clipboard.writeText(activeRelationship.id).then(() => {
+              setCopiedId(true);
+              setTimeout(() => setCopiedId(false), 2000);
+            });
+          }}
+          className={`text-xs border rounded-lg px-2.5 py-1.5 transition-colors flex-shrink-0 ${copiedId ? 'text-emerald-600 border-emerald-200 bg-emerald-50' : 'text-stone-400 hover:text-stone-700 border-stone-200'}`}
         >
-          Copy
+          {copiedId ? 'Copied!' : 'Copy'}
         </button>
       </div>
 
