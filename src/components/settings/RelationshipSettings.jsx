@@ -37,6 +37,7 @@ export default function RelationshipSettings() {
   const [showRoleMenuFor, setShowRoleMenuFor] = useState(null);
   const [deleteSpaceConfirmText, setDeleteSpaceConfirmText] = useState('');
   const [deleteSpaceOpen, setDeleteSpaceOpen] = useState(false);
+  const [copiedId, setCopiedId] = useState(false);
 
   if (!activeRelationship) return null;
 
