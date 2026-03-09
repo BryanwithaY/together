@@ -15,12 +15,10 @@ export default function FacilitatorApplicationsList() {
 
   const approveMutation = useMutation({
     mutationFn: async ({ application }) => {
-      // Update application status
       await base44.entities.FacilitatorApplication.update(application.id, {
         status: 'approved',
         reviewed_at: new Date().toISOString()
       });
-      // Update user role and type
       const users = await base44.asServiceRole?.entities?.User?.filter?.({ email: application.applicant_email }) ||
         await base44.entities.User.filter({ email: application.applicant_email });
       if (users?.length) {
@@ -32,7 +30,16 @@ export default function FacilitatorApplicationsList() {
         });
       }
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['facilitatorApplications'] })
+    onMutate: async ({ application }) => {
+      await queryClient.cancelQueries({ queryKey: ['facilitatorApplications'] });
+      const prev = queryClient.getQueryData(['facilitatorApplications']);
+      queryClient.setQueryData(['facilitatorApplications'], old =>
+        old?.map(a => a.id === application.id ? { ...a, status: 'approved', reviewed_at: new Date().toISOString() } : a)
+      );
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => queryClient.setQueryData(['facilitatorApplications'], ctx.prev),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['facilitatorApplications'] })
   });
 
   const rejectMutation = useMutation({
@@ -40,7 +47,16 @@ export default function FacilitatorApplicationsList() {
       status: 'rejected',
       reviewed_at: new Date().toISOString()
     }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['facilitatorApplications'] })
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['facilitatorApplications'] });
+      const prev = queryClient.getQueryData(['facilitatorApplications']);
+      queryClient.setQueryData(['facilitatorApplications'], old =>
+        old?.map(a => a.id === id ? { ...a, status: 'rejected', reviewed_at: new Date().toISOString() } : a)
+      );
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => queryClient.setQueryData(['facilitatorApplications'], ctx.prev),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['facilitatorApplications'] })
   });
 
   const pending = applications.filter(a => a.status === 'pending');
