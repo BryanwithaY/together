@@ -105,7 +105,8 @@ export default function Admin() {
           </Button>
         </div>
         {/* Tabs */}
-        <div className="max-w-2xl mx-auto px-4 flex gap-1 pb-0 overflow-x-auto">
+        <div className="max-w-2xl mx-auto overflow-x-auto">
+        <div className="flex gap-1 px-4 min-w-max">
           {tabs.map(t => (
             <button
               key={t.id}
