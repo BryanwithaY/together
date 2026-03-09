@@ -234,7 +234,7 @@ export default function Settings() {
           )}
         </div>
 
-        <div className="h-2" />
+        <div className="h-6" />
       </div>
     </div>
   );
