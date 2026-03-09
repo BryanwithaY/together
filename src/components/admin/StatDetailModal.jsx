@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { X, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
+import UserDetailModal from './UserDetailModal';
 
 const days = (n) => new Date(Date.now() - n * 86400000).toISOString();
 
@@ -10,10 +11,12 @@ const CONFIGS = {
   total_users: {
     title: 'All Users',
     fetch: () => base44.entities.User.list('-created_date', 500),
+    userEmailKey: 'email',
     columns: [
       { key: 'full_name', label: 'Name' },
       { key: 'email', label: 'Email' },
       { key: 'role', label: 'Role' },
+      { key: 'is_disabled', label: 'Status', type: 'status' },
       { key: 'created_date', label: 'Joined', type: 'date' },
     ],
   },
@@ -40,20 +43,24 @@ const CONFIGS = {
   new_7d: {
     title: 'New Users — Last 7 Days',
     fetch: () => base44.entities.User.filter({ created_date: { $gte: days(7) } }, '-created_date', 200),
+    userEmailKey: 'email',
     columns: [
       { key: 'full_name', label: 'Name' },
       { key: 'email', label: 'Email' },
       { key: 'role', label: 'Role' },
+      { key: 'is_disabled', label: 'Status', type: 'status' },
       { key: 'created_date', label: 'Joined', type: 'date' },
     ],
   },
   new_30d: {
     title: 'New Users — Last 30 Days',
     fetch: () => base44.entities.User.filter({ created_date: { $gte: days(30) } }, '-created_date', 200),
+    userEmailKey: 'email',
     columns: [
       { key: 'full_name', label: 'Name' },
       { key: 'email', label: 'Email' },
       { key: 'role', label: 'Role' },
+      { key: 'is_disabled', label: 'Status', type: 'status' },
       { key: 'created_date', label: 'Joined', type: 'date' },
     ],
   },
@@ -164,6 +171,11 @@ const CONFIGS = {
 };
 
 function formatCell(value, type) {
+  if (type === 'status') {
+    return value === true
+      ? <span className="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">Disabled</span>
+      : <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Active</span>;
+  }
   if (value == null || value === '') return '—';
   if (type === 'date') {
     try { return format(new Date(value), 'MMM d, yyyy'); } catch { return value; }
@@ -172,6 +184,7 @@ function formatCell(value, type) {
 }
 
 export default function StatDetailModal({ type, onClose }) {
+  const [selectedUserEmail, setSelectedUserEmail] = useState(null);
   const config = CONFIGS[type];
 
   const { data = [], isLoading } = useQuery({
@@ -228,15 +241,23 @@ export default function StatDetailModal({ type, onClose }) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100">
-                {rows.map((row, i) => (
-                  <tr key={row.id || i} className="hover:bg-stone-50 transition-colors">
-                    {config.columns.map(col => (
-                      <td key={col.key} className="px-4 py-2.5 text-stone-700 max-w-[220px] truncate">
-                        {formatCell(row[col.key], col.type)}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
+                {rows.map((row, i) => {
+                  const emailKey = config.userEmailKey;
+                  const isUserRow = !!emailKey;
+                  return (
+                    <tr
+                      key={row.id || i}
+                      className={`transition-colors ${isUserRow ? 'cursor-pointer hover:bg-stone-100' : 'hover:bg-stone-50'}`}
+                      onClick={isUserRow ? () => setSelectedUserEmail(row[emailKey]) : undefined}
+                    >
+                      {config.columns.map(col => (
+                        <td key={col.key} className="px-4 py-2.5 text-stone-700 max-w-[220px] truncate">
+                          {formatCell(row[col.key], col.type)}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}
@@ -246,9 +267,17 @@ export default function StatDetailModal({ type, onClose }) {
         {!isLoading && (
           <div className="px-5 py-3 border-t border-stone-100 text-xs text-stone-400 flex-shrink-0">
             {rows.length} record{rows.length !== 1 ? 's' : ''}
+            {config.userEmailKey && <span className="ml-2 text-stone-300">· Click a row for full user details</span>}
           </div>
         )}
       </div>
+
+      {selectedUserEmail && (
+        <UserDetailModal
+          userEmail={selectedUserEmail}
+          onClose={() => setSelectedUserEmail(null)}
+        />
+      )}
     </div>
   );
 }
