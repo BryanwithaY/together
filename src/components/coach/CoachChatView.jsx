@@ -81,7 +81,7 @@ export default function CoachChatView({ user }) {
   }
 
   return (
-    <div className="flex flex-col" style={{ height: 'calc(100dvh - 56px)' }}>
+    <div className="flex flex-col" style={{ height: 'calc(100dvh - 56px - max(env(safe-area-inset-bottom), 12px))' }}>
       {/* Header */}
       <div className="bg-white border-b border-stone-200/60 flex-shrink-0">
         <div className="max-w-2xl mx-auto px-4 py-3.5 flex items-center gap-3">
