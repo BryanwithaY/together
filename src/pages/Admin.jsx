@@ -19,6 +19,7 @@ import FeaturesMatrix from '../components/admin/subscriptions/FeaturesMatrix';
 import SubscribersList from '../components/admin/subscriptions/SubscribersList';
 import RevenueOverview from '../components/admin/subscriptions/RevenueOverview';
 import { useEffect } from 'react';
+import StatDetailModal from '../components/admin/StatDetailModal';
 
 export default function Admin() {
   const { currentUser } = useRelationship();
@@ -26,6 +27,7 @@ export default function Admin() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('overview');
+  const [detailType, setDetailType] = useState(null);
 
   const SYSTEM_ADMIN_EMAILS = ['bryan.atkins@gmail.com'];
   const isAdmin = currentUser && SYSTEM_ADMIN_EMAILS.includes(currentUser.email);
@@ -132,30 +134,30 @@ export default function Admin() {
             {activeTab === 'overview' && (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
-                  <AdminStatCard label="Total Users" value={s.users.total} icon={Users} color="stone" />
-                  <AdminStatCard label="Active (7d)" value={s.users.active_7d} sub={`${s.users.active_30d} last 30d`} icon={Activity} color="green" />
-                  <AdminStatCard label="New Users (7d)" value={s.users.new_7d} sub={`${s.users.new_30d} last 30d`} color="blue" />
-                  <AdminStatCard label="Deleted (30d)" value={s.users.deleted_30d} sub={`${s.users.deleted_total} all time`} color="red" />
+                  <AdminStatCard label="Total Users" value={s.users.total} icon={Users} color="stone" onClick={() => setDetailType('total_users')} />
+                  <AdminStatCard label="Active (7d)" value={s.users.active_7d} sub={`${s.users.active_30d} last 30d`} icon={Activity} color="green" onClick={() => setDetailType('active_7d')} />
+                  <AdminStatCard label="New Users (7d)" value={s.users.new_7d} sub={`${s.users.new_30d} last 30d`} color="blue" onClick={() => setDetailType('new_7d')} />
+                  <AdminStatCard label="Deleted (30d)" value={s.users.deleted_30d} sub={`${s.users.deleted_total} all time`} color="red" onClick={() => setDetailType('deleted_30d')} />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <AdminStatCard label="Total Moments" value={s.moments.total} sub={`${s.moments.last_7d} this week`} icon={Heart} color="amber" />
-                  <AdminStatCard label="Connected Pairs" value={s.relationships.connected_pairs} sub={`${s.relationships.solo_spaces} solo spaces`} icon={Users} color="violet" />
+                  <AdminStatCard label="Total Moments" value={s.moments.total} sub={`${s.moments.last_7d} this week`} icon={Heart} color="amber" onClick={() => setDetailType('total_moments')} />
+                  <AdminStatCard label="Connected Pairs" value={s.relationships.connected_pairs} sub={`${s.relationships.solo_spaces} solo spaces`} icon={Users} color="violet" onClick={() => setDetailType('connected_pairs')} />
                 </div>
                 <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
                   <h3 className="text-sm font-semibold text-stone-700 mb-3">Bug Reports</h3>
                   <div className="grid grid-cols-3 gap-3">
-                    <div className="text-center">
+                    <button onClick={() => setDetailType('bugs_open')} className="text-center hover:bg-red-50 rounded-xl p-2 transition-colors">
                       <p className="text-2xl font-bold text-red-600">{s.bugs.open}</p>
                       <p className="text-xs text-stone-400 mt-0.5">Open</p>
-                    </div>
-                    <div className="text-center">
+                    </button>
+                    <button onClick={() => setDetailType('bugs_7d')} className="text-center hover:bg-stone-50 rounded-xl p-2 transition-colors">
                       <p className="text-2xl font-bold text-stone-700">{s.bugs.last_7d}</p>
                       <p className="text-xs text-stone-400 mt-0.5">This Week</p>
-                    </div>
-                    <div className="text-center">
+                    </button>
+                    <button onClick={() => setDetailType('bugs_total')} className="text-center hover:bg-stone-50 rounded-xl p-2 transition-colors">
                       <p className="text-2xl font-bold text-stone-700">{s.bugs.total}</p>
                       <p className="text-xs text-stone-400 mt-0.5">All Time</p>
-                    </div>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -375,6 +377,8 @@ export default function Admin() {
           </>
         )}
       </div>
+
+      {detailType && <StatDetailModal type={detailType} onClose={() => setDetailType(null)} />}
     </div>
   );
 }
