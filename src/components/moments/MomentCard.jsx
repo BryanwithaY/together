@@ -469,5 +469,6 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+    </>
   );
 }
