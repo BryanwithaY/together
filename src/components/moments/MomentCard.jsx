@@ -204,6 +204,7 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
   const editRevealWidth = swipeX < 0 ? Math.min(-swipeX, EDIT_THRESHOLD + 10) : 0;
 
   return (
+    <>
     <AlertDialog open={showDeleteConfirm} onOpenChange={(open) => { setShowDeleteConfirm(open); if (!open) resetSwipe(); }}>
       <div className="relative rounded-2xl overflow-hidden">
         {/* Edit background — left side (owner + editable) */}
