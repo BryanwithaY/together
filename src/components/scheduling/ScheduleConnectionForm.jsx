@@ -19,52 +19,12 @@ export default function ScheduleConnectionForm({ relationshipId, relationshipTyp
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [location, setLocation] = useState('');
-  const [focusArea, setFocusArea] = useState('general');
+  const focusAreas = getFocusAreasForType(relationshipType);
+  const [focusArea, setFocusArea] = useState(() => focusAreas[0] || 'general');
   const [recurrence, setRecurrence] = useState('none');
   const [notes, setNotes] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const focusAreas = getFocusAreasForType(relationshipType);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      const startDateTime = new Date(`${date}T${startTime}`);
-      const endDateTime = new Date(`${date}T${endTime}`);
-
-      const description = generateEventDescription(relationshipType, focusArea, linkedMoments);
-
-      await base44.entities.ScheduledConnection.create({
-        relationship_id: relationshipId,
-        title,
-        description,
-        start_time: startDateTime.toISOString(),
-        end_time: endDateTime.toISOString(),
-        location: location || null,
-        linked_moment_ids: linkedMoments.map(m => m.id),
-        focus_area: focusArea,
-        recurrence_pattern: recurrence,
-        notes: notes || null,
-      });
-
-      // Reset form
-      setTitle('Connection Time');
-      setDate('');
-      setStartTime('');
-      setEndTime('');
-      setLocation('');
-      setFocusArea('general');
-      setNotes('');
-
-      if (onSuccess) onSuccess();
-    } catch (error) {
-      console.error('Failed to schedule connection:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const eventDescription = generateEventDescription(relationshipType, focusArea, linkedMoments);
 
