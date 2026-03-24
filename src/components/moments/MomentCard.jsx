@@ -44,7 +44,8 @@ const EDIT_THRESHOLD = 80; // px right-swipe to reveal edit
 export default function MomentCard({ moment, index, currentUser, onDeleted }) {
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [swipeX, setSwipeX] = useState(0); // positive = left swipe (delete), negative = right swipe (edit)
+  const [swipeX, setSwipeX] = useState(0);
+  const [showShareConfirm, setShowShareConfirm] = useState(false); // positive = left swipe (delete), negative = right swipe (edit)
   const [swiping, setSwiping] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const touchStart = useRef(null);
@@ -402,36 +403,16 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
                   </Button>
                 )}
                 {isReflection && isOwner && isPrivate && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        disabled={shareWithPartnerMutation.isPending}
-                        size="sm"
-                        variant="ghost"
-                        className="h-7 text-xs text-violet-600 hover:text-violet-700 hover:bg-violet-50 select-none"
-                      >
-                        <Share2 className="w-3.5 h-3.5 mr-1" />
-                        Share with Partner
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Share this reflection?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Your partner will be able to see this self-reflection. This cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Keep Private</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => shareWithPartnerMutation.mutate()}
-                          className="bg-violet-600 hover:bg-violet-700 text-white"
-                        >
-                          Share
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                  <Button
+                    disabled={shareWithPartnerMutation.isPending}
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setShowShareConfirm(true)}
+                    className="h-7 text-xs text-violet-600 hover:text-violet-700 hover:bg-violet-50 select-none"
+                  >
+                    <Share2 className="w-3.5 h-3.5 mr-1" />
+                    Share with Partner
+                  </Button>
                 )}
               </div>
             </div>
@@ -464,6 +445,26 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
             className="bg-red-600 hover:bg-red-700 text-white"
           >
             Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+
+    <AlertDialog open={showShareConfirm} onOpenChange={setShowShareConfirm}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Share this reflection?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Your partner will be able to see this self-reflection. This cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Keep Private</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => { shareWithPartnerMutation.mutate(); setShowShareConfirm(false); }}
+            className="bg-violet-600 hover:bg-violet-700 text-white"
+          >
+            Share
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
