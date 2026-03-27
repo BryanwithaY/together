@@ -13,16 +13,21 @@ import {
 import { Calendar, Clock, MapPin, Link2, Zap } from 'lucide-react';
 import { generateEventDescription, getFocusAreasForType } from '../lib/connectionGuidance';
 
-export default function ScheduleConnectionForm({ relationshipId, relationshipType = 'other', linkedMoments = [], onSuccess }) {
+export default function ScheduleConnectionForm({ relationshipId, relationshipType = 'other', linkedMoments = [], onSuccess, connection }) {
+  const isEditMode = !!connection;
   const focusAreas = getFocusAreasForType(relationshipType);
-  const [title, setTitle] = useState('Connection Time');
-  const [date, setDate] = useState('');
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
-  const [location, setLocation] = useState('');
-  const [focusArea, setFocusArea] = useState(() => focusAreas[0] || 'general');
-  const [recurrence, setRecurrence] = useState('none');
-  const [notes, setNotes] = useState('');
+
+  const parseDate = (iso) => iso ? new Date(iso).toISOString().slice(0, 10) : '';
+  const parseTime = (iso) => iso ? new Date(iso).toTimeString().slice(0, 5) : '';
+
+  const [title, setTitle] = useState(connection?.title || 'Connection Time');
+  const [date, setDate] = useState(connection ? parseDate(connection.start_time) : '');
+  const [startTime, setStartTime] = useState(connection ? parseTime(connection.start_time) : '');
+  const [endTime, setEndTime] = useState(connection ? parseTime(connection.end_time) : '');
+  const [location, setLocation] = useState(connection?.location || '');
+  const [focusArea, setFocusArea] = useState(connection?.focus_area || focusAreas[0] || 'general');
+  const [recurrence, setRecurrence] = useState(connection?.recurrence_pattern || 'none');
+  const [notes, setNotes] = useState(connection?.notes || '');
   const [isLoading, setIsLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -34,8 +39,7 @@ export default function ScheduleConnectionForm({ relationshipId, relationshipTyp
     setIsLoading(true);
     const startISO = new Date(`${date}T${startTime}`).toISOString();
     const endISO   = new Date(`${date}T${endTime}`).toISOString();
-    await base44.entities.ScheduledConnection.create({
-      relationship_id: relationshipId,
+    const payload = {
       title,
       description: eventDescription,
       start_time: startISO,
@@ -45,7 +49,15 @@ export default function ScheduleConnectionForm({ relationshipId, relationshipTyp
       recurrence_pattern: recurrence,
       notes: notes || null,
       linked_moment_ids: linkedMoments.map(m => m.id),
-    });
+    };
+    if (isEditMode) {
+      await base44.entities.ScheduledConnection.update(connection.id, payload);
+    } else {
+      await base44.entities.ScheduledConnection.create({
+        relationship_id: relationshipId,
+        ...payload,
+      });
+    }
     setIsLoading(false);
     if (onSuccess) onSuccess();
   };
@@ -126,7 +138,7 @@ export default function ScheduleConnectionForm({ relationshipId, relationshipTyp
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="z-[200]">
               {focusAreas.map(area => (
                 <SelectItem key={area} value={area}>
                   {area.charAt(0).toUpperCase() + area.slice(1).replace(/_/g, ' ')}
@@ -144,7 +156,7 @@ export default function ScheduleConnectionForm({ relationshipId, relationshipTyp
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="z-[200]">
               <SelectItem value="none">One Time</SelectItem>
               <SelectItem value="weekly">Weekly</SelectItem>
               <SelectItem value="biweekly">Every 2 Weeks</SelectItem>
@@ -175,7 +187,7 @@ export default function ScheduleConnectionForm({ relationshipId, relationshipTyp
             {showPreview ? 'Hide' : 'Preview'} Event Description
           </Button>
           <Button type="submit" disabled={isLoading} className="flex-1 bg-stone-800 hover:bg-stone-900">
-            {isLoading ? 'Scheduling...' : 'Schedule Connection'}
+            {isLoading ? (isEditMode ? 'Saving...' : 'Scheduling...') : (isEditMode ? 'Save Changes' : 'Schedule Connection')}
           </Button>
         </div>
       </form>

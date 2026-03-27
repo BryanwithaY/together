@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Calendar, Plus, Trash2, Copy, MapPin, Clock, RotateCw, CalendarPlus, Download } from 'lucide-react';
+import { Calendar, Plus, Trash2, Copy, MapPin, Clock, RotateCw, CalendarPlus, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -113,7 +113,7 @@ const RECURRENCE_LABEL = {
   monthly: 'Monthly',
 };
 
-function ConnectionCard({ connection, onDelete, onCopy, isPast }) {
+function ConnectionCard({ connection, onDelete, onEdit, onCopy, isPast }) {
   const dateStr = new Date(connection.start_time).toLocaleDateString('en-US', {
     weekday: 'short', month: 'short', day: 'numeric',
   });
@@ -184,6 +184,15 @@ function ConnectionCard({ connection, onDelete, onCopy, isPast }) {
                 <Copy className="w-4 h-4" />
               </button>
             )}
+            {!isPast && (
+              <button
+                onClick={() => onEdit(connection)}
+                className="p-2 rounded-xl hover:bg-stone-100 text-stone-400 hover:text-stone-600 transition-colors"
+                title="Edit"
+              >
+                <Pencil className="w-4 h-4" />
+              </button>
+            )}
             <button
               onClick={() => onDelete(connection)}
               className="p-2 rounded-xl hover:bg-red-50 text-stone-300 hover:text-red-500 transition-colors"
@@ -203,6 +212,7 @@ function ScheduleContent() {
   const { setPageReady } = usePageLoading();
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
+  const [editTarget, setEditTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   const { data: connections = [], isLoading } = useQuery({
@@ -237,6 +247,10 @@ function ScheduleContent() {
   const pastConnections = connections
     .filter(c => new Date(c.start_time) <= new Date())
     .sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
+
+  const handleEdit = (connection) => {
+    setEditTarget(connection);
+  };
 
   const handleCopy = (text) => {
     navigator.clipboard.writeText(text);
@@ -281,6 +295,7 @@ function ScheduleContent() {
                   key={c.id}
                   connection={c}
                   onDelete={setDeleteTarget}
+                  onEdit={handleEdit}
                   onCopy={handleCopy}
                   isPast={false}
                 />
@@ -302,6 +317,7 @@ function ScheduleContent() {
                   key={c.id}
                   connection={c}
                   onDelete={setDeleteTarget}
+                  onEdit={handleEdit}
                   onCopy={handleCopy}
                   isPast={true}
                 />
@@ -330,6 +346,31 @@ function ScheduleContent() {
           </div>
         )}
       </div>
+
+      {/* Edit Sheet */}
+      <Sheet open={!!editTarget} onOpenChange={(open) => !open && setEditTarget(null)}>
+        <SheetContent
+          side="bottom"
+          className="rounded-t-2xl max-h-[90vh] overflow-y-auto px-4 pb-8"
+        >
+          <SheetHeader className="mb-6">
+            <SheetTitle className="text-left text-lg font-semibold text-stone-800">
+              Edit Connection
+            </SheetTitle>
+          </SheetHeader>
+          {editTarget && (
+            <ScheduleConnectionForm
+              relationshipId={activeRelationship?.id}
+              relationshipType={activeRelationship?.type}
+              connection={editTarget}
+              onSuccess={() => {
+                setEditTarget(null);
+                queryClient.invalidateQueries({ queryKey: ['connections', activeRelationship?.id] });
+              }}
+            />
+          )}
+        </SheetContent>
+      </Sheet>
 
       {/* Schedule Form Sheet */}
       <Sheet open={showForm} onOpenChange={setShowForm}>
