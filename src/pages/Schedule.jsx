@@ -9,6 +9,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 import RelationshipGate from '../components/relationship/RelationshipGate';
+import AttendancePanel from '../components/scheduling/AttendancePanel';
 import { useRelationship } from '../components/relationship/RelationshipContext';
 import { usePageLoading } from '../components/PageLoadingContext';
 import ScheduleConnectionForm from '../components/scheduling/ScheduleConnectionForm';
@@ -174,7 +175,7 @@ function getRecurrenceLabel(connection) {
   return RECURRENCE_LABEL[connection.recurrence_pattern] || null;
 }
 
-function ConnectionCard({ connection, onDelete, onEdit, onCopy, isPast }) {
+function ConnectionCard({ connection, onDelete, onEdit, onCopy, isPast, currentUser, onUpdateAttendance }) {
   const dateStr = new Date(connection.start_time).toLocaleDateString('en-US', {
     weekday: 'short', month: 'short', day: 'numeric',
   });
@@ -274,11 +275,19 @@ function ConnectionCard({ connection, onDelete, onEdit, onCopy, isPast }) {
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
+          </div>
+          {isPast && (
+            <AttendancePanel
+              connection={connection}
+              currentUser={currentUser}
+              onUpdate={onUpdateAttendance}
+            />
+          )}
         </div>
       </div>
     </motion.div>
-  );
-}
+          );
+          }
 
 function ScheduleContent() {
   const { activeRelationship, members, currentUser } = useRelationship();
@@ -304,6 +313,15 @@ function ScheduleContent() {
       Analytics.connectionDeleted?.();
     },
   });
+
+  const updateAttendanceMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.ScheduledConnection.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['connections', activeRelationship?.id] });
+    },
+  });
+
+  const handleUpdateAttendance = (id, data) => updateAttendanceMutation.mutateAsync({ id, data });
 
   useEffect(() => {
     if (!isLoading) setPageReady();
@@ -378,6 +396,8 @@ function ScheduleContent() {
                   onEdit={handleEdit}
                   onCopy={handleCopy}
                   isPast={false}
+                  currentUser={currentUser}
+                  onUpdateAttendance={handleUpdateAttendance}
                 />
               ))}
             </AnimatePresence>
@@ -400,6 +420,8 @@ function ScheduleContent() {
                   onEdit={handleEdit}
                   onCopy={handleCopy}
                   isPast={true}
+                  currentUser={currentUser}
+                  onUpdateAttendance={handleUpdateAttendance}
                 />
               ))}
             </div>

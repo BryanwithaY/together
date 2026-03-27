@@ -97,7 +97,7 @@
     },
     "notes": {
       "type": "string",
-      "description": "Private notes about this connection"
+      "description": "Private planning notes about this connection (creator only, set at creation/edit time)"
     },
     "visibility_type": {
       "type": "string",
@@ -115,6 +115,20 @@
         "type": "string"
       },
       "description": "Emails of invited attendees (used when visibility_type=invited)"
+    },
+    "attendance_by_user": {
+      "type": "object",
+      "description": "Per-user attendance state keyed by email. Values: 'attended' | 'did_not_attend'. Only writable by the user whose email is the key. Never expose one user's status to another non-creator user.",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "post_event_notes_by_user": {
+      "type": "object",
+      "description": "Per-user post-event notes keyed by email. Private to the author. Creator sees aggregate attendance only, not other users' notes.",
+      "additionalProperties": {
+        "type": "string"
+      }
     }
   },
   "required": [
