@@ -19,8 +19,7 @@ export default function BottomTabBar({ currentPageName }) {
   let tabs = [...BASE_TABS];
   if (currentUser?.role === 'facilitator') {
     tabs = [...BASE_TABS, { label: 'Portal', icon: Users, page: 'FacilitatorPortal' }];
-  }
-  if (currentUser?.role === 'admin') {
+  } else if (currentUser?.role === 'admin') {
     tabs = [...BASE_TABS, { label: 'Admin', icon: ShieldCheck, page: 'Admin' }];
   }
 

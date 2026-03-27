@@ -76,7 +76,7 @@ export const PAGES = {
 }
 
 export const pagesConfig = {
-    mainPage: "Help",
+    mainPage: "Home",
     Pages: PAGES,
     Layout: __Layout,
 };
