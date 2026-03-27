@@ -114,6 +114,12 @@ Deno.serve(async (req) => {
     const deleted7d  = deletedUsers.filter(u => u.deleted_at >= day7).length;
     const deleted30d = deletedUsers.filter(u => u.deleted_at >= day30).length;
 
+    // Wave 6: pre-index moments by creator email once — avoids O(users×moments) scan below
+    const momentCountByCreator = allMoments.reduce((acc, m) => {
+      if (m.created_by) acc[m.created_by] = (acc[m.created_by] || 0) + 1;
+      return acc;
+    }, {});
+
     // Last event per user from AppEvent log
     const lastEventByUser = allEvents.reduce((acc, e) => {
       if (!e.user_email) return acc;
@@ -133,7 +139,7 @@ Deno.serve(async (req) => {
           email,
           name: u?.full_name || null,
           last_active_at: lastEventByUser[email],
-          total_moments: allMoments.filter(m => m.created_by === email).length,
+          total_moments: momentCountByCreator[email] || 0,  // Wave 6: O(1) lookup
         };
       });
 
@@ -145,7 +151,7 @@ Deno.serve(async (req) => {
           email,
           name: u?.full_name || null,
           last_active_at: lastEventByUser[email],
-          total_moments: allMoments.filter(m => m.created_by === email).length,
+          total_moments: momentCountByCreator[email] || 0,  // Wave 6: O(1) lookup
         };
       });
 

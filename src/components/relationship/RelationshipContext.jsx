@@ -3,6 +3,20 @@ import { base44 } from '@/api/base44Client';
 
 const RelationshipContext = createContext(null);
 
+/**
+ * Wave 6: Fetch the current user's active memberships.
+ * Prefers user_id filter (validated by Wave 5 backfill) for performance and stability.
+ * Falls back to user_email if id-based result is empty (safety net for any pre-backfill records).
+ */
+async function fetchMyMemberships(entities, user) {
+  if (user.id) {
+    const byId = await entities.RelationshipMember.filter({ user_id: user.id, status: 'active' });
+    if (byId.length > 0) return byId;
+  }
+  // Fallback: email-based lookup (pre-backfill safety net)
+  return entities.RelationshipMember.filter({ user_email: user.email.toLowerCase(), status: 'active' });
+}
+
 export function RelationshipProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [activeRelationship, setActiveRelationshipState] = useState(null);
@@ -42,10 +56,8 @@ export function RelationshipProvider({ children }) {
         if (!user || cancelled) { setLoading(false); return; }
         setCurrentUser(user);
 
-        const membershipsResult = await base44.entities.RelationshipMember.filter({
-          user_email: user.email.toLowerCase(),
-          status: 'active',
-        });
+        // Wave 6: use user_id-primary fetch with email fallback
+        const membershipsResult = await fetchMyMemberships(base44.entities, user);
 
         if (!membershipsResult.length || cancelled) { setLoading(false); return; }
 
@@ -97,10 +109,8 @@ export function RelationshipProvider({ children }) {
 
   const refreshRelationships = useCallback(async () => {
     if (!currentUser) return;
-    const memberships = await base44.entities.RelationshipMember.filter({
-      user_email: currentUser.email.toLowerCase(),
-      status: 'active',
-    });
+    // Wave 6: use user_id-primary fetch with email fallback
+    const memberships = await fetchMyMemberships(base44.entities, currentUser);
     const relIds = memberships.map(m => m.relationship_id);
     const allRelArrays = await Promise.all(relIds.map(id => base44.entities.Relationship.filter({ id })));
     const sortRels = (rels) => rels
