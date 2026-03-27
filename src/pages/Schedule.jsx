@@ -15,16 +15,65 @@ import ScheduleConnectionForm from '../components/scheduling/ScheduleConnectionF
 import SchedulingGuideLink from '../components/scheduling/SchedulingGuideLink';
 import { Analytics } from '../components/lib/analytics';
 
+function buildRRule(connection) {
+  const pattern = connection.recurrence_pattern;
+  if (!pattern || pattern === 'none') return null;
+
+  const formatUntil = (dateStr) =>
+    new Date(dateStr).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+
+  if (pattern === 'weekly') return 'RRULE:FREQ=WEEKLY';
+  if (pattern === 'biweekly') return 'RRULE:FREQ=WEEKLY;INTERVAL=2';
+  if (pattern === 'monthly') return 'RRULE:FREQ=MONTHLY';
+
+  if (pattern === 'custom' && connection.recurrence_config) {
+    const { interval = 1, unit, end_date } = connection.recurrence_config;
+    const freqMap = { days: 'DAILY', weeks: 'WEEKLY', months: 'MONTHLY' };
+    const freq = freqMap[unit];
+    if (!freq) return null;
+    let rule = `RRULE:FREQ=${freq};INTERVAL=${interval}`;
+    if (end_date) rule += `;UNTIL=${formatUntil(end_date)}`;
+    return rule;
+  }
+
+  return null;
+}
+
 function generateICS(connection) {
   const formatDate = (date) =>
     new Date(date).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
 
   const desc = (connection.description || '').replace(/\n/g, '\\n').replace(/,/g, '\\,');
+
   const attendeeLines = (connection.attendee_emails || [])
     .map(email => `ATTENDEE;RSVP=TRUE:mailto:${email}`)
     .join('\n');
 
-  return `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Together//Connection Schedule//EN\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\nBEGIN:VEVENT\nUID:${connection.id}@together.app\nDTSTAMP:${formatDate(new Date())}\nDTSTART:${formatDate(connection.start_time)}\nDTEND:${formatDate(connection.end_time)}\nSUMMARY:${connection.title}\nDESCRIPTION:${desc}\nLOCATION:${connection.location || ''}\nSTATUS:CONFIRMED\nSEQUENCE:0${attendeeLines ? '\n' + attendeeLines : ''}\nEND:VEVENT\nEND:VCALENDAR`;
+  const rrule = buildRRule(connection);
+
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Together//Connection Schedule//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    `UID:${connection.id}@together.app`,
+    `DTSTAMP:${formatDate(new Date())}`,
+    `DTSTART:${formatDate(connection.start_time)}`,
+    `DTEND:${formatDate(connection.end_time)}`,
+    `SUMMARY:${connection.title}`,
+    `DESCRIPTION:${desc}`,
+    `LOCATION:${connection.location || ''}`,
+    'STATUS:CONFIRMED',
+    'SEQUENCE:0',
+    ...(rrule ? [rrule] : []),
+    ...(attendeeLines ? attendeeLines.split('\n') : []),
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ];
+
+  return lines.join('\n');
 }
 
 function downloadICS(connection) {
