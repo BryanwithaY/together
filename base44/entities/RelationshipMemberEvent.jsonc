@@ -1,0 +1,56 @@
+{
+  "name": "RelationshipMemberEvent",
+  "type": "object",
+  "properties": {
+    "relationship_id": {
+      "type": "string",
+      "description": "ID of the relationship this membership event belongs to"
+    },
+    "affected_email": {
+      "type": "string",
+      "description": "Email of the member whose status or role changed"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "member_added",
+        "member_removed",
+        "role_changed",
+        "status_changed",
+        "invite_sent"
+      ],
+      "description": "The type of membership change that occurred"
+    },
+    "previous_role": {
+      "type": "string",
+      "description": "Role before the change, if a role change"
+    },
+    "new_role": {
+      "type": "string",
+      "description": "Role after the change"
+    },
+    "previous_status": {
+      "type": "string",
+      "description": "Status before the change, if a status change"
+    },
+    "new_status": {
+      "type": "string",
+      "description": "Status after the change"
+    },
+    "initiated_by": {
+      "type": "string",
+      "description": "Email of the user who triggered this membership change"
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this membership event occurred"
+    }
+  },
+  "required": [
+    "relationship_id",
+    "affected_email",
+    "event_type",
+    "occurred_at"
+  ]
+}

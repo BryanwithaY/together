@@ -20,6 +20,7 @@ import SubscribersList from '../components/admin/subscriptions/SubscribersList';
 import RevenueOverview from '../components/admin/subscriptions/RevenueOverview';
 import { useEffect } from 'react';
 import StatDetailModal from '../components/admin/StatDetailModal';
+import StripeReconciliation from '../components/admin/StripeReconciliation';
 
 export default function Admin() {
   const { currentUser } = useRelationship();
@@ -84,6 +85,7 @@ export default function Admin() {
     { id: 'churn',          label: 'Churn',        icon: TrendingDown },
     { id: 'events',         label: 'Events',       icon: GitFork },
     { id: 'subscriptions',  label: 'Subscriptions', icon: CreditCard },
+    { id: 'reconciliation', label: 'Stripe Audit', icon: CreditCard },
     { id: 'facilitators',   label: 'Facilitators',  icon: UserCheck },
     { id: 'analytics',      label: 'Analytics',     icon: TrendingUp },
   ];
@@ -352,14 +354,14 @@ export default function Admin() {
               </div>
             )}
 
-            {/* ANALYTICS */}
-            {activeTab === 'analytics' && (
-              <div className="bg-white rounded-2xl border border-stone-200/60 overflow-hidden">
-                <EngagementAnalysis />
+            {/* RECONCILIATION */}
+            {activeTab === 'reconciliation' && (
+              <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
+                <StripeReconciliation />
               </div>
             )}
 
-            {/* SUBSCRIPTIONS */}
+            {/* ANALYTICS */}
             {activeTab === 'subscriptions' && (
               <div className="space-y-6">
                 <RevenueOverview />

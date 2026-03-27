@@ -1,25 +1,28 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 /**
  * Weekly digest for facilitators — sends a summary email of all
  * active relationships they oversee with pattern highlights.
  * Scheduled to run weekly. Only sends to facilitators on pro/professional tiers.
+ *
+ * Wave 1: FunctionAuditLog added. No business logic changed.
  */
 Deno.serve(async (req) => {
+  const startMs = Date.now();
+  const startedAt = new Date().toISOString();
+  const base44 = createClientFromRequest(req);
+
   try {
-    const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
 
     if (user?.role !== 'admin') {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Get all active facilitator relationships grouped by facilitator
     const allFacRels = await base44.asServiceRole.entities.FacilitatorRelationship.filter({
       status: 'active'
     }, '-created_date', 500);
 
-    // Get all facilitator users on pro/professional tier
     const facilitatorUsers = await base44.asServiceRole.entities.User.filter({ role: 'facilitator' });
     const eligibleFacilitators = facilitatorUsers.filter(u =>
       u.facilitator_tier === 'pro' || u.facilitator_tier === 'professional'
@@ -35,7 +38,6 @@ Deno.serve(async (req) => {
       let summaryLines = [];
 
       for (const fr of myRels) {
-        // Get recent moments (consent-aware not needed for summary counts only)
         const consents = await base44.asServiceRole.entities.FacilitatorConsent.filter({
           facilitator_relationship_id: fr.id,
           status: 'approved'
@@ -87,8 +89,41 @@ Together Facilitator Portal
       sent++;
     }
 
+    // ── AUDIT: completed ───────────────────────────────────────────
+    try {
+      await base44.asServiceRole.entities.FunctionAuditLog.create({
+        function_name: 'facilitatorWeeklyDigest',
+        trigger_type: 'scheduled',
+        triggered_by: 'system',
+        status: 'completed',
+        records_affected: sent,
+        duration_ms: Date.now() - startMs,
+        metadata: { digests_sent: sent, eligible_facilitators: eligibleFacilitators.length },
+        started_at: startedAt,
+        completed_at: new Date().toISOString()
+      });
+    } catch (e) {
+      console.error('[FunctionAuditLog] write failed:', e.message);
+    }
+
     return Response.json({ success: true, digests_sent: sent });
   } catch (error) {
+    // ── AUDIT: failed ──────────────────────────────────────────────
+    try {
+      await base44.asServiceRole.entities.FunctionAuditLog.create({
+        function_name: 'facilitatorWeeklyDigest',
+        trigger_type: 'scheduled',
+        triggered_by: 'system',
+        status: 'failed',
+        error_message: error.message,
+        duration_ms: Date.now() - startMs,
+        metadata: {},
+        started_at: startedAt,
+        completed_at: new Date().toISOString()
+      });
+    } catch (e) {
+      console.error('[FunctionAuditLog] write failed:', e.message);
+    }
     return Response.json({ error: error.message }, { status: 500 });
   }
 });

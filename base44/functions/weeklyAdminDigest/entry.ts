@@ -1,16 +1,15 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 /**
- * Weekly digest sent to all admin users:
- * - New users this week
- * - Moments logged this week
- * - Open bug reports
- * - At-risk / churned count
- * - Deletion count
+ * Weekly digest sent to all admin users.
+ * Wave 1: FunctionAuditLog added. No business logic changed.
  */
 Deno.serve(async (req) => {
+  const startMs = Date.now();
+  const startedAt = new Date().toISOString();
+  const base44 = createClientFromRequest(req);
+
   try {
-    const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
 
     if (user?.role !== 'admin') {
@@ -51,7 +50,6 @@ Total moments (all time): ${allMoments.length}
 Sent automatically by Together
     `.trim();
 
-    // Send to all admins
     await Promise.all(admins.map(admin =>
       base44.asServiceRole.integrations.Core.SendEmail({
         to: admin.email,
@@ -60,8 +58,41 @@ Sent automatically by Together
       })
     ));
 
+    // ── AUDIT: completed ───────────────────────────────────────────
+    try {
+      await base44.asServiceRole.entities.FunctionAuditLog.create({
+        function_name: 'weeklyAdminDigest',
+        trigger_type: 'scheduled',
+        triggered_by: 'system',
+        status: 'completed',
+        records_affected: admins.length,
+        duration_ms: Date.now() - startMs,
+        metadata: { sent_to: admins.length, new_users_7d: newUsers7d, moments_7d: moments7d },
+        started_at: startedAt,
+        completed_at: new Date().toISOString()
+      });
+    } catch (e) {
+      console.error('[FunctionAuditLog] write failed:', e.message);
+    }
+
     return Response.json({ success: true, sent_to: admins.length });
   } catch (error) {
+    // ── AUDIT: failed ──────────────────────────────────────────────
+    try {
+      await base44.asServiceRole.entities.FunctionAuditLog.create({
+        function_name: 'weeklyAdminDigest',
+        trigger_type: 'scheduled',
+        triggered_by: 'system',
+        status: 'failed',
+        error_message: error.message,
+        duration_ms: Date.now() - startMs,
+        metadata: {},
+        started_at: startedAt,
+        completed_at: new Date().toISOString()
+      });
+    } catch (e) {
+      console.error('[FunctionAuditLog] write failed:', e.message);
+    }
     return Response.json({ error: error.message }, { status: 500 });
   }
 });

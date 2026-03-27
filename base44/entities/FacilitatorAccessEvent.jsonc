@@ -1,0 +1,71 @@
+{
+  "name": "FacilitatorAccessEvent",
+  "type": "object",
+  "properties": {
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "access_requested",
+        "access_granted",
+        "access_revoked",
+        "access_declined",
+        "consent_approved",
+        "consent_declined",
+        "consent_revoked",
+        "moment_hidden",
+        "moment_unhidden",
+        "self_reflections_hidden",
+        "self_reflections_unhidden"
+      ],
+      "description": "The type of facilitator access or consent event that occurred"
+    },
+    "facilitator_email": {
+      "type": "string",
+      "description": "Email of the facilitator whose access changed"
+    },
+    "relationship_id": {
+      "type": "string",
+      "description": "ID of the relationship involved"
+    },
+    "member_email": {
+      "type": "string",
+      "description": "Email of the relationship member whose consent changed, if applicable"
+    },
+    "initiated_by": {
+      "type": "string",
+      "description": "Email of the user who triggered this event, or 'system'"
+    },
+    "facilitator_relationship_id": {
+      "type": "string",
+      "description": "ID of the FacilitatorRelationship record involved"
+    },
+    "facilitator_consent_id": {
+      "type": "string",
+      "description": "ID of the FacilitatorConsent record involved, if applicable"
+    },
+    "previous_status": {
+      "type": "string",
+      "description": "Status before the change"
+    },
+    "new_status": {
+      "type": "string",
+      "description": "Status after the change"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional context \u2014 e.g. count of moments hidden. No PII, no user content."
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this event occurred"
+    }
+  },
+  "required": [
+    "event_type",
+    "facilitator_email",
+    "relationship_id",
+    "initiated_by",
+    "occurred_at"
+  ]
+}

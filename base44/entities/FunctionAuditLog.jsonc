@@ -1,0 +1,66 @@
+{
+  "name": "FunctionAuditLog",
+  "type": "object",
+  "properties": {
+    "function_name": {
+      "type": "string",
+      "description": "Name of the backend function that was invoked"
+    },
+    "trigger_type": {
+      "type": "string",
+      "enum": [
+        "automation",
+        "user_action",
+        "webhook",
+        "scheduled",
+        "admin_manual"
+      ],
+      "description": "What triggered this function call"
+    },
+    "triggered_by": {
+      "type": "string",
+      "description": "Email of the user who triggered the call, or 'system' for automations"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "started",
+        "completed",
+        "failed",
+        "partial"
+      ],
+      "description": "Outcome of the function execution"
+    },
+    "error_message": {
+      "type": "string",
+      "description": "If status is failed, the captured error message"
+    },
+    "records_affected": {
+      "type": "number",
+      "description": "How many records were read, written, or emailed during execution"
+    },
+    "duration_ms": {
+      "type": "number",
+      "description": "Wall-clock execution time in milliseconds"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Function-specific context. Must contain no PII, no user-authored content."
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When execution began"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When execution ended (success or failure)"
+    }
+  },
+  "required": [
+    "function_name",
+    "status",
+    "started_at"
+  ]
+}

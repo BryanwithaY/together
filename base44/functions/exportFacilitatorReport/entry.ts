@@ -1,12 +1,16 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 /**
  * Consent-aware, date-range export for facilitators.
  * Returns moments, stats, and notes for a given period.
+ * Wave 1: FunctionAuditLog added. No business logic changed.
  */
 Deno.serve(async (req) => {
+  const startMs = Date.now();
+  const startedAt = new Date().toISOString();
+  const base44 = createClientFromRequest(req);
+
   try {
-    const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
 
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
@@ -42,7 +46,6 @@ Deno.serve(async (req) => {
       };
     });
 
-    // Date boundaries
     const startISO = new Date(start_date).toISOString();
     const endISO = new Date(end_date + 'T23:59:59').toISOString();
 
@@ -61,13 +64,11 @@ Deno.serve(async (req) => {
       return true;
     });
 
-    // Members
     const members = await base44.asServiceRole.entities.RelationshipMember.filter({
       relationship_id,
       status: 'active'
     });
 
-    // Stats
     const conflictSubtypes = ['reacted_poorly', 'shut_down', 'was_dismissive', 'unkind', 'not_present'];
     const conflictCount = filteredMoments.filter(m => conflictSubtypes.includes(m.subtype)).length;
 
@@ -89,7 +90,6 @@ Deno.serve(async (req) => {
       };
     });
 
-    // Notes in period (private to facilitator)
     const allNotes = await base44.entities.FacilitatorNote.filter({
       facilitator_email: user.email,
       relationship_id
@@ -97,6 +97,29 @@ Deno.serve(async (req) => {
     const filteredNotes = allNotes.filter(n =>
       n.session_date && n.session_date >= startISO && n.session_date <= endISO
     );
+
+    // ── AUDIT: completed ───────────────────────────────────────────
+    try {
+      await base44.asServiceRole.entities.FunctionAuditLog.create({
+        function_name: 'exportFacilitatorReport',
+        trigger_type: 'user_action',
+        triggered_by: user.email,
+        status: 'completed',
+        records_affected: filteredMoments.length,
+        duration_ms: Date.now() - startMs,
+        metadata: {
+          relationship_id,
+          start_date,
+          end_date,
+          moments_returned: filteredMoments.length,
+          notes_returned: filteredNotes.length
+        },
+        started_at: startedAt,
+        completed_at: new Date().toISOString()
+      });
+    } catch (e) {
+      console.error('[FunctionAuditLog] write failed:', e.message);
+    }
 
     return Response.json({
       success: true,
@@ -110,6 +133,22 @@ Deno.serve(async (req) => {
     });
 
   } catch (error) {
+    // ── AUDIT: failed ──────────────────────────────────────────────
+    try {
+      await base44.asServiceRole.entities.FunctionAuditLog.create({
+        function_name: 'exportFacilitatorReport',
+        trigger_type: 'user_action',
+        triggered_by: 'unknown',
+        status: 'failed',
+        error_message: error.message,
+        duration_ms: Date.now() - startMs,
+        metadata: {},
+        started_at: startedAt,
+        completed_at: new Date().toISOString()
+      });
+    } catch (e) {
+      console.error('[FunctionAuditLog] write failed:', e.message);
+    }
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
