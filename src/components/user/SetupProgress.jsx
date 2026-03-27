@@ -23,7 +23,7 @@ export default function SetupProgress({ moments = [] }) {
   const steps = [
     { label: 'Create your space', done: !!activeRelationship, action: null },
     { label: 'Invite your partner', done: partnerConnected, action: '/Settings', actionLabel: 'Invite' },
-    { label: 'Log your first moment', done: firstMoment, action: null, actionLabel: 'Log one above' },
+    { label: 'Log your first moment', done: firstMoment, action: null },
   ];
 
   const completedCount = steps.filter(s => s.done).length;
@@ -41,8 +41,8 @@ export default function SetupProgress({ moments = [] }) {
     <div className="bg-white border border-stone-200/60 rounded-2xl p-4 shadow-sm">
       <div className="flex items-start justify-between gap-2 mb-3">
         <div>
-          <p className="text-xs font-semibold text-stone-700 uppercase tracking-wider">Setup progress</p>
-          <p className="text-xs text-stone-400 mt-0.5">{completedCount} of {steps.length} steps complete</p>
+          <p className="text-xs font-semibold text-stone-700 uppercase tracking-wider">Getting started</p>
+          <p className="text-xs text-stone-400 mt-0.5">{completedCount} of {steps.length} done</p>
         </div>
         <button
           onClick={() => { setDismissed(true); localStorage.setItem(STORAGE_KEY, '1'); }}
@@ -86,7 +86,7 @@ export default function SetupProgress({ moments = [] }) {
 
       {nextStep && !nextStep.action && (
         <p className="text-xs text-stone-400 mt-3 border-t border-stone-100 pt-3">
-          Next: {nextStep.label} — use the <strong>New Moment</strong> button above
+          Next up: {nextStep.label} — tap <strong>New Moment</strong> above.
         </p>
       )}
     </div>

@@ -9,7 +9,7 @@ const STATUS_CONFIG = {
     icon: Clock,
     iconColor: 'text-amber-500',
     label: 'Awaiting consent',
-    description: 'Access is pending — members need to approve before you can view activity.',
+    description: 'Members still need to approve access before you can view activity.',
     clickable: false,
   },
   declined: {
@@ -17,15 +17,15 @@ const STATUS_CONFIG = {
     icon: XCircle,
     iconColor: 'text-stone-400',
     label: 'Access declined',
-    description: 'One or more members declined access. Contact the relationship owner if this was unexpected.',
+    description: 'Access was declined. Reach out to the relationship owner if you think this was a mistake.',
     clickable: false,
   },
   revoked: {
     border: 'border-stone-200 bg-stone-50',
     icon: Lock,
     iconColor: 'text-stone-400',
-    label: 'Access revoked',
-    description: 'Your access to this relationship was removed. Reach out to the members if you believe this is in error.',
+    label: 'Access removed',
+    description: 'Your access was removed. Contact the members if you believe this was unintentional.',
     clickable: false,
   },
 };
@@ -94,13 +94,13 @@ export default function FacilitatorRelationshipCard({ facRel, onClick }) {
               </span>
             )}
             {stats.recent_count_7d === 0 && stats.total_moments > 0 && (
-              <span className="text-xs text-stone-300">quiet this week</span>
+              <span className="text-xs text-stone-300">no activity this week</span>
             )}
           </div>
           {hasLimitedVisibility && (
             <div className="mt-2 flex items-start gap-1.5">
               <Info className="w-3 h-3 text-sky-400 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-sky-600">Activity may be limited by current access settings.</p>
+              <p className="text-xs text-sky-600">Some content may be hidden due to privacy settings.</p>
             </div>
           )}
           {concerns.length > 0 && (

@@ -162,7 +162,7 @@ export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
             }).length;
             const hasEnough = moments.length >= 3;
             const trend = !hasEnough ? null : thisWeek > lastWeek ? 'more_active' : thisWeek < lastWeek ? 'quieter' : 'steady';
-            const trendLabel = { more_active: '↑ More active', quieter: '↓ Quieter', steady: '→ Steady' };
+            const trendLabel = { more_active: '↑ More active this week', quieter: '↓ Quieter than last week', steady: '→ About the same' };
             const trendColor = { more_active: 'text-emerald-600 bg-emerald-50 border-emerald-200', quieter: 'text-amber-600 bg-amber-50 border-amber-200', steady: 'text-sky-600 bg-sky-50 border-sky-200' };
             return (
               <div className="flex items-stretch gap-2 mb-1">
@@ -179,7 +179,7 @@ export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
                 }`}>
                   {trend
                     ? <p className="text-xs font-semibold">{trendLabel[trend]}</p>
-                    : <p className="text-xs text-stone-400 leading-tight">Not enough data yet</p>
+                    : <p className="text-xs text-stone-400 leading-tight">Not enough activity yet</p>
                   }
                 </div>
               </div>
@@ -216,7 +216,7 @@ export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
 
           {/* Member breakdown */}
           <div className="bg-white border border-stone-200 rounded-xl p-4">
-            <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">Member Activity</p>
+            <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">Activity by member</p>
             <div className="space-y-3">
               {members.map(member => {
                 const activity = stats.member_activity?.[member.user_email] || {};
@@ -246,12 +246,12 @@ export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
           {moments.length === 0 && (
             <div className="text-center py-10 space-y-2">
               <p className="text-sm font-medium text-stone-500">
-                {consentWarning ? 'No visible moments' : 'No moments yet'}
+                {consentWarning ? 'No visible moments yet' : 'No moments yet'}
               </p>
               <p className="text-xs text-stone-400 max-w-xs mx-auto">
                 {consentWarning
-                  ? 'Some content may be unavailable due to current privacy or access settings.'
-                  : 'Moments will appear here once the relationship members start logging activity.'}
+                  ? 'Some content may be hidden due to privacy settings.'
+                  : 'Moments will appear here once members start logging activity.'}
               </p>
             </div>
           )}
@@ -311,7 +311,7 @@ export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
               <FileText className="w-4 h-4 text-stone-300 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-stone-600">No notes yet</p>
-                <p className="text-xs text-stone-400 mt-0.5">Write your first session note above — only you can see it.</p>
+                <p className="text-xs text-stone-400 mt-0.5">Add your first note to keep track of what you're seeing. Only you can see these.</p>
               </div>
             </div>
           )}
@@ -383,8 +383,8 @@ export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
             <div className="flex items-start gap-3 bg-stone-50 border border-stone-200 rounded-xl p-3">
               <MessageSquare className="w-4 h-4 text-stone-300 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-stone-600">No messages sent yet</p>
-                <p className="text-xs text-stone-400 mt-0.5">Send a supportive note to check in with the relationship members.</p>
+                <p className="text-sm font-medium text-stone-600">No messages yet</p>
+                <p className="text-xs text-stone-400 mt-0.5">Send a message to check in with the relationship.</p>
               </div>
             </div>
           )}

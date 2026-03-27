@@ -207,41 +207,41 @@ export default function FacilitatorPortal() {
                 const quietWeek     = momentsThisWeek === 0 && activeCount > 0;
                 return (
                   <div className="bg-white border border-stone-200/60 rounded-2xl p-4 shadow-sm">
-                    <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">Your week at a glance</p>
+                    <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">This week</p>
                     <div className="grid grid-cols-3 gap-3 mb-3">
                       <div className="text-center">
                         <p className="text-2xl font-bold text-stone-800">{activeCount}</p>
-                        <p className="text-xs text-stone-400 mt-0.5">Active</p>
+                        <p className="text-xs text-stone-400 mt-0.5">Active relationships</p>
                       </div>
                       <div className="text-center">
                         <p className="text-2xl font-bold text-stone-800">{momentsThisWeek}</p>
-                        <p className="text-xs text-stone-400 mt-0.5">Moments this week</p>
+                        <p className="text-xs text-stone-400 mt-0.5">Moments logged</p>
                       </div>
                       <div className="text-center">
                         <p className="text-2xl font-bold text-stone-800">{withActivity}</p>
-                        <p className="text-xs text-stone-400 mt-0.5">With activity</p>
+                        <p className="text-xs text-stone-400 mt-0.5">Had activity</p>
                       </div>
                     </div>
                     <div className="space-y-1.5">
                       {withActivity > 0 && (
                         <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
                           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
-                          <p className="text-xs text-emerald-700">{withActivity} relationship{withActivity !== 1 ? 's' : ''} showed new activity this week</p>
+                          <p className="text-xs text-emerald-700">{withActivity} relationship{withActivity !== 1 ? 's' : ''} had new activity</p>
                         </div>
                       )}
                       {pendingCount > 0 && (
                         <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                           <Clock className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
-                          <p className="text-xs text-amber-700">{pendingCount} relationship{pendingCount !== 1 ? 's' : ''} still awaiting member consent</p>
+                          <p className="text-xs text-amber-700">{pendingCount} still waiting on consent approval</p>
                         </div>
                       )}
                       {quietWeek && (
                         <div className="flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-lg px-3 py-2">
-                          <p className="text-xs text-stone-500">Activity was quieter this week — check back later or reach out.</p>
+                          <p className="text-xs text-stone-500">Quiet week overall. Check back later or send a message.</p>
                         </div>
                       )}
                     </div>
-                    <p className="text-xs text-stone-300 mt-2.5">Some activity may be limited by current access settings.</p>
+                    <p className="text-xs text-stone-300 mt-2.5">Some content may be hidden due to privacy settings.</p>
                   </div>
                 );
               })()}
@@ -251,7 +251,7 @@ export default function FacilitatorPortal() {
                 <div className="text-center py-12 bg-white rounded-2xl border border-stone-200/60">
                   <Users className="w-10 h-10 text-stone-300 mx-auto mb-3" />
                   <p className="text-stone-600 font-medium">No relationships yet</p>
-                  <p className="text-sm text-stone-400 mt-1">Request access to a relationship or wait for an invitation.</p>
+                  <p className="text-sm text-stone-400 mt-1">Request access to a relationship, or wait for a client to invite you.</p>
                   <Button
                     onClick={() => { setShowAddDialog(true); Analytics.facilitatorAccessRequested(); }}
                     className="mt-4 bg-stone-800 hover:bg-stone-900"
@@ -284,7 +284,7 @@ export default function FacilitatorPortal() {
                       </div>
                     ))}
                   </div>
-                  <p className="text-xs text-stone-400 mt-3">They'll be automatically linked once they join and you're connected to their relationship.</p>
+                  <p className="text-xs text-stone-400 mt-3">They'll be linked automatically once they sign up and connect with you.</p>
                 </div>
               )}
 

@@ -160,8 +160,8 @@ function HomeContent() {
             >
               <Sparkles className="w-4 h-4 text-stone-300 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <p className="text-sm font-medium">It's been a little while</p>
-                <p className="text-xs text-stone-400 mt-0.5">A small moment today keeps the connection growing. Tap to log one.</p>
+                <p className="text-sm font-medium">It's been a while</p>
+                <p className="text-xs text-stone-400 mt-0.5">Log a small moment to keep things moving.</p>
               </div>
               <X
                 className="w-4 h-4 text-stone-500 flex-shrink-0 mt-0.5"
