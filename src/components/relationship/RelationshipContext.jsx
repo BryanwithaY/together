@@ -14,6 +14,11 @@ async function fetchMyMemberships(entities, user) {
     if (byId.length > 0) return byId;
   }
   // Fallback: email-based lookup (pre-backfill safety net)
+  // Wave 7: log when fallback fires — helps identify any users whose user_id backfill is incomplete.
+  // Console-only, not user-visible.
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn('[Wave6Fallback] RelationshipMember id-based lookup returned empty; falling back to email for user:', user.id || '(no id)');
+  }
   return entities.RelationshipMember.filter({ user_email: user.email.toLowerCase(), status: 'active' });
 }
 

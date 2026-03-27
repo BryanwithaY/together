@@ -4,6 +4,10 @@
  * relationship = the Relationship record
  */
 
+// Wave 7: import canonical resolver so canViewMoment uses the same precedence rules
+// as server-side filterMomentsForFacilitator and Wave 2 privacy enforcement.
+import { resolveVisibility } from '@/utils/momentPrivacyResolver';
+
 export function getMemberRole(member) {
   return member?.role ?? 'member';
 }
@@ -58,15 +62,22 @@ export function canViewMoment(moment, viewerEmail) {
   if (!moment) return false;
   const email = viewerEmail?.toLowerCase();
   const author = moment.created_by?.toLowerCase();
+
+  // Author always sees their own moment
   if (email === author) return true;
 
-  if (moment.visibility === 'private' || moment.is_private) {
-    return !!moment.shared_with_partner;
-  }
-  if (moment.visibility === 'tagged_only') {
+  // Wave 7: use canonical resolver (matches server-side filterMomentsForFacilitator logic)
+  // This correctly handles is_private, self_reflection unshared, visibility enum, and fallback.
+  const effective = resolveVisibility(moment);
+
+  if (effective === 'private') return false;
+
+  if (effective === 'tagged_only') {
     const tagged = (moment.tagged_users || []).map(e => e.toLowerCase());
     return tagged.includes(email);
   }
+
+  // 'relationship' — visible to all relationship members
   return true;
 }
 
