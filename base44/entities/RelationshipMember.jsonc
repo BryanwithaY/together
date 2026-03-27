@@ -1,0 +1,61 @@
+{
+  "name": "RelationshipMember",
+  "type": "object",
+  "properties": {
+    "relationship_id": {
+      "type": "string",
+      "description": "ID of the relationship"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email of the member"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Base44 user ID of the member \u2014 nullable, populated on new writes and via backfill"
+    },
+    "display_name": {
+      "type": "string",
+      "description": "Optional display name within this relationship"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "owner",
+        "admin",
+        "member",
+        "read_only"
+      ],
+      "default": "member",
+      "description": "Permission role within this relationship"
+    },
+    "can_invite": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this member (role=member) can invite others"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "pending",
+        "removed"
+      ],
+      "default": "active",
+      "description": "Membership status"
+    },
+    "invited_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the invitation was sent (for expiry tracking)"
+    },
+    "invited_by": {
+      "type": "string",
+      "description": "Email of the user who invited this member"
+    }
+  },
+  "required": [
+    "relationship_id",
+    "user_email"
+  ]
+}

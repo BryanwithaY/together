@@ -104,6 +104,7 @@ export default function RelationshipSetup() {
       await base44.entities.RelationshipMember.create({
         relationship_id: rel.id,
         user_email: currentUser.email.toLowerCase(),
+        user_id: currentUser.id || null,  // Wave 5: dual-write user_id
         status: 'active',
       });
     } catch (memberErr) {

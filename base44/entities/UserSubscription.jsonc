@@ -1,0 +1,75 @@
+{
+  "name": "UserSubscription",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of the subscriber"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Base44 user ID of the subscriber \u2014 nullable, populated on new Stripe checkout writes and via backfill"
+    },
+    "plan_slug": {
+      "type": "string",
+      "description": "Current plan slug (free, monthly, annual, lifetime)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "cancelled",
+        "past_due",
+        "trialing",
+        "paused"
+      ],
+      "default": "active",
+      "description": "Current subscription status"
+    },
+    "stripe_customer_id": {
+      "type": "string",
+      "description": "Stripe Customer ID"
+    },
+    "stripe_subscription_id": {
+      "type": "string",
+      "description": "Stripe Subscription ID (null for one-time/lifetime)"
+    },
+    "current_period_start": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Start of current billing period"
+    },
+    "current_period_end": {
+      "type": "string",
+      "format": "date-time",
+      "description": "End of current billing period (when it renews or expires)"
+    },
+    "cancelled_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the user cancelled (if applicable)"
+    },
+    "trial_end": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the trial ends (if applicable)"
+    },
+    "amount_paid_usd": {
+      "type": "number",
+      "description": "Total amount paid by this user in USD"
+    },
+    "last_payment_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date of most recent successful payment"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Admin notes about this subscription"
+    }
+  },
+  "required": [
+    "user_email",
+    "plan_slug"
+  ]
+}

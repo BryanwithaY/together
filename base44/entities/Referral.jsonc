@@ -1,0 +1,44 @@
+{
+  "name": "Referral",
+  "type": "object",
+  "properties": {
+    "referrer_email": {
+      "type": "string",
+      "description": "Email of the user who owns this referral code"
+    },
+    "referrer_user_id": {
+      "type": "string",
+      "description": "Base44 user ID of the referrer \u2014 nullable, populated via backfill"
+    },
+    "code": {
+      "type": "string",
+      "description": "Unique referral code for this user"
+    },
+    "referred_email": {
+      "type": "string",
+      "description": "Email of the user who signed up using this code (one record per signup)"
+    },
+    "referred_user_id": {
+      "type": "string",
+      "description": "User ID of the person who signed up using this code"
+    },
+    "signup_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the referred user signed up"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "completed"
+      ],
+      "default": "pending",
+      "description": "pending = code exists, no signup yet; completed = someone signed up"
+    }
+  },
+  "required": [
+    "referrer_email",
+    "code"
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "name": "FacilitatorRelationship",
+  "type": "object",
+  "properties": {
+    "facilitator_email": {
+      "type": "string",
+      "description": "Email of the facilitator overseeing this relationship"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Base44 user ID of the facilitator \u2014 nullable, populated on new writes where facilitator is the actor, and via backfill"
+    },
+    "relationship_id": {
+      "type": "string",
+      "description": "ID of the relationship being overseen"
+    },
+    "relationship_name": {
+      "type": "string",
+      "description": "Cached display name of the relationship"
+    },
+    "initiated_by": {
+      "type": "string",
+      "description": "Email of who initiated this facilitator connection"
+    },
+    "initiated_by_type": {
+      "type": "string",
+      "enum": [
+        "facilitator",
+        "relationship_member"
+      ],
+      "description": "Whether a facilitator requested access or a member invited them"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending_approval",
+        "active",
+        "revoked",
+        "declined"
+      ],
+      "default": "pending_approval",
+      "description": "Status of the facilitator-relationship connection"
+    },
+    "all_approved": {
+      "type": "boolean",
+      "default": false,
+      "description": "True when all required members have given consent"
+    },
+    "access_granted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When full consent was given and access became active"
+    },
+    "last_reviewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the facilitator last reviewed this relationship"
+    },
+    "facilitator_notes_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Cached count of session notes"
+    },
+    "report_schedule": {
+      "type": "string",
+      "enum": [
+        "none",
+        "weekly",
+        "monthly"
+      ],
+      "default": "none",
+      "description": "Preferred frequency for automated digest emails for this relationship"
+    }
+  },
+  "required": [
+    "facilitator_email",
+    "relationship_id",
+    "initiated_by",
+    "initiated_by_type"
+  ]
+}

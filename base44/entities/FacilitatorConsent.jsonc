@@ -1,0 +1,62 @@
+{
+  "name": "FacilitatorConsent",
+  "type": "object",
+  "properties": {
+    "facilitator_relationship_id": {
+      "type": "string",
+      "description": "ID of the FacilitatorRelationship this consent is for"
+    },
+    "facilitator_email": {
+      "type": "string",
+      "description": "Email of the facilitator"
+    },
+    "relationship_id": {
+      "type": "string",
+      "description": "ID of the relationship"
+    },
+    "member_email": {
+      "type": "string",
+      "description": "Email of the relationship member giving consent"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Base44 user ID of the member giving consent \u2014 nullable, populated via backfill"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "declined"
+      ],
+      "default": "pending",
+      "description": "Whether this member has approved facilitator access"
+    },
+    "hide_self_reflections": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, all of this member's self-reflection moments are hidden from the facilitator"
+    },
+    "hidden_moment_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of specific moments this member has chosen to hide from the facilitator"
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "declined_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "facilitator_relationship_id",
+    "facilitator_email",
+    "relationship_id",
+    "member_email"
+  ]
+}

@@ -107,6 +107,8 @@ Deno.serve(async (req) => {
 
       const facRel = await base44.asServiceRole.entities.FacilitatorRelationship.create({
         facilitator_email: initiated_by_type === 'facilitator' ? user.email : facilitator_email,
+        // Wave 5: dual-write user_id when the facilitator is the actor (id known)
+        user_id: initiated_by_type === 'facilitator' ? (user.id || null) : null,
         relationship_id,
         relationship_name: relName,
         initiated_by: user.email,
@@ -127,6 +129,8 @@ Deno.serve(async (req) => {
               facilitator_email: facRel.facilitator_email,
               relationship_id,
               member_email: m.user_email,
+              // Wave 5: dual-write user_id when the consent is for the acting user
+              user_id: m.user_email?.toLowerCase() === user.email?.toLowerCase() ? (user.id || null) : null,
               status: 'pending',
               hide_self_reflections: false,
               hidden_moment_ids: []
