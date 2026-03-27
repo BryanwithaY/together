@@ -22,6 +22,18 @@ Deno.serve(async (req) => {
     // Fetch the connection
     const connection = await base44.entities.ScheduledConnection.get(connectionId);
 
+    // Idempotency guard: if already synced to Google Calendar, do not create a duplicate event.
+    // When the live Google Calendar sync is implemented, callers must explicitly request a resync
+    // by clearing google_calendar_event_id and is_synced on the ScheduledConnection first.
+    if (connection.is_synced && connection.google_calendar_event_id) {
+      return Response.json({
+        success: true,
+        already_synced: true,
+        message: 'This connection is already synced to Google Calendar.',
+        google_calendar_event_id: connection.google_calendar_event_id,
+      });
+    }
+
     // TODO: When Google Calendar connector is authorized, use this to push event
     // For now, return the formatted event ready for manual export
     

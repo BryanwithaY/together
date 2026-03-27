@@ -43,6 +43,8 @@ export default function MomentForm({ onSubmit, onClose }) {
   const [momentDate, setMomentDate] = useState(() => toLocalDatetimeString(new Date()));
 
   const handleSubmit = async () => {
+    // Guard: prevent duplicate submission from rapid double-tap or programmatic re-call
+    if (isSubmitting) return;
     if (!type) return;
     let finalSubtype = 'general';
     if (type === 'ego_aside') {

@@ -8,6 +8,7 @@ import { Heart, Mail, CheckCircle, Clock, UserPlus, X } from 'lucide-react';
 export default function PartnerConnection({ user }) {
   const [partnerEmail, setPartnerEmail] = useState('');
   const [sending, setSending] = useState(false);
+  const [accepting, setAccepting] = useState(false);
   const queryClient = useQueryClient();
 
   // Check for pending invitation sent by current user
@@ -47,11 +48,19 @@ export default function PartnerConnection({ user }) {
   };
 
   const handleAccept = async (invitation) => {
-    await base44.entities.PartnerInvitation.update(invitation.id, { status: 'accepted' });
-    await base44.auth.updateMe({ partner_email: invitation.inviter_email });
-    // Also update the inviter's partner_email
-    queryClient.invalidateQueries({ queryKey: ['receivedInvitations'] });
-    queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+    // Guard: prevent duplicate acceptance from double-tap or re-render race
+    if (accepting) return;
+    if (invitation.status !== 'pending') return;
+    if (user?.partner_email) return;
+    setAccepting(true);
+    try {
+      await base44.entities.PartnerInvitation.update(invitation.id, { status: 'accepted' });
+      await base44.auth.updateMe({ partner_email: invitation.inviter_email });
+      queryClient.invalidateQueries({ queryKey: ['receivedInvitations'] });
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+    } finally {
+      setAccepting(false);
+    }
   };
 
   const handleCancelInvite = async (invitation) => {
@@ -93,6 +102,7 @@ export default function PartnerConnection({ user }) {
           </div>
           <Button
             onClick={() => handleAccept(pendingReceived)}
+            disabled={accepting}
             className="mt-3 w-full bg-amber-600 hover:bg-amber-700 text-white rounded-lg"
           >
             <CheckCircle className="w-4 h-4 mr-2" />

@@ -79,39 +79,69 @@ export default function RelationshipSetup() {
 
   const handleCreate = async () => {
     if (!relName.trim() || !relType || !currentUser) return;
+    // Guard: prevent double-submit
+    if (saving) return;
     setSaving(true);
-    const rel = await base44.entities.Relationship.create({
-      name: relName.trim(),
-      type: relType,
-      owner_email: currentUser.email.toLowerCase(),
-      photo_url: photoUrl || null,
-      max_members: maxMembers,
-    });
-    // Add creator as first member
-    await base44.entities.RelationshipMember.create({
-      relationship_id: rel.id,
-      user_email: currentUser.email.toLowerCase(),
-      status: 'active',
-    });
+
+    let rel = null;
+    try {
+      rel = await base44.entities.Relationship.create({
+        name: relName.trim(),
+        type: relType,
+        owner_email: currentUser.email.toLowerCase(),
+        photo_url: photoUrl || null,
+        max_members: maxMembers,
+      });
+    } catch (createErr) {
+      setSaving(false);
+      console.error('[RelationshipSetup] Relationship creation failed:', createErr.message);
+      return;
+    }
+
+    // Step 2: Add creator as first member.
+    // If this fails we soft-delete the relationship to avoid an orphaned active record.
+    try {
+      await base44.entities.RelationshipMember.create({
+        relationship_id: rel.id,
+        user_email: currentUser.email.toLowerCase(),
+        status: 'active',
+      });
+    } catch (memberErr) {
+      console.error('[RelationshipSetup] Owner membership creation failed — soft-deleting relationship:', memberErr.message);
+      // Soft-delete the orphaned relationship
+      try {
+        await base44.entities.Relationship.update(rel.id, { is_deleted: true });
+      } catch (cleanupErr) {
+        console.error('[RelationshipSetup] Orphan cleanup also failed:', cleanupErr.message);
+      }
+      setSaving(false);
+      return;
+    }
+
     await refreshRelationships();
     await setActiveRelationship(rel);
 
-    // Attribute referral if a code was stored
-    const refCode = sessionStorage.getItem('referral_code');
-    if (refCode && currentUser?.email) {
-      const records = await base44.entities.Referral.filter({ code: refCode, status: 'pending' });
-      const primary = records.find(r => !r.referred_email);
-      if (primary && primary.referrer_email !== currentUser.email) {
-        await base44.entities.Referral.create({
-          referrer_email: primary.referrer_email,
-          code: refCode,
-          referred_email: currentUser.email,
-          referred_user_id: currentUser.id,
-          signup_date: new Date().toISOString(),
-          status: 'completed',
-        });
-        sessionStorage.removeItem('referral_code');
+    // Attribute referral if a code was stored — wrapped so it never blocks navigation
+    try {
+      const refCode = sessionStorage.getItem('referral_code');
+      if (refCode && currentUser?.email) {
+        const records = await base44.entities.Referral.filter({ code: refCode, status: 'pending' });
+        const primary = records.find(r => !r.referred_email);
+        if (primary && primary.referrer_email !== currentUser.email) {
+          await base44.entities.Referral.create({
+            referrer_email: primary.referrer_email,
+            code: refCode,
+            referred_email: currentUser.email,
+            referred_user_id: currentUser.id,
+            signup_date: new Date().toISOString(),
+            status: 'completed',
+          });
+          sessionStorage.removeItem('referral_code');
+        }
       }
+    } catch (refErr) {
+      // Referral attribution failure must never block relationship creation
+      console.error('[RelationshipSetup] Referral attribution failed (non-blocking):', refErr.message);
     }
 
     setSaving(false);

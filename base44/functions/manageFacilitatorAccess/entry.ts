@@ -11,6 +11,11 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
  * Wave 1 additions (additive only, no business logic changed):
  * - FacilitatorAccessEvent written after each state-changing operation
  * - FunctionAuditLog written on caught exceptions
+ *
+ * Wave 4 additions:
+ * - All 3 FacilitatorConsent Promise.all blocks wrapped with partial-write guards
+ * - Partial failures logged via FunctionAuditLog, facRel left in pending_approval (privacy-first)
+ * - Warning field returned to caller when consent setup is incomplete
  */
 
 // ── Audit helpers ──────────────────────────────────────────────────────────────
@@ -40,7 +45,6 @@ Deno.serve(async (req) => {
   const startMs = Date.now();
   const startedAt = new Date().toISOString();
 
-  // Initialize base44 outside try so it is available in catch for audit logging
   const base44 = createClientFromRequest(req);
   let user = null;
   let actionType = 'unknown';
@@ -111,19 +115,37 @@ Deno.serve(async (req) => {
         all_approved: false
       });
 
-      const consentPromises = members
-        .filter(m => m.status === 'active')
-        .map(m => base44.asServiceRole.entities.FacilitatorConsent.create({
-          facilitator_relationship_id: facRel.id,
-          facilitator_email: facRel.facilitator_email,
-          relationship_id,
-          member_email: m.user_email,
-          status: 'pending',
-          hide_self_reflections: false,
-          hidden_moment_ids: []
-        }));
-
-      await Promise.all(consentPromises);
+      // Wave 4: Consent creation wrapped — partial failures are logged, facRel stays in
+      // pending_approval (privacy-first: no access granted until consent is confirmed).
+      let consentSetupWarning = null;
+      try {
+        await Promise.all(
+          members
+            .filter(m => m.status === 'active')
+            .map(m => base44.asServiceRole.entities.FacilitatorConsent.create({
+              facilitator_relationship_id: facRel.id,
+              facilitator_email: facRel.facilitator_email,
+              relationship_id,
+              member_email: m.user_email,
+              status: 'pending',
+              hide_self_reflections: false,
+              hidden_moment_ids: []
+            }))
+        );
+      } catch (consentErr) {
+        consentSetupWarning = 'PARTIAL_CONSENT_SETUP';
+        await logFunctionAudit(base44, {
+          function_name: 'manageFacilitatorAccess',
+          trigger_type: 'user_action',
+          triggered_by: user.email,
+          status: 'partial',
+          error_message: consentErr.message,
+          metadata: { action: 'request_access', facilitator_relationship_id: facRel.id, partial_write: 'consent_records' },
+          started_at: startedAt,
+          completed_at: new Date().toISOString(),
+          duration_ms: Date.now() - startMs
+        });
+      }
 
       // ── AUDIT: access_requested ────────────────────────────────────
       await logFacilitatorEvent(base44, {
@@ -136,7 +158,14 @@ Deno.serve(async (req) => {
         new_status: 'pending_approval'
       });
 
-      return Response.json({ success: true, facilitator_relationship: facRel });
+      return Response.json({
+        success: true,
+        facilitator_relationship: facRel,
+        ...(consentSetupWarning ? {
+          warning_code: consentSetupWarning,
+          warning: 'Access request recorded but consent records could not be fully created. Members may need to be re-invited.'
+        } : {})
+      });
     }
 
     // ── APPROVE CONSENT ───────────────────────────────────────────
@@ -394,11 +423,29 @@ Deno.serve(async (req) => {
             initiated_by: user.email, initiated_by_type: 'relationship_member',
             status: 'pending_approval', all_approved: false
           });
-          await Promise.all(members.map(m => base44.asServiceRole.entities.FacilitatorConsent.create({
-            facilitator_relationship_id: facRel.id, facilitator_email: normalizedEmail,
-            relationship_id, member_email: m.user_email,
-            status: 'pending', hide_self_reflections: false, hidden_moment_ids: []
-          })));
+
+          // Wave 4: consent partial-write guard
+          let inviteConsentWarning = null;
+          try {
+            await Promise.all(members.map(m => base44.asServiceRole.entities.FacilitatorConsent.create({
+              facilitator_relationship_id: facRel.id, facilitator_email: normalizedEmail,
+              relationship_id, member_email: m.user_email,
+              status: 'pending', hide_self_reflections: false, hidden_moment_ids: []
+            })));
+          } catch (consentErr) {
+            inviteConsentWarning = 'PARTIAL_CONSENT_SETUP';
+            await logFunctionAudit(base44, {
+              function_name: 'manageFacilitatorAccess',
+              trigger_type: 'user_action',
+              triggered_by: user.email,
+              status: 'partial',
+              error_message: consentErr.message,
+              metadata: { action: 'invite_to_app_direct_connect', facilitator_relationship_id: facRel.id, partial_write: 'consent_records' },
+              started_at: startedAt,
+              completed_at: new Date().toISOString(),
+              duration_ms: Date.now() - startMs
+            });
+          }
 
           // ── AUDIT: access_requested (direct invite path) ──────────────
           await logFacilitatorEvent(base44, {
@@ -411,7 +458,11 @@ Deno.serve(async (req) => {
             new_status: 'pending_approval'
           });
 
-          return Response.json({ success: true, outcome: 'connected' });
+          return Response.json({
+            success: true,
+            outcome: 'connected',
+            ...(inviteConsentWarning ? { warning_code: inviteConsentWarning } : {})
+          });
         }
 
         const existingInvites = await base44.asServiceRole.entities.FacilitatorInvitation.filter({
@@ -485,11 +536,27 @@ Deno.serve(async (req) => {
             relationship_name: relName, initiated_by: invite.inviter_email,
             initiated_by_type: 'relationship_member', status: 'pending_approval', all_approved: false
           });
-          await Promise.all(members.map(m => base44.asServiceRole.entities.FacilitatorConsent.create({
-            facilitator_relationship_id: facRel.id, facilitator_email: user.email.toLowerCase(),
-            relationship_id: invite.relationship_id, member_email: m.user_email,
-            status: 'pending', hide_self_reflections: false, hidden_moment_ids: []
-          })));
+
+          // Wave 4: consent partial-write guard
+          try {
+            await Promise.all(members.map(m => base44.asServiceRole.entities.FacilitatorConsent.create({
+              facilitator_relationship_id: facRel.id, facilitator_email: user.email.toLowerCase(),
+              relationship_id: invite.relationship_id, member_email: m.user_email,
+              status: 'pending', hide_self_reflections: false, hidden_moment_ids: []
+            })));
+          } catch (consentErr) {
+            await logFunctionAudit(base44, {
+              function_name: 'manageFacilitatorAccess',
+              trigger_type: 'user_action',
+              triggered_by: user.email,
+              status: 'partial',
+              error_message: consentErr.message,
+              metadata: { action: 'check_pending_invitations', facilitator_relationship_id: facRel.id, partial_write: 'consent_records' },
+              started_at: startedAt,
+              completed_at: new Date().toISOString(),
+              duration_ms: Date.now() - startMs
+            });
+          }
 
           // ── AUDIT: access_requested (auto-link from pending invite) ───
           await logFacilitatorEvent(base44, {
