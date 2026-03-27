@@ -24,6 +24,15 @@ function HomeContent() {
   const [showForm, setShowForm] = useState(false);
   const [typeFilter, setTypeFilter] = useState('all');
   const [ownerFilter, setOwnerFilter] = useState('all');
+  const [nudgeDismissed, setNudgeDismissed] = useState(
+    () => localStorage.getItem('lowActivityNudgeDismissed') === 'true'
+  );
+
+  const dismissNudge = (e) => {
+    e.stopPropagation();
+    setNudgeDismissed(true);
+    localStorage.setItem('lowActivityNudgeDismissed', 'true');
+  };
   const queryClient = useQueryClient();
 
   // Handle deep-link from History tab — stable across renders
@@ -151,6 +160,7 @@ function HomeContent() {
           }, new Date(0));
           const daysSince = Math.floor((Date.now() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
           if (daysSince < 7) return null;
+          if (nudgeDismissed) return null;
           return (
             <motion.div
               initial={{ opacity: 0, y: -8 }}
@@ -164,8 +174,9 @@ function HomeContent() {
                 <p className="text-xs text-stone-400 mt-0.5">Log a small moment to keep things moving.</p>
               </div>
               <X
-                className="w-4 h-4 text-stone-500 flex-shrink-0 mt-0.5"
-                onClick={e => { e.stopPropagation(); }}
+                className="w-4 h-4 text-stone-500 flex-shrink-0 mt-0.5 cursor-pointer"
+                onClick={dismissNudge}
+                aria-label="Dismiss"
               />
             </motion.div>
           );
