@@ -81,21 +81,26 @@ Deno.serve(async (req) => {
     }
 
     const callerIsAdmin = user.role === 'admin';
-    const callerIsFacilitatorMatch = (
-      (user.role === 'facilitator' || user.role === 'admin') &&
-      user.email?.toLowerCase() === facilitator_email?.toLowerCase()
-    );
+    const callerIsFacilitator = user.role === 'facilitator';
+    const callerEmailMatches = user.email === facilitator_email;
 
-    if (!callerIsAdmin && !callerIsFacilitatorMatch) {
+    if (!callerIsAdmin && !(callerIsFacilitator && callerEmailMatches)) {
       await logDenial(base44, {
         caller_email: user.email,
         facilitator_email,
         relationship_id,
         reason: 'caller_email_does_not_match_facilitator_email'
       });
-      return Response.json({
-        error: 'Forbidden: caller identity does not match requested facilitator'
-      }, { status: 403 });
+      return new Response(
+        JSON.stringify({
+          error: 'Forbidden',
+          details: 'Caller is not authorized to request this facilitator view'
+        }),
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     // ── Verify active facilitator access for the requested facilitator ────────
