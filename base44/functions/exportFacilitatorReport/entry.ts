@@ -3,12 +3,15 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 /**
  * Consent-aware, date-range export for facilitators.
  * Returns moments, stats, and notes for a given period.
- * Wave 1: FunctionAuditLog added. No business logic changed.
+ *
+ * Wave 1: FunctionAuditLog added.
+ * Wave 2: Moment filtering now routes through the centralized
+ * `filterMomentsForFacilitator` function for canonical privacy enforcement.
  */
 Deno.serve(async (req) => {
-  const startMs = Date.now();
+  const startMs   = Date.now();
   const startedAt = new Date().toISOString();
-  const base44 = createClientFromRequest(req);
+  const base44    = createClientFromRequest(req);
 
   try {
     const user = await base44.auth.me();
@@ -24,53 +27,32 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'relationship_id, start_date, and end_date are required' }, { status: 400 });
     }
 
-    // Verify active facilitator access
-    const facRels = await base44.asServiceRole.entities.FacilitatorRelationship.filter({
+    // ── Central privacy filter (Wave 2) ──────────────────────────────────────
+    const filterResult = await base44.asServiceRole.functions.invoke('filterMomentsForFacilitator', {
+      relationship_id,
       facilitator_email: user.email,
-      relationship_id,
-      status: 'active'
-    });
-    if (!facRels.length) return Response.json({ error: 'No active access to this relationship' }, { status: 403 });
-    const facRel = facRels[0];
-
-    // Build consent map
-    const consents = await base44.asServiceRole.entities.FacilitatorConsent.filter({
-      facilitator_relationship_id: facRel.id
-    });
-    const consentMap = {};
-    consents.forEach(c => {
-      consentMap[c.member_email] = {
-        status: c.status,
-        hide_self_reflections: c.hide_self_reflections || false,
-        hidden_moment_ids: c.hidden_moment_ids || []
-      };
+      start_date,
+      end_date,
+      limit: 500
     });
 
-    const startISO = new Date(start_date).toISOString();
-    const endISO = new Date(end_date + 'T23:59:59').toISOString();
+    if (!filterResult?.success) {
+      const status = filterResult?.error?.includes('active') ? 403 : 500;
+      return Response.json({ error: filterResult?.error || 'Filter failed' }, { status });
+    }
 
-    // Fetch all moments, filter by date + consent
-    const allMoments = await base44.asServiceRole.entities.Moment.filter({
-      relationship_id,
-      visibility: 'relationship'
-    }, '-date', 500);
+    const filteredMoments = filterResult.filtered_moments || [];
+    const facRel          = filterResult.facRel;
 
-    const filteredMoments = allMoments.filter(m => {
-      if (!m.date || m.date < startISO || m.date > endISO) return false;
-      const consent = consentMap[m.created_by];
-      if (!consent || consent.status !== 'approved') return m.type !== 'self_reflection';
-      if (consent.hidden_moment_ids.includes(m.id)) return false;
-      if (consent.hide_self_reflections && m.type === 'self_reflection') return false;
-      return true;
-    });
-
+    // Members
     const members = await base44.asServiceRole.entities.RelationshipMember.filter({
       relationship_id,
       status: 'active'
     });
 
+    // Stats
     const conflictSubtypes = ['reacted_poorly', 'shut_down', 'was_dismissive', 'unkind', 'not_present'];
-    const conflictCount = filteredMoments.filter(m => conflictSubtypes.includes(m.subtype)).length;
+    const conflictCount    = filteredMoments.filter(m => conflictSubtypes.includes(m.subtype)).length;
 
     const stats = {
       total_moments: filteredMoments.length,
@@ -94,11 +76,14 @@ Deno.serve(async (req) => {
       facilitator_email: user.email,
       relationship_id
     }, '-session_date', 100);
+
+    const startISO = new Date(start_date).toISOString();
+    const endISO   = new Date(end_date + 'T23:59:59').toISOString();
     const filteredNotes = allNotes.filter(n =>
       n.session_date && n.session_date >= startISO && n.session_date <= endISO
     );
 
-    // ── AUDIT: completed ───────────────────────────────────────────
+    // ── FunctionAuditLog (Wave 1 pattern) ────────────────────────────────────
     try {
       await base44.asServiceRole.entities.FunctionAuditLog.create({
         function_name: 'exportFacilitatorReport',
@@ -112,7 +97,8 @@ Deno.serve(async (req) => {
           start_date,
           end_date,
           moments_returned: filteredMoments.length,
-          notes_returned: filteredNotes.length
+          notes_returned: filteredNotes.length,
+          total_fetched: filterResult.total_fetched
         },
         started_at: startedAt,
         completed_at: new Date().toISOString()
@@ -123,7 +109,7 @@ Deno.serve(async (req) => {
 
     return Response.json({
       success: true,
-      relationship_name: facRel.relationship_name,
+      relationship_name: facRel?.relationship_name,
       facilitator_email: user.email,
       period: { start_date, end_date },
       moments: filteredMoments,
@@ -133,7 +119,6 @@ Deno.serve(async (req) => {
     });
 
   } catch (error) {
-    // ── AUDIT: failed ──────────────────────────────────────────────
     try {
       await base44.asServiceRole.entities.FunctionAuditLog.create({
         function_name: 'exportFacilitatorReport',
