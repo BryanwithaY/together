@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Calendar, Plus, Trash2, Copy, MapPin, Clock, RotateCw, CalendarPlus, Pencil } from 'lucide-react';
+import { Calendar, Plus, Trash2, Copy, MapPin, Clock, RotateCw, CalendarPlus, Pencil, Eye, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -20,8 +20,11 @@ function generateICS(connection) {
     new Date(date).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
 
   const desc = (connection.description || '').replace(/\n/g, '\\n').replace(/,/g, '\\,');
+  const attendeeLines = (connection.attendee_emails || [])
+    .map(email => `ATTENDEE;RSVP=TRUE:mailto:${email}`)
+    .join('\n');
 
-  return `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Together//Connection Schedule//EN\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\nBEGIN:VEVENT\nUID:${connection.id}@together.app\nDTSTAMP:${formatDate(new Date())}\nDTSTART:${formatDate(connection.start_time)}\nDTEND:${formatDate(connection.end_time)}\nSUMMARY:${connection.title}\nDESCRIPTION:${desc}\nLOCATION:${connection.location || ''}\nSTATUS:CONFIRMED\nSEQUENCE:0\nEND:VEVENT\nEND:VCALENDAR`;
+  return `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Together//Connection Schedule//EN\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\nBEGIN:VEVENT\nUID:${connection.id}@together.app\nDTSTAMP:${formatDate(new Date())}\nDTSTART:${formatDate(connection.start_time)}\nDTEND:${formatDate(connection.end_time)}\nSUMMARY:${connection.title}\nDESCRIPTION:${desc}\nLOCATION:${connection.location || ''}\nSTATUS:CONFIRMED\nSEQUENCE:0${attendeeLines ? '\n' + attendeeLines : ''}\nEND:VEVENT\nEND:VCALENDAR`;
 }
 
 function downloadICS(connection) {
@@ -111,7 +114,16 @@ const RECURRENCE_LABEL = {
   weekly: 'Weekly',
   biweekly: 'Every 2 weeks',
   monthly: 'Monthly',
+  custom: 'Custom',
 };
+
+function getRecurrenceLabel(connection) {
+  if (connection.recurrence_pattern === 'custom' && connection.recurrence_config) {
+    const { interval, unit } = connection.recurrence_config;
+    return `Every ${interval} ${unit}`;
+  }
+  return RECURRENCE_LABEL[connection.recurrence_pattern] || null;
+}
 
 function ConnectionCard({ connection, onDelete, onEdit, onCopy, isPast }) {
   const dateStr = new Date(connection.start_time).toLocaleDateString('en-US', {
@@ -158,12 +170,24 @@ function ConnectionCard({ connection, onDelete, onEdit, onCopy, isPast }) {
               {connection.recurrence_pattern && connection.recurrence_pattern !== 'none' && (
                 <span className="inline-flex items-center gap-1 text-xs bg-stone-100 text-stone-600 px-2 py-0.5 rounded-full">
                   <RotateCw className="w-3 h-3" />
-                  {RECURRENCE_LABEL[connection.recurrence_pattern]}
+                  {getRecurrenceLabel(connection)}
                 </span>
               )}
               {connection.focus_area && connection.focus_area !== 'general' && (
                 <span className="inline-flex items-center text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full border border-amber-200 capitalize">
                   {connection.focus_area.replace(/_/g, ' ')}
+                </span>
+              )}
+              {connection.visibility_type === 'creator_only' && (
+                <span className="inline-flex items-center gap-1 text-xs bg-stone-100 text-stone-500 px-2 py-0.5 rounded-full">
+                  <Eye className="w-3 h-3" />
+                  Just me
+                </span>
+              )}
+              {connection.visibility_type === 'invited' && connection.attendee_emails?.length > 0 && (
+                <span className="inline-flex items-center gap-1 text-xs bg-stone-100 text-stone-500 px-2 py-0.5 rounded-full">
+                  <Users className="w-3 h-3" />
+                  {connection.attendee_emails.length} invited
                 </span>
               )}
               {connection.linked_moment_ids?.length > 0 && (
@@ -208,7 +232,7 @@ function ConnectionCard({ connection, onDelete, onEdit, onCopy, isPast }) {
 }
 
 function ScheduleContent() {
-  const { activeRelationship } = useRelationship();
+  const { activeRelationship, members, currentUser } = useRelationship();
   const { setPageReady } = usePageLoading();
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
@@ -240,11 +264,18 @@ function ScheduleContent() {
     Analytics.pageViewed('schedule');
   }, []);
 
-  const upcomingConnections = connections
+  const visibleConnections = connections.filter(c => {
+    if (!c.visibility_type || c.visibility_type === 'relationship') return true;
+    if (c.created_by === currentUser?.email) return true;
+    if (c.visibility_type === 'invited' && c.attendee_emails?.includes(currentUser?.email)) return true;
+    return false;
+  });
+
+  const upcomingConnections = visibleConnections
     .filter(c => new Date(c.start_time) > new Date())
     .sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
 
-  const pastConnections = connections
+  const pastConnections = visibleConnections
     .filter(c => new Date(c.start_time) <= new Date())
     .sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
 
@@ -327,7 +358,7 @@ function ScheduleContent() {
         )}
 
         {/* Empty State */}
-        {!isLoading && connections.length === 0 && (
+        {!isLoading && visibleConnections.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="w-16 h-16 bg-stone-100 rounded-2xl flex items-center justify-center mb-4">
               <Calendar className="w-8 h-8 text-stone-400" />
@@ -363,6 +394,8 @@ function ScheduleContent() {
               relationshipId={activeRelationship?.id}
               relationshipType={activeRelationship?.type}
               connection={editTarget}
+              members={members}
+              currentUser={currentUser}
               onSuccess={() => {
                 setEditTarget(null);
                 queryClient.invalidateQueries({ queryKey: ['connections', activeRelationship?.id] });
@@ -386,6 +419,8 @@ function ScheduleContent() {
           <ScheduleConnectionForm
             relationshipId={activeRelationship?.id}
             relationshipType={activeRelationship?.type}
+            members={members}
+            currentUser={currentUser}
             onSuccess={() => {
               setShowForm(false);
               queryClient.invalidateQueries({ queryKey: ['connections', activeRelationship?.id] });

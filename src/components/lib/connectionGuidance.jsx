@@ -513,11 +513,44 @@ const relationshipTypeGuidance = {
   }
 };
 
+const sharedFocusAreas = {
+  reflection: {
+    title: "Shared Reflection",
+    principles: [
+      "Looking back together deepens mutual understanding",
+      "Shared reflection builds emotional intimacy",
+      "Honoring what you've been through together creates meaning",
+      "Reflection without judgment opens honest dialogue"
+    ],
+    tips: [
+      "Ask: 'What's been on your mind lately?'",
+      "Share something you've been processing internally",
+      "Reflect on a recent challenge you navigated together",
+      "Notice patterns or themes in how you connect"
+    ]
+  },
+  self_reflection: {
+    title: "Personal Reflection & Sharing",
+    principles: [
+      "Sharing personal insights deepens intimacy",
+      "Self-awareness improves how you show up for others",
+      "Vulnerability in reflection builds trust",
+      "Personal growth benefits the relationship"
+    ],
+    tips: [
+      "Share something you've recently learned about yourself",
+      "Talk about a habit or pattern you're working on",
+      "Express how you've grown since your last connection",
+      "Ask: 'What have you been reflecting on lately?'"
+    ]
+  }
+};
+
 export const generateEventDescription = (relationshipType = 'other', focusArea = null, linkedMoments = []) => {
   const typeGuidance = relationshipTypeGuidance[relationshipType] || relationshipTypeGuidance.other;
   const defaultArea = typeGuidance.defaultFocusArea || 'general';
   const selectedArea = focusArea || defaultArea;
-  const guidance = typeGuidance.focusAreas[selectedArea] || typeGuidance.focusAreas.general;
+  const guidance = typeGuidance.focusAreas[selectedArea] || sharedFocusAreas[selectedArea] || typeGuidance.focusAreas[defaultArea] || Object.values(typeGuidance.focusAreas)[0];
 
   let description = `🤝 Connection Time: ${guidance.title}\n\n`;
 
@@ -561,7 +594,8 @@ export const getConnectionReminders = (relationshipType = 'other', focusArea = n
 
 export const getFocusAreasForType = (relationshipType = 'other') => {
   const typeGuidance = relationshipTypeGuidance[relationshipType] || relationshipTypeGuidance.other;
-  return Object.keys(typeGuidance.focusAreas);
+  const typeAreas = Object.keys(typeGuidance.focusAreas);
+  return [...typeAreas, 'reflection', 'self_reflection'];
 };
 
 export default { 

@@ -1,0 +1,126 @@
+{
+  "name": "ScheduledConnection",
+  "type": "object",
+  "properties": {
+    "relationship_id": {
+      "type": "string",
+      "description": "ID of the relationship this connection is for"
+    },
+    "title": {
+      "type": "string",
+      "description": "Event title (e.g., 'Coffee - Relationship Review')"
+    },
+    "description": {
+      "type": "string",
+      "description": "Full event description with moment summary and guidance"
+    },
+    "start_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the in-person connection starts"
+    },
+    "end_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the in-person connection ends"
+    },
+    "location": {
+      "type": "string",
+      "description": "Physical location for the meeting"
+    },
+    "linked_moment_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of moments linked to this connection"
+    },
+    "recurrence_pattern": {
+      "type": "string",
+      "enum": [
+        "none",
+        "weekly",
+        "biweekly",
+        "monthly",
+        "custom"
+      ],
+      "default": "none",
+      "description": "Recurrence pattern for this connection"
+    },
+    "recurrence_config": {
+      "type": "object",
+      "description": "Custom recurrence config: { interval: number, unit: 'days'|'weeks'|'months', end_date?: string }",
+      "properties": {
+        "interval": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "enum": [
+            "days",
+            "weeks",
+            "months"
+          ]
+        },
+        "end_date": {
+          "type": "string"
+        }
+      }
+    },
+    "recurrence_end_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When recurring events should stop (legacy field)"
+    },
+    "google_calendar_event_id": {
+      "type": "string",
+      "description": "Google Calendar event ID if synced"
+    },
+    "is_synced": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this event has been synced to Google Calendar"
+    },
+    "focus_area": {
+      "type": "string",
+      "enum": [
+        "listening",
+        "appreciation",
+        "growth",
+        "intimacy",
+        "general",
+        "reflection",
+        "self_reflection"
+      ],
+      "default": "general",
+      "description": "Relationship area to focus on during this connection"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Private notes about this connection"
+    },
+    "visibility_type": {
+      "type": "string",
+      "enum": [
+        "relationship",
+        "creator_only",
+        "invited"
+      ],
+      "default": "relationship",
+      "description": "Who can see this event. relationship=all members, creator_only=just creator, invited=creator+attendee_emails"
+    },
+    "attendee_emails": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Emails of invited attendees (used when visibility_type=invited)"
+    }
+  },
+  "required": [
+    "relationship_id",
+    "title",
+    "start_time",
+    "end_time"
+  ]
+}
