@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Plus, X, Star } from 'lucide-react';
+import { Plus, X, Star, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -136,6 +136,36 @@ function HomeContent() {
           onTypeChange={setTypeFilter}
           onOwnerChange={setOwnerFilter}
         />
+
+        {/* Gentle low-activity nudge — shown when user has moments but hasn't logged in 7+ days */}
+        {!momentsLoading && !showForm && (() => {
+          const allMyMoments = [...moments, ...privateReflections].filter(m => m.created_by === currentUser?.email);
+          if (allMyMoments.length === 0) return null; // new user — welcome state handles this
+          const lastDate = allMyMoments.reduce((latest, m) => {
+            const d = new Date(m.date);
+            return d > latest ? d : latest;
+          }, new Date(0));
+          const daysSince = Math.floor((Date.now() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+          if (daysSince < 7) return null;
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-start gap-3 bg-stone-800 text-white rounded-2xl px-4 py-3 cursor-pointer"
+              onClick={() => setShowForm(true)}
+            >
+              <Sparkles className="w-4 h-4 text-stone-300 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium">It's been a little while</p>
+                <p className="text-xs text-stone-400 mt-0.5">A small moment today keeps the connection growing. Tap to log one.</p>
+              </div>
+              <X
+                className="w-4 h-4 text-stone-500 flex-shrink-0 mt-0.5"
+                onClick={e => { e.stopPropagation(); }}
+              />
+            </motion.div>
+          );
+        })()}
 
         {momentsLoading ? null : (
           <MomentsList

@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useRelationship } from '../components/relationship/RelationshipContext';
 import { usePageLoading } from '../components/PageLoadingContext';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Users, Sparkles, RefreshCw, Plus, Mail } from 'lucide-react';
+import { ArrowLeft, Users, Sparkles, RefreshCw, Plus, Mail, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import FacilitatorApplyForm from '../components/facilitator/FacilitatorApplyForm';
@@ -197,6 +197,38 @@ export default function FacilitatorPortal() {
                   <p className="text-xs text-amber-600 mt-0.5">Upgrade to Pro to oversee up to 10 relationships.</p>
                 </div>
               )}
+
+              {/* Portfolio summary strip — only when there are relationships */}
+              {enrichedRels.length > 0 && !statsLoading && (() => {
+                const activeCount  = enrichedRels.filter(r => r.status === 'active').length;
+                const pendingCount = enrichedRels.filter(r => r.status === 'pending_approval').length;
+                const totalMoments = enrichedRels.reduce((sum, r) => sum + (r.stats?.total_moments || 0), 0);
+                const withActivity = enrichedRels.filter(r => (r.stats?.recent_count_7d || 0) > 0).length;
+                return (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-white border border-stone-200/60 rounded-2xl p-3 text-center">
+                      <p className="text-2xl font-bold text-stone-800">{activeCount}</p>
+                      <p className="text-xs text-stone-400 mt-0.5">Active relationship{activeCount !== 1 ? 's' : ''}</p>
+                    </div>
+                    <div className="bg-white border border-stone-200/60 rounded-2xl p-3 text-center">
+                      <p className="text-2xl font-bold text-stone-800">{totalMoments}</p>
+                      <p className="text-xs text-stone-400 mt-0.5">Visible moments</p>
+                    </div>
+                    {pendingCount > 0 && (
+                      <div className="col-span-2 flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+                        <Clock className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+                        <p className="text-xs text-amber-700">{pendingCount} relationship{pendingCount !== 1 ? 's' : ''} awaiting member consent</p>
+                      </div>
+                    )}
+                    {withActivity > 0 && (
+                      <div className="col-span-2 flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+                        <p className="text-xs text-emerald-700">{withActivity} relationship{withActivity !== 1 ? 's' : ''} had activity this week</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Relationships list */}
               {enrichedRels.length === 0 && !statsLoading && (

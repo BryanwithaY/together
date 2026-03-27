@@ -1,21 +1,74 @@
 import React from 'react';
-import { AlertTriangle, CheckCircle2, Clock, Users, ChevronRight } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Clock, Users, ChevronRight, Lock, XCircle, Info } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+
+// Status configs for non-active states
+const STATUS_CONFIG = {
+  pending_approval: {
+    border: 'border-amber-200 bg-amber-50',
+    icon: Clock,
+    iconColor: 'text-amber-500',
+    label: 'Awaiting consent',
+    description: 'Access is pending — members need to approve before you can view activity.',
+    clickable: false,
+  },
+  declined: {
+    border: 'border-stone-200 bg-stone-50',
+    icon: XCircle,
+    iconColor: 'text-stone-400',
+    label: 'Access declined',
+    description: 'One or more members declined access. Contact the relationship owner if this was unexpected.',
+    clickable: false,
+  },
+  revoked: {
+    border: 'border-stone-200 bg-stone-50',
+    icon: Lock,
+    iconColor: 'text-stone-400',
+    label: 'Access revoked',
+    description: 'Your access to this relationship was removed. Reach out to the members if you believe this is in error.',
+    clickable: false,
+  },
+};
 
 export default function FacilitatorRelationshipCard({ facRel, onClick }) {
   const concerns = facRel.concerns || [];
   const stats = facRel.stats || {};
+
+  // Non-active states: render a clear status card with no interactivity
+  const statusCfg = STATUS_CONFIG[facRel.status];
+  if (statusCfg) {
+    const StatusIcon = statusCfg.icon;
+    return (
+      <div className={`w-full text-left rounded-2xl border p-4 ${statusCfg.border}`}>
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-white border border-stone-200 flex items-center justify-center flex-shrink-0">
+            <StatusIcon className={`w-5 h-5 ${statusCfg.iconColor}`} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-stone-700 truncate">{facRel.relationship_name || 'Unnamed Relationship'}</h3>
+              <span className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${
+                facRel.status === 'pending_approval'
+                  ? 'bg-amber-100 text-amber-700'
+                  : 'bg-stone-100 text-stone-500'
+              }`}>{statusCfg.label}</span>
+            </div>
+            <p className="text-xs text-stone-500 mt-1 leading-relaxed">{statusCfg.description}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Active state: full interactive card
   const highConcern = concerns.some(c => c.severity === 'high');
-  const medConcern = concerns.some(c => c.severity === 'medium');
+  const medConcern  = concerns.some(c => c.severity === 'medium');
+  const statusColor = highConcern ? 'border-red-200 bg-red-50' : medConcern ? 'border-amber-200 bg-amber-50' : 'border-stone-200 bg-white';
+  const ConcernIcon = (highConcern || medConcern) ? AlertTriangle : CheckCircle2;
+  const iconColor   = highConcern ? 'text-red-500' : medConcern ? 'text-amber-500' : 'text-emerald-500';
 
-  const statusColor = highConcern
-    ? 'border-red-200 bg-red-50'
-    : medConcern
-    ? 'border-amber-200 bg-amber-50'
-    : 'border-stone-200 bg-white';
-
-  const ConcernIcon = highConcern ? AlertTriangle : medConcern ? AlertTriangle : CheckCircle2;
-  const iconColor = highConcern ? 'text-red-500' : medConcern ? 'text-amber-500' : 'text-emerald-500';
+  // Determine if visible moments may be limited by consent
+  const hasLimitedVisibility = stats.total_moments === 0 && facRel.status === 'active';
 
   return (
     <button
@@ -31,21 +84,25 @@ export default function FacilitatorRelationshipCard({ facRel, onClick }) {
             <h3 className="font-semibold text-stone-800 truncate">{facRel.relationship_name || 'Unnamed Relationship'}</h3>
             <ConcernIcon className={`w-4 h-4 flex-shrink-0 ${iconColor}`} />
           </div>
-          <div className="flex items-center gap-3 mt-1">
+          <div className="flex items-center gap-3 mt-1 flex-wrap">
             <span className="text-xs text-stone-400">
-              {stats.total_moments || 0} moments
+              {stats.total_moments || 0} visible moment{stats.total_moments !== 1 ? 's' : ''}
             </span>
             {stats.recent_count_7d > 0 && (
-              <span className="text-xs text-stone-400">
-                {stats.recent_count_7d} this week
+              <span className="text-xs text-emerald-600 font-medium">
+                +{stats.recent_count_7d} this week
               </span>
             )}
-            {facRel.status === 'pending_approval' && (
-              <span className="text-xs text-amber-600 flex items-center gap-1">
-                <Clock className="w-3 h-3" /> Awaiting consent
-              </span>
+            {stats.recent_count_7d === 0 && stats.total_moments > 0 && (
+              <span className="text-xs text-stone-300">quiet this week</span>
             )}
           </div>
+          {hasLimitedVisibility && (
+            <div className="mt-2 flex items-start gap-1.5">
+              <Info className="w-3 h-3 text-sky-400 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-sky-600">Activity may be limited by current access settings.</p>
+            </div>
+          )}
           {concerns.length > 0 && (
             <div className="mt-2 space-y-1">
               {concerns.slice(0, 2).map((c, i) => (
@@ -54,7 +111,7 @@ export default function FacilitatorRelationshipCard({ facRel, onClick }) {
                 </p>
               ))}
               {concerns.length > 2 && (
-                <p className="text-xs text-stone-400">+{concerns.length - 2} more concerns</p>
+                <p className="text-xs text-stone-400">+{concerns.length - 2} more</p>
               )}
             </div>
           )}

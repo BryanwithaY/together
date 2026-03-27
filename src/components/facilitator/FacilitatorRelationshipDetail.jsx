@@ -208,7 +208,16 @@ export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
       {activeTab === 'moments' && (
         <div className="space-y-3">
           {moments.length === 0 && (
-            <p className="text-center text-sm text-stone-400 py-8">No moments available</p>
+            <div className="text-center py-10 space-y-2">
+              <p className="text-sm font-medium text-stone-500">
+                {consentWarning ? 'No visible moments' : 'No moments yet'}
+              </p>
+              <p className="text-xs text-stone-400 max-w-xs mx-auto">
+                {consentWarning
+                  ? 'Some content may be unavailable due to current privacy or access settings.'
+                  : 'Moments will appear here once the relationship members start logging activity.'}
+              </p>
+            </div>
           )}
           {moments.map(moment => (
             <div key={moment.id} className={`rounded-xl border p-3 ${momentTypeColors[moment.type] || 'bg-stone-50 border-stone-200'}`}>
