@@ -3,13 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+
 import { Calendar, Clock, MapPin, Link2, Zap } from 'lucide-react';
 import { generateEventDescription, getFocusAreasForType } from '../lib/connectionGuidance';
 
@@ -134,35 +128,33 @@ export default function ScheduleConnectionForm({ relationshipId, relationshipTyp
             <Zap className="w-4 h-4 inline mr-1" />
             Focus Area
           </label>
-          <Select value={focusArea} onValueChange={setFocusArea}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="z-[200]">
-              {focusAreas.map(area => (
-                <SelectItem key={area} value={area}>
-                  {area.charAt(0).toUpperCase() + area.slice(1).replace(/_/g, ' ')}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <select
+            value={focusArea}
+            onChange={(e) => setFocusArea(e.target.value)}
+            className="w-full h-9 rounded-md border border-input px-3 py-1 text-sm bg-white text-stone-900"
+          >
+            {focusAreas.map(area => (
+              <option key={area} value={area}>
+                {area.charAt(0).toUpperCase() + area.slice(1).replace(/_/g, ' ')}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-2">
             Repeat
           </label>
-          <Select value={recurrence} onValueChange={setRecurrence}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="z-[200]">
-              <SelectItem value="none">One Time</SelectItem>
-              <SelectItem value="weekly">Weekly</SelectItem>
-              <SelectItem value="biweekly">Every 2 Weeks</SelectItem>
-              <SelectItem value="monthly">Monthly</SelectItem>
-            </SelectContent>
-          </Select>
+          <select
+            value={recurrence}
+            onChange={(e) => setRecurrence(e.target.value)}
+            className="w-full h-9 rounded-md border border-input px-3 py-1 text-sm bg-white text-stone-900"
+          >
+            <option value="none">One Time</option>
+            <option value="weekly">Weekly</option>
+            <option value="biweekly">Every 2 Weeks</option>
+            <option value="monthly">Monthly</option>
+          </select>
         </div>
 
         <div>
