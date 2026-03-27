@@ -52,6 +52,7 @@ Deno.serve(async (req) => {
     const filteredMoments = filterResult.filtered_moments || [];
     const consentMap      = filterResult.consent_map || {};
     const facRel          = filterResult.facRel;
+    const consentSummary  = filterResult.consent_summary || null;
 
     // Fetch members
     const members = await base44.asServiceRole.entities.RelationshipMember.filter({
@@ -154,6 +155,7 @@ Deno.serve(async (req) => {
       stats,
       concerns,
       consent_map: consentMap,
+      consent_summary: consentSummary,
       notes
     });
 
