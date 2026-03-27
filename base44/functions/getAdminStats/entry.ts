@@ -75,9 +75,22 @@ Deno.serve(async (req) => {
     const commentCount       = allComments.length;
     const comments7d         = allComments.filter(c => c.created_date >= day7).length;
     const comments30d        = allComments.filter(c => c.created_date >= day30).length;
-    const momentsWithComments = allMoments.filter(m => m.has_comments).length;
-    const momentsShared      = allMoments.filter(m => m.shared_with_partner).length;
-    const momentsReviewed    = allMoments.filter(m => m.reviewed_by || (m.reviews && m.reviews.length > 0)).length;
+
+    // Perf Pass: single-pass over allMoments for all engagement counters
+    // Previously: 6 separate .filter() passes over the same array
+    const engagementCounts = allMoments.reduce((acc, m) => {
+      if (m.has_comments)                                           acc.with_comments++;
+      if (m.shared_with_partner)                                    acc.shared++;
+      if (m.reviewed_by || (m.reviews && m.reviews.length > 0))    acc.reviewed++;
+      if (m.is_favorite)                                            acc.favorited++;
+      if (m.is_saved)                                               acc.saved++;
+      if (m.media_url)                                              acc.with_media++;
+      return acc;
+    }, { with_comments: 0, shared: 0, reviewed: 0, favorited: 0, saved: 0, with_media: 0 });
+
+    const momentsWithComments = engagementCounts.with_comments;
+    const momentsShared       = engagementCounts.shared;
+    const momentsReviewed     = engagementCounts.reviewed;
 
     // ── Relationship stats ────────────────────────────────────────────────────
     // IMPORTANT: define activeRels before using it
@@ -120,6 +133,9 @@ Deno.serve(async (req) => {
       return acc;
     }, {});
 
+    // Perf Pass: index users by email once — avoids O(N) find() per churn/at-risk entry
+    const userByEmail = allUsers.reduce((acc, u) => { if (u.email) acc[u.email] = u; return acc; }, {});
+
     // Last event per user from AppEvent log
     const lastEventByUser = allEvents.reduce((acc, e) => {
       if (!e.user_email) return acc;
@@ -134,24 +150,24 @@ Deno.serve(async (req) => {
     const churned = userEmailsWithActivity
       .filter(email => lastEventByUser[email] < day14)
       .map(email => {
-        const u = allUsers.find(u => u.email === email);
+        const u = userByEmail[email]; // Perf Pass: O(1) index lookup
         return {
           email,
           name: u?.full_name || null,
           last_active_at: lastEventByUser[email],
-          total_moments: momentCountByCreator[email] || 0,  // Wave 6: O(1) lookup
+          total_moments: momentCountByCreator[email] || 0,
         };
       });
 
     const atRisk = userEmailsWithActivity
       .filter(email => lastEventByUser[email] >= day28 && lastEventByUser[email] < day7)
       .map(email => {
-        const u = allUsers.find(u => u.email === email);
+        const u = userByEmail[email]; // Perf Pass: O(1) index lookup
         return {
           email,
           name: u?.full_name || null,
           last_active_at: lastEventByUser[email],
-          total_moments: momentCountByCreator[email] || 0,  // Wave 6: O(1) lookup
+          total_moments: momentCountByCreator[email] || 0,
         };
       });
 
@@ -226,9 +242,9 @@ Deno.serve(async (req) => {
         moments_with_comments: momentsWithComments,
         moments_shared: momentsShared,
         moments_reviewed: momentsReviewed,
-        moments_favorited: allMoments.filter(m => m.is_favorite).length,
-        moments_saved: allMoments.filter(m => m.is_saved).length,
-        moments_with_media: allMoments.filter(m => m.media_url).length,
+        moments_favorited: engagementCounts.favorited,
+        moments_saved: engagementCounts.saved,
+        moments_with_media: engagementCounts.with_media,
       },
       profiles: {
         users_with_profile_pics: usersWithProfilePics,

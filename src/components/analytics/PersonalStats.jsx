@@ -44,13 +44,19 @@ export default function PersonalStats({ user }) {
 
   const { data: moments = [] } = useQuery({
     queryKey: ['personalMoments', activeRelationship?.id, user?.email],
-    queryFn: () => base44.entities.Moment.filter({ relationship_id: activeRelationship.id }, '-date', 500),
+    // Perf Pass: scope query to this user's moments only — previously fetched all relationship moments
+    // and discarded the partner's share client-side. created_by pushed to DB filter.
+    queryFn: () => base44.entities.Moment.filter(
+      { relationship_id: activeRelationship.id, created_by: user.email },
+      '-date',
+      500
+    ),
     enabled: !!activeRelationship?.id && !!user?.email,
     staleTime: 5 * 60_000,
   });
 
-  // Only moments by this user
-  const mine = moments.filter(m => m.created_by === user?.email && !m.is_demo);
+  // Exclude demo moments (created_by already scoped to this user by the query)
+  const mine = moments.filter(m => !m.is_demo);
 
   // Totals by type
   const totals = mine.reduce((acc, m) => {
