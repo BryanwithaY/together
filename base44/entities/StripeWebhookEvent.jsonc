@@ -1,0 +1,51 @@
+{
+  "name": "StripeWebhookEvent",
+  "type": "object",
+  "properties": {
+    "stripe_event_id": {
+      "type": "string",
+      "description": "The unique Stripe event ID (evt_xxx). Used for idempotency \u2014 checked before processing any webhook."
+    },
+    "event_type": {
+      "type": "string",
+      "description": "Stripe event type e.g. checkout.session.completed, invoice.payment_succeeded"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email of the affected user, if determinable from the event"
+    },
+    "stripe_customer_id": {
+      "type": "string",
+      "description": "Stripe customer ID from the event, if present"
+    },
+    "processing_status": {
+      "type": "string",
+      "enum": [
+        "processed",
+        "skipped_duplicate",
+        "failed",
+        "unhandled"
+      ],
+      "description": "Outcome of processing this event"
+    },
+    "error_message": {
+      "type": "string",
+      "description": "If processing_status is failed, the error message captured"
+    },
+    "processed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when this event was handled"
+    },
+    "raw_event_type": {
+      "type": "string",
+      "description": "Full unmodified event type string from Stripe for forward compatibility"
+    }
+  },
+  "required": [
+    "stripe_event_id",
+    "event_type",
+    "processed_at",
+    "processing_status"
+  ]
+}
