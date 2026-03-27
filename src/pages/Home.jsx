@@ -13,6 +13,7 @@ import MomentForm from '../components/moments/MomentForm';
 import MomentsList from '../components/moments/MomentsList';
 import FilterTabs from '../components/moments/FilterTabs';
 import NewUserWelcome from '../components/help/NewUserWelcome';
+import SetupProgress from '../components/user/SetupProgress';
 import { usePageLoading } from '../components/PageLoadingContext';
 import { Analytics } from '../components/lib/analytics';
 import { initializeGA4 } from '../components/lib/initGA4';
@@ -136,6 +137,9 @@ function HomeContent() {
           onTypeChange={setTypeFilter}
           onOwnerChange={setOwnerFilter}
         />
+
+        {/* Setup progress — shown only while there are incomplete steps, never to new users with no moments yet  */}
+        {!momentsLoading && !showForm && <SetupProgress moments={[...moments, ...privateReflections]} />}
 
         {/* Gentle low-activity nudge — shown when user has moments but hasn't logged in 7+ days */}
         {!momentsLoading && !showForm && (() => {

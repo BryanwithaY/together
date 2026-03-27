@@ -198,34 +198,50 @@ export default function FacilitatorPortal() {
                 </div>
               )}
 
-              {/* Portfolio summary strip — only when there are relationships */}
+              {/* Weekly digest — computed from already-loaded enrichedRels */}
               {enrichedRels.length > 0 && !statsLoading && (() => {
-                const activeCount  = enrichedRels.filter(r => r.status === 'active').length;
-                const pendingCount = enrichedRels.filter(r => r.status === 'pending_approval').length;
-                const totalMoments = enrichedRels.reduce((sum, r) => sum + (r.stats?.total_moments || 0), 0);
-                const withActivity = enrichedRels.filter(r => (r.stats?.recent_count_7d || 0) > 0).length;
+                const activeCount   = enrichedRels.filter(r => r.status === 'active').length;
+                const pendingCount  = enrichedRels.filter(r => r.status === 'pending_approval').length;
+                const momentsThisWeek = enrichedRels.reduce((sum, r) => sum + (r.stats?.recent_count_7d || 0), 0);
+                const withActivity  = enrichedRels.filter(r => (r.stats?.recent_count_7d || 0) > 0).length;
+                const quietWeek     = momentsThisWeek === 0 && activeCount > 0;
                 return (
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-white border border-stone-200/60 rounded-2xl p-3 text-center">
-                      <p className="text-2xl font-bold text-stone-800">{activeCount}</p>
-                      <p className="text-xs text-stone-400 mt-0.5">Active relationship{activeCount !== 1 ? 's' : ''}</p>
-                    </div>
-                    <div className="bg-white border border-stone-200/60 rounded-2xl p-3 text-center">
-                      <p className="text-2xl font-bold text-stone-800">{totalMoments}</p>
-                      <p className="text-xs text-stone-400 mt-0.5">Visible moments</p>
-                    </div>
-                    {pendingCount > 0 && (
-                      <div className="col-span-2 flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
-                        <Clock className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
-                        <p className="text-xs text-amber-700">{pendingCount} relationship{pendingCount !== 1 ? 's' : ''} awaiting member consent</p>
+                  <div className="bg-white border border-stone-200/60 rounded-2xl p-4 shadow-sm">
+                    <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">Your week at a glance</p>
+                    <div className="grid grid-cols-3 gap-3 mb-3">
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-stone-800">{activeCount}</p>
+                        <p className="text-xs text-stone-400 mt-0.5">Active</p>
                       </div>
-                    )}
-                    {withActivity > 0 && (
-                      <div className="col-span-2 flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
-                        <p className="text-xs text-emerald-700">{withActivity} relationship{withActivity !== 1 ? 's' : ''} had activity this week</p>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-stone-800">{momentsThisWeek}</p>
+                        <p className="text-xs text-stone-400 mt-0.5">Moments this week</p>
                       </div>
-                    )}
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-stone-800">{withActivity}</p>
+                        <p className="text-xs text-stone-400 mt-0.5">With activity</p>
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      {withActivity > 0 && (
+                        <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+                          <p className="text-xs text-emerald-700">{withActivity} relationship{withActivity !== 1 ? 's' : ''} showed new activity this week</p>
+                        </div>
+                      )}
+                      {pendingCount > 0 && (
+                        <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                          <Clock className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+                          <p className="text-xs text-amber-700">{pendingCount} relationship{pendingCount !== 1 ? 's' : ''} still awaiting member consent</p>
+                        </div>
+                      )}
+                      {quietWeek && (
+                        <div className="flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-lg px-3 py-2">
+                          <p className="text-xs text-stone-500">Activity was quieter this week — check back later or reach out.</p>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-xs text-stone-300 mt-2.5">Some activity may be limited by current access settings.</p>
                   </div>
                 );
               })()}

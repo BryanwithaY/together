@@ -84,7 +84,8 @@ export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
     </div>
   );
 
-  const { moments = [], members = [], stats = {}, concerns = [], notes = [], facilitator_relationship } = data || {};
+  const { moments = [], members = [], stats = {}, concerns = [], notes = [], facilitator_relationship, consent_summary } = data || {};
+  const consentWarning = !!(consent_summary?.warning_code);
 
   const TABS = [
     { id: 'overview', label: 'Overview', icon: Users },
@@ -150,6 +151,41 @@ export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
       {/* OVERVIEW */}
       {activeTab === 'overview' && (
         <div className="space-y-4">
+          {/* Trend card — computed from visible moments only */}
+          {(() => {
+            const now = Date.now();
+            const week = 7 * 24 * 60 * 60 * 1000;
+            const thisWeek = moments.filter(m => now - new Date(m.date).getTime() < week).length;
+            const lastWeek = moments.filter(m => {
+              const age = now - new Date(m.date).getTime();
+              return age >= week && age < 2 * week;
+            }).length;
+            const hasEnough = moments.length >= 3;
+            const trend = !hasEnough ? null : thisWeek > lastWeek ? 'more_active' : thisWeek < lastWeek ? 'quieter' : 'steady';
+            const trendLabel = { more_active: '↑ More active', quieter: '↓ Quieter', steady: '→ Steady' };
+            const trendColor = { more_active: 'text-emerald-600 bg-emerald-50 border-emerald-200', quieter: 'text-amber-600 bg-amber-50 border-amber-200', steady: 'text-sky-600 bg-sky-50 border-sky-200' };
+            return (
+              <div className="flex items-stretch gap-2 mb-1">
+                <div className="flex-1 bg-white border border-stone-200 rounded-xl p-3 text-center">
+                  <p className="text-xs text-stone-400 mb-1">This week</p>
+                  <p className="text-lg font-bold text-stone-800">{thisWeek}</p>
+                </div>
+                <div className="flex-1 bg-white border border-stone-200 rounded-xl p-3 text-center">
+                  <p className="text-xs text-stone-400 mb-1">Last week</p>
+                  <p className="text-lg font-bold text-stone-500">{lastWeek}</p>
+                </div>
+                <div className={`flex-1 rounded-xl p-3 text-center border flex flex-col items-center justify-center ${
+                  trend ? trendColor[trend] : 'bg-stone-50 border-stone-200'
+                }`}>
+                  {trend
+                    ? <p className="text-xs font-semibold">{trendLabel[trend]}</p>
+                    : <p className="text-xs text-stone-400 leading-tight">Not enough data yet</p>
+                  }
+                </div>
+              </div>
+            );
+          })()}
+
           <div className="grid grid-cols-3 gap-3">
             {[
               { label: 'Total Moments', value: stats.total_moments || 0, color: 'text-stone-800' },
@@ -270,6 +306,16 @@ export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
             </Button>
           </div>
 
+          {notes.length === 0 && !noteContent && (
+            <div className="flex items-start gap-3 bg-stone-50 border border-stone-200 rounded-xl p-3 mb-1">
+              <FileText className="w-4 h-4 text-stone-300 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-stone-600">No notes yet</p>
+                <p className="text-xs text-stone-400 mt-0.5">Write your first session note above — only you can see it.</p>
+              </div>
+            </div>
+          )}
+
           {notes.length > 0 && (
             <div className="space-y-3 mt-4">
               <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Previous Notes</p>
@@ -333,6 +379,15 @@ export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
             </select>
           )}
 
+          {!messageContent && (
+            <div className="flex items-start gap-3 bg-stone-50 border border-stone-200 rounded-xl p-3">
+              <MessageSquare className="w-4 h-4 text-stone-300 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-stone-600">No messages sent yet</p>
+                <p className="text-xs text-stone-400 mt-0.5">Send a supportive note to check in with the relationship members.</p>
+              </div>
+            </div>
+          )}
           <Textarea
             value={messageContent}
             onChange={e => setMessageContent(e.target.value)}
