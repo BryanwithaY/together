@@ -83,30 +83,36 @@ export default function AttendancePanel({ connection, currentUser, onUpdate }) {
   return (
     <div className="mt-3 pt-3 border-t border-stone-100 space-y-3">
       {/* Attendance buttons */}
-      <div className="flex items-center gap-2">
-        <span className="text-xs text-stone-500 shrink-0">Your response:</span>
-        <button
-          onClick={() => handleStatusToggle('attended')}
-          className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border transition-colors ${
-            myStatus === 'attended'
-              ? 'bg-green-50 border-green-300 text-green-700 font-medium'
-              : 'border-stone-200 text-stone-500 hover:border-stone-300'
-          }`}
-        >
-          <CheckCircle2 className="w-3 h-3" />
-          Attended
-        </button>
-        <button
-          onClick={() => handleStatusToggle('did_not_attend')}
-          className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border transition-colors ${
-            myStatus === 'did_not_attend'
-              ? 'bg-stone-100 border-stone-300 text-stone-600 font-medium'
-              : 'border-stone-200 text-stone-500 hover:border-stone-300'
-          }`}
-        >
-          <XCircle className="w-3 h-3" />
-          Couldn't attend
-        </button>
+      <div className="space-y-1.5">
+        <p className="text-xs font-medium text-stone-500">
+          {myStatus === 'attended' && '✓ You marked this as attended'}
+          {myStatus === 'did_not_attend' && 'You couldn't make it — noted'}
+          {!myStatus && 'How did it go?'}
+        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => handleStatusToggle('attended')}
+            className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-colors ${
+              myStatus === 'attended'
+                ? 'bg-green-50 border-green-300 text-green-700 font-medium'
+                : 'border-stone-200 text-stone-500 hover:border-stone-300 hover:bg-stone-50'
+            }`}
+          >
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            {myStatus === 'attended' ? 'Attended' : 'Mark attended'}
+          </button>
+          <button
+            onClick={() => handleStatusToggle('did_not_attend')}
+            className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-colors ${
+              myStatus === 'did_not_attend'
+                ? 'bg-stone-100 border-stone-300 text-stone-600 font-medium'
+                : 'border-stone-200 text-stone-500 hover:border-stone-300 hover:bg-stone-50'
+            }`}
+          >
+            <XCircle className="w-3.5 h-3.5" />
+            {myStatus === 'did_not_attend' ? 'Couldn\'t attend' : 'Couldn\'t make it'}
+          </button>
+        </div>
       </div>
 
       {/* Post-event note — toggle */}
@@ -115,23 +121,23 @@ export default function AttendancePanel({ connection, currentUser, onUpdate }) {
           <Textarea
             value={noteText}
             onChange={(e) => setNoteText(e.target.value)}
-            placeholder="Your private post-event note..."
-            className="h-20 text-sm"
+            placeholder="Add a private note for yourself — only you can see this."
+            className="h-24 text-sm resize-none"
           />
           <div className="flex gap-2">
             <Button
               size="sm"
               onClick={handleSaveNote}
               disabled={savingNote}
-              className="bg-stone-800 hover:bg-stone-900 text-xs h-7 px-3"
+              className="bg-stone-800 hover:bg-stone-900 text-xs h-8 px-3"
             >
-              {savingNote ? 'Saving...' : 'Save note'}
+              {savingNote ? 'Saving…' : 'Save note'}
             </Button>
             <Button
               size="sm"
               variant="ghost"
               onClick={() => setShowNoteInput(false)}
-              className="text-xs h-7 px-3 text-stone-400"
+              className="text-xs h-8 px-3 text-stone-400"
             >
               <ChevronUp className="w-3 h-3 mr-1" />
               Hide
@@ -141,10 +147,10 @@ export default function AttendancePanel({ connection, currentUser, onUpdate }) {
       ) : (
         <button
           onClick={() => setShowNoteInput(true)}
-          className="flex items-center gap-1 text-xs text-stone-400 hover:text-stone-600 transition-colors"
+          className="flex items-center gap-1.5 text-xs text-stone-400 hover:text-stone-600 transition-colors py-0.5"
         >
           <ChevronDown className="w-3 h-3" />
-          {myNote ? 'View / edit your note' : 'Add a post-event note'}
+          {myNote ? 'View your private note' : 'Add a private note for yourself'}
         </button>
       )}
 

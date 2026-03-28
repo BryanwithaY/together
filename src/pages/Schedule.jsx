@@ -230,13 +230,19 @@ function ConnectionCard({ connection, onDelete, onEdit, onCopy, isPast, currentU
               {connection.visibility_type === 'creator_only' && (
                 <span className="inline-flex items-center gap-1 text-xs bg-stone-100 text-stone-500 px-2 py-0.5 rounded-full">
                   <Eye className="w-3 h-3" />
-                  Just me
+                  Just you
                 </span>
               )}
               {connection.visibility_type === 'invited' && connection.attendee_emails?.length > 0 && (
-                <span className="inline-flex items-center gap-1 text-xs bg-stone-100 text-stone-500 px-2 py-0.5 rounded-full">
+                <span className="inline-flex items-center gap-1 text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full border border-indigo-100">
                   <Users className="w-3 h-3" />
-                  {connection.attendee_emails.length} invited
+                  Invited people only
+                </span>
+              )}
+              {(!connection.visibility_type || connection.visibility_type === 'relationship') && (
+                <span className="inline-flex items-center gap-1 text-xs bg-stone-50 text-stone-400 px-2 py-0.5 rounded-full">
+                  <Users className="w-3 h-3" />
+                  Visible to all
                 </span>
               )}
               {connection.linked_moment_ids?.length > 0 && (
@@ -294,6 +300,7 @@ function ScheduleContent() {
   const [showForm, setShowForm] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [showAllPast, setShowAllPast] = useState(false);
 
   const { data: connections = [], isLoading } = useQuery({
     queryKey: ['connections', activeRelationship?.id],
@@ -381,9 +388,12 @@ function ScheduleContent() {
         {/* Upcoming */}
         {upcomingConnections.length > 0 && (
           <section className="space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-500" />
-              <h2 className="text-sm font-semibold text-stone-700 uppercase tracking-wide">Upcoming</h2>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-500" />
+                <h2 className="text-sm font-semibold text-stone-700 uppercase tracking-wide">Upcoming</h2>
+              </div>
+              <span className="text-xs text-stone-400">{upcomingConnections.length} scheduled</span>
             </div>
             <AnimatePresence>
               {upcomingConnections.map(c => (
@@ -405,12 +415,17 @@ function ScheduleContent() {
         {/* Past */}
         {pastConnections.length > 0 && (
           <section className="space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-stone-300" />
-              <h2 className="text-sm font-semibold text-stone-400 uppercase tracking-wide">Past</h2>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-stone-300" />
+                <h2 className="text-sm font-semibold text-stone-400 uppercase tracking-wide">Completed</h2>
+              </div>
+              <span className="text-xs text-stone-400">
+                {showAllPast ? `${pastConnections.length} events` : `Showing ${Math.min(5, pastConnections.length)} most recent`}
+              </span>
             </div>
             <div className="space-y-2">
-              {pastConnections.slice(0, 5).map(c => (
+              {pastConnections.slice(0, showAllPast ? undefined : 5).map(c => (
                 <ConnectionCard
                   key={c.id}
                   connection={c}
@@ -423,6 +438,14 @@ function ScheduleContent() {
                 />
               ))}
             </div>
+            {pastConnections.length > 5 && (
+              <button
+                onClick={() => setShowAllPast(prev => !prev)}
+                className="w-full text-xs text-stone-400 hover:text-stone-600 py-2 transition-colors"
+              >
+                {showAllPast ? 'Show fewer' : `Show all ${pastConnections.length} completed events`}
+              </button>
+            )}
           </section>
         )}
 
@@ -432,9 +455,9 @@ function ScheduleContent() {
             <div className="w-16 h-16 bg-stone-100 rounded-2xl flex items-center justify-center mb-4">
               <Calendar className="w-8 h-8 text-stone-400" />
             </div>
-            <p className="font-semibold text-stone-700 text-lg">No connections yet</p>
+            <p className="font-semibold text-stone-700 text-lg">Nothing scheduled yet</p>
             <p className="text-stone-400 text-sm mt-1 max-w-xs">
-              Schedule your first in-person connection to start building intentional relationship time.
+              Set aside intentional time together. Your scheduled connections will appear here.
             </p>
             <Button
               onClick={() => setShowForm(true)}
