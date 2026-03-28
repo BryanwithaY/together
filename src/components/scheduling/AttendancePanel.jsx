@@ -62,21 +62,14 @@ export default function AttendancePanel({ connection, currentUser, onUpdate }) {
   const [savingNote, setSavingNote] = useState(false);
 
   const handleStatusToggle = (status) => {
-    const newStatus = myStatus === status ? null : status;
-    const updatedMap = { ...attendanceMap };
-    if (newStatus === null) {
-      delete updatedMap[userEmail];
-    } else {
-      updatedMap[userEmail] = newStatus;
-    }
-    onUpdate(connection.id, { attendance_by_user: updatedMap });
+    // Send only field + value — server enforces key ownership and eligibility
+    const newValue = myStatus === status ? null : status;
+    onUpdate(connection.id, { field: 'attendance', value: newValue });
   };
 
   const handleSaveNote = async () => {
     setSavingNote(true);
-    const updatedNotes = { ...notesMap, [userEmail]: noteText.trim() };
-    if (!noteText.trim()) delete updatedNotes[userEmail];
-    await onUpdate(connection.id, { post_event_notes_by_user: updatedNotes });
+    await onUpdate(connection.id, { field: 'note', value: noteText });
     setSavingNote(false);
   };
 
@@ -86,7 +79,7 @@ export default function AttendancePanel({ connection, currentUser, onUpdate }) {
       <div className="space-y-1.5">
         <p className="text-xs font-medium text-stone-500">
           {myStatus === 'attended' && '✓ You marked this as attended'}
-          {myStatus === 'did_not_attend' && 'You couldn't make it — noted'}
+          {myStatus === 'did_not_attend' && "You couldn't make it — noted"}
           {!myStatus && 'How did it go?'}
         </p>
         <div className="flex flex-wrap items-center gap-2">

@@ -320,9 +320,18 @@ function ScheduleContent() {
   });
 
   const updateAttendanceMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.ScheduledConnection.update(id, data),
+    // Route through trusted backend function — enforces eligibility + per-user key ownership server-side
+    mutationFn: ({ id, data }) => base44.functions.invoke('updateAttendance', {
+      connection_id: id,
+      field: data.field,
+      value: data.value ?? null,
+    }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['connections', activeRelationship?.id] });
+    },
+    onError: (err) => {
+      // Fail quietly — UX remains stable, invalid writes are rejected server-side
+      console.warn('[updateAttendance] write rejected:', err?.message);
     },
   });
 
