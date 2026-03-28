@@ -190,7 +190,6 @@ function ConnectionCard({ connection, onDelete, onEdit, onCopy, isPast, currentU
       exit={{ opacity: 0, y: -8 }}
       className={`bg-white rounded-2xl border ${isPast ? 'border-stone-100' : 'border-stone-200'} overflow-hidden`}
     >
-      {/* Color accent bar */}
       {!isPast && (
         <div className="h-1 bg-gradient-to-r from-stone-700 to-stone-500" />
       )}
@@ -275,19 +274,18 @@ function ConnectionCard({ connection, onDelete, onEdit, onCopy, isPast, currentU
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
-          </div>
-          {isPast && (
-            <AttendancePanel
-              connection={connection}
-              currentUser={currentUser}
-              onUpdate={onUpdateAttendance}
-            />
-          )}
         </div>
+        {isPast && (
+          <AttendancePanel
+            connection={connection}
+            currentUser={currentUser}
+            onUpdate={onUpdateAttendance}
+          />
+        )}
       </div>
     </motion.div>
-          );
-          }
+  );
+}
 
 function ScheduleContent() {
   const { activeRelationship, members, currentUser } = useRelationship();
