@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Calendar, Plus, Trash2, Copy, MapPin, Clock, RotateCw, CalendarPlus, Pencil, Eye, Users } from 'lucide-react';
+import { Calendar, Plus, Trash2, Copy, MapPin, Clock, RotateCw, CalendarPlus, Pencil, Eye, Users, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -281,8 +281,14 @@ function ConnectionCard({ connection, onDelete, onEdit, onCopy, isPast, currentU
             </button>
           </div>
         </div>
+        {connection.notes && connection.created_by === currentUser?.email && (
+            <p className="mt-2 text-xs text-stone-400 italic flex items-center gap-1.5">
+              <Lock className="w-3 h-3 flex-shrink-0" />
+              {connection.notes}
+            </p>
+          )}
         {isPast && (
-          <AttendancePanel
+        <AttendancePanel
             connection={connection}
             currentUser={currentUser}
             onUpdate={onUpdateAttendance}
