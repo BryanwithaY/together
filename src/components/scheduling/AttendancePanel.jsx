@@ -49,8 +49,6 @@ function AggregateSummary({ connection }) {
 export default function AttendancePanel({ connection, currentUser, onUpdate }) {
   const userEmail = currentUser?.email;
 
-  if (!isEligible(connection, userEmail)) return null;
-
   const attendanceMap = connection.attendance_by_user || {};
   const notesMap = connection.post_event_notes_by_user || {};
 
@@ -60,6 +58,8 @@ export default function AttendancePanel({ connection, currentUser, onUpdate }) {
   const [noteText, setNoteText] = useState(myNote);
   const [showNoteInput, setShowNoteInput] = useState(!!myNote);
   const [savingNote, setSavingNote] = useState(false);
+
+  if (!isEligible(connection, userEmail)) return null;
 
   const handleStatusToggle = (status) => {
     // Send only field + value — server enforces key ownership and eligibility
