@@ -36,6 +36,9 @@ Deno.serve(async (req) => {
     const ownedRelationships = memberships.filter(m => m.role === 'owner').length;
     const hadPartner = memberships.some(m => m.status === 'active');
 
+    // Sanitize the user-provided reason — strip anything over 500 chars
+    const safeReason = typeof reason === 'string' ? reason.slice(0, 500) : null;
+
     await Promise.all([
       base44.asServiceRole.entities.DeletedUser.create({
         user_email: user.email,
@@ -44,13 +47,14 @@ Deno.serve(async (req) => {
         days_since_signup: daysSinceSignup,
         total_moments_logged: moments.length,
         had_partner: hadPartner,
-        reason: reason || null,
+        reason: safeReason,
         relationships_owned: ownedRelationships,
       }),
       base44.asServiceRole.entities.AppEvent.create({
         user_email: user.email,
         user_id: user.id,
         event_type: 'account_deleted',
+        // Only aggregate stats — no content, no PII beyond email which is system-required
         metadata: {
           days_as_user: daysSinceSignup,
           total_moments: moments.length,

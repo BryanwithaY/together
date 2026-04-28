@@ -28,6 +28,31 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'event_type is required' }, { status: 400 });
     }
 
+    // Allowlist — prevents arbitrary event_types from being written
+    const ALLOWED_EVENT_TYPES = [
+      'moment_created', 'moment_edited', 'moment_deleted', 'moment_reviewed',
+      'comment_posted', 'moment_favorited', 'moment_bookmarked', 'moment_shared',
+      'partner_invite_sent', 'member_invited', 'member_joined',
+      'page_viewed', 'app_tour_started', 'app_tour_completed',
+      'connection_scheduled', 'connection_deleted',
+      'upgrade_button_tapped', 'subscription_upgraded', 'subscription_cancelled',
+    ];
+    if (!ALLOWED_EVENT_TYPES.includes(event_type)) {
+      // Silently succeed for unknown event types — don't break callers, just don't store
+      return Response.json({ success: true, skipped: true });
+    }
+
+    // Strip any PII/content that may have accidentally been included in metadata
+    const safeMetadata = {};
+    if (metadata && typeof metadata === 'object') {
+      const ALLOWED_META_KEYS = ['moment_type', 'moment_subtype', 'has_media', 'action',
+        'source', 'plan', 'price', 'previous_plan', 'relationship_type', 'referral_completed',
+        'referred_by', 'days_as_user', 'total_moments', 'had_partner'];
+      for (const key of ALLOWED_META_KEYS) {
+        if (metadata[key] !== undefined) safeMetadata[key] = metadata[key];
+      }
+    }
+
     const now = new Date().toISOString();
 
     // Determine which user counter to increment
@@ -49,7 +74,7 @@ Deno.serve(async (req) => {
         relationship_id: relationship_id || null,
         moment_type: moment_type || null,
         moment_subtype: moment_subtype || null,
-        metadata: metadata || {},
+        metadata: safeMetadata,
         occurred_at: now,
       }),
       base44.auth.updateMe(userUpdate),

@@ -29,6 +29,17 @@ Deno.serve(async (req) => {
     return Response.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
+  // Allowlist event types — prevents header injection via crafted event_type in subject
+  const ALLOWED_EVENT_TYPES = ['partner_logs', 'partner_comments', 'partner_reviews'];
+  if (!ALLOWED_EVENT_TYPES.includes(event_type)) {
+    return Response.json({ error: 'Invalid event_type' }, { status: 400 });
+  }
+
+  // Caller must be the actor — prevent spoofed actor_email
+  if (user.email.toLowerCase() !== actor_email.toLowerCase()) {
+    return Response.json({ error: 'actor_email must match authenticated user' }, { status: 403 });
+  }
+
   // Get all active members of this relationship
   const members = await base44.asServiceRole.entities.RelationshipMember.filter({
     relationship_id,

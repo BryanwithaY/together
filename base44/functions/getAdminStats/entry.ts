@@ -199,13 +199,14 @@ Deno.serve(async (req) => {
       new_applications_7d: allFacilitatorApps.filter(a => a.created_date >= day7).length,
     };
 
-    // ── Event feed (last 50) ─────────────────────────────────────────────────
+    // ── Event feed (last 50) — no moment content, no free-form text ─────────
     const eventFeed = allEvents.slice(0, 50).map(e => ({
       event_type: e.event_type,
       user_email: e.user_email,
       relationship_id: e.relationship_id,
       moment_type: e.moment_type,
       occurred_at: e.occurred_at,
+      // Intentionally omit: metadata (may contain user-supplied strings)
     }));
 
     return Response.json({

@@ -18,6 +18,22 @@
 
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
+// In-memory rate limit: max 30 attendance/note writes per user per hour
+const rateLimitMap = new Map();
+function checkRateLimit(userId) {
+  const now = Date.now();
+  const windowMs = 60 * 60 * 1000;
+  const maxRequests = 30;
+  const entry = rateLimitMap.get(userId) || { count: 0, windowStart: now };
+  if (now - entry.windowStart > windowMs) {
+    rateLimitMap.set(userId, { count: 1, windowStart: now });
+    return true;
+  }
+  if (entry.count >= maxRequests) return false;
+  rateLimitMap.set(userId, { count: entry.count + 1, windowStart: entry.windowStart });
+  return true;
+}
+
 function isEligible(connection, callerEmail) {
   if (!callerEmail) return false;
   if (connection.created_by === callerEmail) return true;
@@ -61,6 +77,11 @@ Deno.serve(async (req) => {
   }
   const callerEmail = user.email.toLowerCase();
 
+  // 1b. Rate limit check
+  if (!checkRateLimit(user.id || callerEmail)) {
+    return Response.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+  }
+
   // 2. Parse payload
   let payload;
   try {
@@ -81,6 +102,11 @@ Deno.serve(async (req) => {
 
   if (field === 'attendance' && value !== null && !['attended', 'did_not_attend'].includes(value)) {
     return Response.json({ error: 'Invalid attendance value' }, { status: 400 });
+  }
+
+  // Note length guard — prevents large payloads being stored
+  if (field === 'note' && typeof value === 'string' && value.length > 2000) {
+    return Response.json({ error: 'Note too long (max 2000 characters)' }, { status: 400 });
   }
 
   // 3. Fetch connection server-side — never trust client snapshot

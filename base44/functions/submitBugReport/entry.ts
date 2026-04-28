@@ -38,6 +38,15 @@ Deno.serve(async (req) => {
     return Response.json({ error: 'Title and description are required' }, { status: 400 });
   }
 
+  // Input length guard — prevents oversized payloads from being stored or sent to GitHub
+  if (title.length > 200) return Response.json({ error: 'Title too long (max 200 chars)' }, { status: 400 });
+  if (description.length > 5000) return Response.json({ error: 'Description too long (max 5000 chars)' }, { status: 400 });
+
+  const ALLOWED_TYPES = ['bug', 'feature_request', 'feedback', 'support'];
+  if (type && !ALLOWED_TYPES.includes(type)) {
+    return Response.json({ error: 'Invalid type' }, { status: 400 });
+  }
+
   // Save to DB first
   const bugReport = await base44.asServiceRole.entities.BugReport.create({
     reporter_email: user.email,
