@@ -22,7 +22,6 @@ import { useEffect } from 'react';
 import StatDetailModal from '../components/admin/StatDetailModal';
 import StripeReconciliation from '../components/admin/StripeReconciliation';
 import PrivacyAuditPanel from '../components/admin/PrivacyAuditPanel';
-import IdentityMigrationPanel from '../components/admin/IdentityMigrationPanel';
 import LegacyFieldReadinessPanel from '../components/admin/LegacyFieldReadinessPanel';
 
 export default function Admin() {
@@ -90,7 +89,6 @@ export default function Admin() {
     { id: 'subscriptions',  label: 'Subscriptions', icon: CreditCard },
     { id: 'reconciliation', label: 'Stripe Audit', icon: CreditCard },
     { id: 'privacy_audit',   label: 'Privacy Audit', icon: Activity },
-    { id: 'identity_migration', label: 'ID Migration', icon: Users },
     { id: 'legacy_readiness',   label: 'Legacy Fields', icon: Activity },
     { id: 'facilitators',   label: 'Facilitators',  icon: UserCheck },
     { id: 'analytics',      label: 'Analytics',     icon: TrendingUp },
@@ -371,13 +369,6 @@ export default function Admin() {
             {activeTab === 'privacy_audit' && (
               <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
                 <PrivacyAuditPanel />
-              </div>
-            )}
-
-            {/* IDENTITY MIGRATION */}
-            {activeTab === 'identity_migration' && (
-              <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
-                <IdentityMigrationPanel />
               </div>
             )}
 

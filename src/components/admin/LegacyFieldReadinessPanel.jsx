@@ -39,8 +39,8 @@ const CANDIDATES = [
     active_writes: [
       'RelationshipSettings handleInvite: writes user_email on new member records',
     ],
-    blocker: 'user_email still used for display (member names). Email fallback in fetchMyMemberships still needed until backfill is confirmed 100% complete on production. Cannot remove until display layer is updated to use a separate display_name source.',
-    migration_path: 'Confirm 100% backfill coverage. Remove fetchMyMemberships email fallback. Keep user_email for display until a proper display_name field is standardised.',
+    blocker: 'user_email still used for display (member names). Backfill is confirmed 100% complete (validated 2026-04-29, 0 mismatches, 0 backfill_needed). Email fallback in fetchMyMemberships can now be removed. Cannot drop user_email entirely until display layer is updated to use a separate display_name source.',
+    migration_path: 'Remove fetchMyMemberships email fallback. Keep user_email for display until a proper display_name field is standardised.',
   },
   {
     field: 'Moment.is_private (redundant with visibility)',
