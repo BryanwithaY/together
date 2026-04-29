@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 /**
  * Checks all users with reminders enabled and sends email/in-app notifications
@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const allUsers = await base44.asServiceRole.entities.User.list(undefined, 500);
+    const allUsers = await base44.asServiceRole.entities.User.list('-created_date', 500);
     const usersWithReminders = allUsers.filter(u => u.notification_daily_reminder && u.notification_reminders?.length);
 
     let fired = 0;
