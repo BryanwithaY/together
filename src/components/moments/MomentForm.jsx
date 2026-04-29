@@ -81,8 +81,8 @@ export default function MomentForm({ onSubmit, onClose }) {
     >
       <div className="flex items-center justify-between mb-5">
         <h3 className="text-lg font-semibold text-stone-800">Record a Moment</h3>
-        <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-stone-100 transition-colors">
-          <X className="w-4 h-4 text-stone-400" />
+        <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-stone-100 transition-colors" aria-label="Close moment form">
+          <X className="w-4 h-4 text-stone-400" aria-hidden="true" />
         </button>
       </div>
 
@@ -289,10 +289,11 @@ export default function MomentForm({ onSubmit, onClose }) {
             )}
             <MediaUpload currentUrl={mediaUrl} onUpload={setMediaUrl} onClear={() => setMediaUrl('')} />
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-2 flex items-center gap-1.5">
-                <Clock className="w-3 h-3" /> When did it happen?
-              </p>
+              <label htmlFor="moment-date" className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-2 flex items-center gap-1.5">
+                <Clock className="w-3 h-3" aria-hidden="true" /> When did it happen?
+              </label>
               <input
+                id="moment-date"
                 type="datetime-local"
                 value={momentDate}
                 max={toLocalDatetimeString(new Date())}

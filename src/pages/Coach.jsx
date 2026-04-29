@@ -4,6 +4,7 @@ import { usePageLoading } from '../components/PageLoadingContext';
 import RelationshipGate from '../components/relationship/RelationshipGate';
 import CoachOnboarding from '../components/coach/CoachOnboarding';
 import CoachChatView from '../components/coach/CoachChatView';
+import CoachConsentBanner from '../components/coach/CoachConsentBanner';
 import { Analytics } from '../components/lib/analytics';
 
 export default function Coach() {
@@ -30,7 +31,17 @@ export default function Coach() {
     setUser(u => ({ ...u, coaching_onboarded: true, coaching_why: why, coaching_goal: goal, coaching_context: summary }));
   };
 
+  const handleConsentAccepted = async () => {
+    await base44.auth.updateMe({ coaching_ai_consent: true });
+    setUser(u => ({ ...u, coaching_ai_consent: true }));
+  };
+
   if (loading) return null;
+
+  // Step 1: AI consent (one-time, before anything else)
+  if (!user?.coaching_ai_consent) {
+    return <CoachConsentBanner onAccept={handleConsentAccepted} />;
+  }
 
   return (
     <RelationshipGate>
