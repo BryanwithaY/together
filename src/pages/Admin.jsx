@@ -23,6 +23,7 @@ import StatDetailModal from '../components/admin/StatDetailModal';
 import StripeReconciliation from '../components/admin/StripeReconciliation';
 import PrivacyAuditPanel from '../components/admin/PrivacyAuditPanel';
 import LegacyFieldReadinessPanel from '../components/admin/LegacyFieldReadinessPanel';
+import ConsentHealthPanel from '../components/admin/ConsentHealthPanel';
 
 export default function Admin() {
   const { currentUser } = useRelationship();
@@ -348,6 +349,9 @@ export default function Admin() {
                     )}
                   </div>
                 )}
+                <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
+                  <ConsentHealthPanel />
+                </div>
                 <div className="bg-white rounded-2xl border border-stone-200/60 p-4">
                   <h3 className="text-sm font-semibold text-stone-700 mb-4 flex items-center gap-2">
                     <UserCheck className="w-4 h-4" />

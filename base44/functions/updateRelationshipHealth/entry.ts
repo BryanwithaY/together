@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 /**
  * Scheduled job: updates relationship-level health signals.
@@ -8,9 +8,9 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-
-    if (user?.role !== 'admin') {
+    const isScheduled = req.headers.get('x-base44-scheduled') === 'true';
+    const user = isScheduled ? null : await base44.auth.me().catch(() => null);
+    if (!isScheduled && user?.role !== 'admin') {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
