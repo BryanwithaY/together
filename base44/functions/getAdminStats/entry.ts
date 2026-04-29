@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 /**
  * Admin-only: returns a comprehensive product health snapshot.
@@ -31,7 +31,7 @@ Deno.serve(async (req) => {
       allFacilitatorRels,
       allFacilitatorApps,
     ] = await Promise.all([
-      base44.asServiceRole.entities.User.list(undefined, 500),
+      base44.asServiceRole.entities.User.list('-created_date', 500),
       base44.asServiceRole.entities.Moment.list('-created_date', 500),
       base44.asServiceRole.entities.Relationship.list(undefined, 200),
       base44.asServiceRole.entities.RelationshipMember.list(undefined, 500),
