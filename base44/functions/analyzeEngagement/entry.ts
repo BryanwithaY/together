@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 Deno.serve(async (req) => {
   try {
@@ -8,12 +8,15 @@ Deno.serve(async (req) => {
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    if (user.role !== 'admin') {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('google_analytics');
 
-    // Get the user's GA4 property ID from query params or settings
-    const url = new URL(req.url);
-    const propertyId = url.searchParams.get('propertyId');
+    // propertyId is admin-supplied — read from request body, not URL params
+    const body = await req.json().catch(() => ({}));
+    const propertyId = body.propertyId;
 
     if (!propertyId) {
       return Response.json({ error: 'propertyId required' }, { status: 400 });
