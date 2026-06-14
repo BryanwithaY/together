@@ -81,7 +81,10 @@
     "description"
   ],
   "rls": {
-    "create": {},
+    "create": {
+      "created_by_id": "{{user.id}}",
+      "data.reporter_email": "{{user.email}}"
+    },
     "read": {
       "$or": [
         {
