@@ -136,5 +136,57 @@
     "title",
     "start_time",
     "end_time"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}",
+      "data.relationship_id": {
+        "$in": [
+          "{{lookup.RelationshipMember.relationship_id}}"
+        ]
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "data.visibility_type": "relationship"
+            },
+            {
+              "data.relationship_id": {
+                "$in": [
+                  "{{lookup.RelationshipMember.relationship_id}}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "data.visibility_type": "invited"
+            },
+            {
+              "data.attendee_emails": "{{user.email}}"
+            }
+          ]
+        }
+      ]
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
 }

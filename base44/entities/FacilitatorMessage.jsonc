@@ -40,5 +40,55 @@
     "relationship_id",
     "content",
     "target_type"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "data.facilitator_email": "{{user.email}}",
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.facilitator_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "data.target_type": "member"
+            },
+            {
+              "data.target_email": "{{user.email}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "data.target_type": "relationship"
+            },
+            {
+              "data.relationship_id": {
+                "$in": [
+                  "{{lookup.RelationshipMember.relationship_id}}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "update": {
+      "data.facilitator_email": "{{user.email}}",
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "data.facilitator_email": "{{user.email}}",
+      "created_by_id": "{{user.id}}"
+    }
+  }
 }

@@ -128,5 +128,70 @@
   "required": [
     "type",
     "date"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}",
+      "data.relationship_id": {
+        "$in": [
+          "{{lookup.RelationshipMember.relationship_id}}"
+        ]
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "data.is_private": {
+                "$ne": true
+              }
+            },
+            {
+              "$or": [
+                {
+                  "data.type": {
+                    "$ne": "self_reflection"
+                  }
+                },
+                {
+                  "data.shared_with_partner": true
+                }
+              ]
+            },
+            {
+              "$or": [
+                {
+                  "data.visibility": "relationship",
+                  "data.relationship_id": {
+                    "$in": [
+                      "{{lookup.RelationshipMember.relationship_id}}"
+                    ]
+                  }
+                },
+                {
+                  "data.visibility": "tagged_only",
+                  "data.tagged_users": "{{user.email}}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
 }

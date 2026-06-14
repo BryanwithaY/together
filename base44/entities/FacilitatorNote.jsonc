@@ -36,5 +36,31 @@
     "facilitator_email",
     "relationship_id",
     "content"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "data.facilitator_email": "{{user.email}}",
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.facilitator_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "data.facilitator_email": "{{user.email}}",
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "data.facilitator_email": "{{user.email}}",
+      "created_by_id": "{{user.id}}"
+    }
+  }
 }

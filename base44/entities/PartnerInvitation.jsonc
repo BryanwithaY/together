@@ -27,5 +27,53 @@
   "required": [
     "inviter_email",
     "invitee_email"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "data.inviter_email": "{{user.email}}",
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.inviter_email": "{{user.email}}"
+        },
+        {
+          "data.invitee_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.inviter_email": "{{user.email}}"
+        },
+        {
+          "data.invitee_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.inviter_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
 }
