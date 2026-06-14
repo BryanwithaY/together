@@ -32,6 +32,13 @@
           "user_condition": {
             "role": "admin"
           }
+        },
+        {
+          "data.moment_id": {
+            "$in": [
+              "{{lookup.Moment.id}}"
+            ]
+          }
         }
       ]
     },
