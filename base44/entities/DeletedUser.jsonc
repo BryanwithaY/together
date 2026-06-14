@@ -1,0 +1,43 @@
+{
+  "name": "DeletedUser",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of the deleted account"
+    },
+    "user_name": {
+      "type": "string",
+      "description": "Full name at time of deletion"
+    },
+    "deleted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the account was deleted"
+    },
+    "days_since_signup": {
+      "type": "number",
+      "description": "How many days the user was active before deleting"
+    },
+    "total_moments_logged": {
+      "type": "number",
+      "description": "Total moments logged before deletion"
+    },
+    "had_partner": {
+      "type": "boolean",
+      "description": "Whether the user had an active relationship partner"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Optional self-reported reason for deletion"
+    },
+    "relationships_owned": {
+      "type": "number",
+      "description": "Number of relationship spaces they owned"
+    }
+  },
+  "required": [
+    "user_email",
+    "deleted_at"
+  ]
+}

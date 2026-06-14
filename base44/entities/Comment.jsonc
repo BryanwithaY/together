@@ -1,0 +1,22 @@
+{
+  "name": "Comment",
+  "type": "object",
+  "properties": {
+    "moment_id": {
+      "type": "string",
+      "description": "ID of the moment this comment belongs to"
+    },
+    "content": {
+      "type": "string",
+      "description": "The comment text"
+    },
+    "media_url": {
+      "type": "string",
+      "description": "URL of an attached photo or video"
+    }
+  },
+  "required": [
+    "moment_id",
+    "content"
+  ]
+}

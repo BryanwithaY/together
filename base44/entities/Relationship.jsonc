@@ -1,0 +1,88 @@
+{
+  "name": "Relationship",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the relationship"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "romantic_partner",
+        "romantic_group",
+        "friends",
+        "friend_group",
+        "parent_adult_child",
+        "siblings",
+        "family",
+        "co_parents",
+        "business_partners",
+        "cofounders",
+        "other"
+      ],
+      "description": "Type of relationship"
+    },
+    "owner_email": {
+      "type": "string",
+      "description": "Email of the user who created/owns this relationship"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "URL of the relationship photo or image"
+    },
+    "max_members": {
+      "type": "number",
+      "description": "Maximum number of members (2-10)"
+    },
+    "allow_private_moments": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether members can create visibility=tagged_only moments"
+    },
+    "allow_export": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether data export is enabled for this relationship"
+    },
+    "feed_order": {
+      "type": "string",
+      "enum": [
+        "chronological",
+        "recent_activity"
+      ],
+      "default": "chronological",
+      "description": "Default feed ordering"
+    },
+    "is_deleted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Soft-delete flag"
+    },
+    "is_archived": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this relationship has been archived (locked, read-only)"
+    },
+    "last_moment_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the last moment was logged in this relationship"
+    },
+    "total_moments": {
+      "type": "number",
+      "default": 0,
+      "description": "Total moments logged in this relationship"
+    },
+    "member_count": {
+      "type": "number",
+      "default": 1,
+      "description": "Number of active members"
+    }
+  },
+  "required": [
+    "name",
+    "type",
+    "owner_email"
+  ]
+}

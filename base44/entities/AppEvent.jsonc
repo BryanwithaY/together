@@ -1,0 +1,56 @@
+{
+  "name": "AppEvent",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of the user who triggered the event"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "ID of the user who triggered the event"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "moment_created",
+        "moment_reviewed",
+        "comment_posted",
+        "relationship_created",
+        "member_invited",
+        "member_joined",
+        "moment_favorited",
+        "moment_shared",
+        "reminder_sent",
+        "export_triggered",
+        "account_deleted"
+      ],
+      "description": "The type of event"
+    },
+    "relationship_id": {
+      "type": "string",
+      "description": "Related relationship ID if applicable"
+    },
+    "moment_type": {
+      "type": "string",
+      "description": "For moment events: ego_aside, gratitude, self_reflection"
+    },
+    "moment_subtype": {
+      "type": "string",
+      "description": "For ego_aside events: the specific subtype"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional event-specific data (no PII, no content)"
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the event occurred"
+    }
+  },
+  "required": [
+    "event_type",
+    "occurred_at"
+  ]
+}

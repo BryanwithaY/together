@@ -1,0 +1,132 @@
+{
+  "name": "Moment",
+  "type": "object",
+  "properties": {
+    "relationship_id": {
+      "type": "string",
+      "description": "ID of the relationship this moment belongs to"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "ego_aside",
+        "gratitude",
+        "self_reflection"
+      ],
+      "description": "The type of moment being tracked"
+    },
+    "subtype": {
+      "type": "string",
+      "enum": [
+        "listened",
+        "learned",
+        "admitted_mistake",
+        "let_partner_lead",
+        "general",
+        "shut_down",
+        "reacted_poorly",
+        "was_dismissive",
+        "not_present",
+        "unkind",
+        "other"
+      ],
+      "description": "Specific subtype for the moment"
+    },
+    "what_happened": {
+      "type": "string",
+      "description": "What happened during this moment"
+    },
+    "how_it_felt": {
+      "type": "string",
+      "description": "How this moment made you feel"
+    },
+    "could_have_done_better": {
+      "type": "string",
+      "description": "What the user could have done better"
+    },
+    "show_up_next_time": {
+      "type": "string",
+      "description": "How the user hopes to show up next time"
+    },
+    "date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the moment happened"
+    },
+    "tagged_users": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Emails of users tagged in this moment"
+    },
+    "visibility": {
+      "type": "string",
+      "enum": [
+        "relationship",
+        "tagged_only",
+        "private"
+      ],
+      "default": "relationship",
+      "description": "Who can see this moment"
+    },
+    "reviews": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "user_email": {
+            "type": "string"
+          },
+          "reviewed_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "description": "List of review records (who reviewed and when)"
+    },
+    "reviewed_by": {
+      "type": "string",
+      "description": "Legacy: Email of the partner who reviewed this moment"
+    },
+    "has_comments": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether any comments have been posted (locks editing)"
+    },
+    "media_url": {
+      "type": "string",
+      "description": "URL of an attached photo or video"
+    },
+    "is_favorite": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this moment is saved as a favorite"
+    },
+    "is_saved": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this self-reflection moment has been saved/bookmarked"
+    },
+    "is_demo": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this is a seeded demo moment"
+    },
+    "is_private": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this moment is private to the author only"
+    },
+    "shared_with_partner": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this private self-reflection has been shared with the relationship"
+    }
+  },
+  "required": [
+    "type",
+    "date"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "name": "SubscriptionFeature",
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string",
+      "description": "Unique feature key used in code, e.g. media_upload, export, advanced_analytics"
+    },
+    "label": {
+      "type": "string",
+      "description": "Human-readable feature name"
+    },
+    "description": {
+      "type": "string",
+      "description": "What this feature does"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "moments",
+        "relationships",
+        "analytics",
+        "export",
+        "media",
+        "partner",
+        "other"
+      ],
+      "description": "Feature category for grouping in UI"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this feature flag is currently enforced"
+    }
+  },
+  "required": [
+    "key",
+    "label"
+  ]
+}

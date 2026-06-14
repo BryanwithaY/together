@@ -1,0 +1,46 @@
+{
+  "name": "FacilitatorInvitation",
+  "type": "object",
+  "properties": {
+    "inviter_email": {
+      "type": "string",
+      "description": "Email of the person who sent the invite"
+    },
+    "invitee_email": {
+      "type": "string",
+      "description": "Email of the person being invited"
+    },
+    "role_for_invitee": {
+      "type": "string",
+      "enum": [
+        "facilitator",
+        "member"
+      ],
+      "description": "facilitator = member invited someone to be their facilitator; member = facilitator invited a client to the app"
+    },
+    "relationship_id": {
+      "type": "string",
+      "description": "Optional \u2014 if known at time of invite, used for auto-linking"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "declined",
+        "expired"
+      ],
+      "default": "pending",
+      "description": "Current status of the invitation"
+    },
+    "message": {
+      "type": "string",
+      "description": "Optional personal message from the inviter"
+    }
+  },
+  "required": [
+    "inviter_email",
+    "invitee_email",
+    "role_for_invitee"
+  ]
+}

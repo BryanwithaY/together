@@ -1,0 +1,44 @@
+{
+  "name": "FacilitatorMessage",
+  "type": "object",
+  "properties": {
+    "facilitator_email": {
+      "type": "string",
+      "description": "Email of the facilitator sending the message"
+    },
+    "relationship_id": {
+      "type": "string",
+      "description": "ID of the relationship this message is associated with"
+    },
+    "target_type": {
+      "type": "string",
+      "enum": [
+        "relationship",
+        "member"
+      ],
+      "default": "relationship",
+      "description": "Whether the message is to the whole relationship or a specific member"
+    },
+    "target_email": {
+      "type": "string",
+      "description": "If target_type is 'member', the specific member's email"
+    },
+    "content": {
+      "type": "string",
+      "description": "Message content"
+    },
+    "read_by": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Emails of members who have read this message"
+    }
+  },
+  "required": [
+    "facilitator_email",
+    "relationship_id",
+    "content",
+    "target_type"
+  ]
+}

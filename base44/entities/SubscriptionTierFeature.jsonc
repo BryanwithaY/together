@@ -1,0 +1,31 @@
+{
+  "name": "SubscriptionTierFeature",
+  "type": "object",
+  "properties": {
+    "plan_slug": {
+      "type": "string",
+      "description": "The plan slug this assignment belongs to (e.g. free, monthly)"
+    },
+    "feature_key": {
+      "type": "string",
+      "description": "The feature key being assigned"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this feature is enabled for this plan"
+    },
+    "limit_value": {
+      "type": "number",
+      "description": "Optional numeric limit (e.g. max 10 moments for free tier). Null = unlimited."
+    },
+    "limit_label": {
+      "type": "string",
+      "description": "Human label for the limit, e.g. '10 moments/month'"
+    }
+  },
+  "required": [
+    "plan_slug",
+    "feature_key"
+  ]
+}

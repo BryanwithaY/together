@@ -1,0 +1,96 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "user",
+        "facilitator"
+      ],
+      "default": "user",
+      "description": "App role. 'facilitator' unlocks the Facilitator Portal."
+    },
+    "facilitator_type": {
+      "type": "string",
+      "enum": [
+        "professional",
+        "personal"
+      ],
+      "description": "Whether this facilitator is a professional (therapist/coach) or personal (friend/mentor)"
+    },
+    "facilitator_tier": {
+      "type": "string",
+      "enum": [
+        "free",
+        "pro",
+        "professional"
+      ],
+      "default": "free",
+      "description": "Facilitator subscription tier. free=up to 2 relationships no AI, pro=up to 10 + AI, professional=unlimited + digests"
+    },
+    "facilitator_approved_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the app admin approved this facilitator's application"
+    },
+    "notification_reminders": {
+      "type": "boolean",
+      "default": true
+    },
+    "notification_partner_moments": {
+      "type": "boolean",
+      "default": true
+    },
+    "last_active_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "total_moments_logged": {
+      "type": "number",
+      "default": 0
+    },
+    "onboarding_completed": {
+      "type": "boolean",
+      "default": false
+    },
+    "coach_onboarding_completed": {
+      "type": "boolean",
+      "default": false
+    },
+    "coach_motivation": {
+      "type": "string"
+    },
+    "coach_goals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "coach_context": {
+      "type": "string"
+    },
+    "theme": {
+      "type": "string",
+      "enum": [
+        "system",
+        "light",
+        "dark"
+      ],
+      "default": "system"
+    },
+    "timezone": {
+      "type": "string"
+    },
+    "profile_photo_url": {
+      "type": "string"
+    },
+    "is_disabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Admin can disable/enable this account. Disabled users cannot log in."
+    }
+  },
+  "required": []
+}

@@ -1,0 +1,40 @@
+{
+  "name": "FacilitatorNote",
+  "type": "object",
+  "properties": {
+    "facilitator_email": {
+      "type": "string",
+      "description": "Email of the facilitator who wrote this note"
+    },
+    "relationship_id": {
+      "type": "string",
+      "description": "ID of the relationship this note is about"
+    },
+    "content": {
+      "type": "string",
+      "description": "The session note content \u2014 never visible to relationship members"
+    },
+    "session_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the session this note is from took place"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags for categorizing notes e.g. conflict, progress, homework"
+    },
+    "is_private": {
+      "type": "boolean",
+      "default": true,
+      "description": "Always true \u2014 session notes are never shared with relationship members"
+    }
+  },
+  "required": [
+    "facilitator_email",
+    "relationship_id",
+    "content"
+  ]
+}

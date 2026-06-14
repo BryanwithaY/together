@@ -1,0 +1,83 @@
+{
+  "name": "BugReport",
+  "type": "object",
+  "properties": {
+    "reporter_email": {
+      "type": "string",
+      "description": "Email of the user who submitted the report"
+    },
+    "reporter_name": {
+      "type": "string",
+      "description": "Full name of the reporter"
+    },
+    "title": {
+      "type": "string",
+      "description": "Short summary of the issue"
+    },
+    "description": {
+      "type": "string",
+      "description": "Full description of the bug or feedback"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "bug",
+        "feature_request",
+        "feedback",
+        "support"
+      ],
+      "default": "bug",
+      "description": "Type of report"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_progress",
+        "resolved",
+        "wont_fix"
+      ],
+      "default": "open",
+      "description": "Current status of the report"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium",
+      "description": "Admin-assigned priority"
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Attached screenshots or files"
+    },
+    "admin_notes": {
+      "type": "string",
+      "description": "Internal admin notes"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the report was resolved"
+    }
+  },
+  "required": [
+    "title",
+    "description"
+  ]
+}

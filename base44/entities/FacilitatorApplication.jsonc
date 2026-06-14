@@ -1,0 +1,59 @@
+{
+  "name": "FacilitatorApplication",
+  "type": "object",
+  "properties": {
+    "applicant_email": {
+      "type": "string",
+      "description": "Email of the user applying to be a facilitator"
+    },
+    "facilitator_type": {
+      "type": "string",
+      "enum": [
+        "professional",
+        "personal"
+      ],
+      "description": "Professional (therapist, coach, counselor) or personal (friend, mentor, family)"
+    },
+    "professional_role": {
+      "type": "string",
+      "description": "e.g. couples therapist, life coach, relationship counselor"
+    },
+    "bio": {
+      "type": "string",
+      "description": "Background and experience relevant to facilitating relationships"
+    },
+    "motivation": {
+      "type": "string",
+      "description": "Why they want to guide relationships on this platform"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending",
+      "description": "Admin review status"
+    },
+    "admin_notes": {
+      "type": "string",
+      "description": "Internal admin notes about this application"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the application was reviewed"
+    },
+    "reviewed_by": {
+      "type": "string",
+      "description": "Email of admin who reviewed the application"
+    }
+  },
+  "required": [
+    "applicant_email",
+    "facilitator_type",
+    "bio",
+    "motivation"
+  ]
+}

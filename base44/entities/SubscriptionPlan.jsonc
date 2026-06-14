@@ -1,0 +1,56 @@
+{
+  "name": "SubscriptionPlan",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Display name, e.g. Free, Monthly, Annual, Lifetime"
+    },
+    "slug": {
+      "type": "string",
+      "description": "Unique identifier used in code, e.g. free, monthly, annual, lifetime"
+    },
+    "description": {
+      "type": "string",
+      "description": "Short marketing description shown to users"
+    },
+    "price_usd": {
+      "type": "number",
+      "description": "Price in USD (0 for free)"
+    },
+    "interval": {
+      "type": "string",
+      "enum": [
+        "once",
+        "month",
+        "year",
+        "free"
+      ],
+      "description": "Billing interval"
+    },
+    "stripe_price_id": {
+      "type": "string",
+      "description": "Stripe Price ID (price_xxx) for this plan"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this plan is currently offered to new users"
+    },
+    "sort_order": {
+      "type": "number",
+      "default": 0,
+      "description": "Display order (lower = first)"
+    },
+    "highlight": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to visually highlight this plan as recommended"
+    }
+  },
+  "required": [
+    "name",
+    "slug",
+    "interval"
+  ]
+}
