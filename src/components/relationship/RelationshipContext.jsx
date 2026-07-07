@@ -78,9 +78,16 @@ export function RelationshipProvider({ children }) {
         const relIds = membershipsResult.map(m => m.relationship_id);
         const savedId = localStorage.getItem('active_relationship_id');
 
-        // Fetch all relationships in parallel — one call per relationship
-        // For most users this is 1-3 relationships so N+1 is acceptable here
-        const allRelArrays = await Promise.all(relIds.map(id => base44.entities.Relationship.filter({ id })));
+        // Fetch all relationships in parallel — one call per relationship.
+        // Use allSettled: a single failed lookup must not wipe out the user's other valid relationships.
+        const allRelSettled = await Promise.allSettled(relIds.map(id => base44.entities.Relationship.filter({ id })));
+        const allRelArrays = allRelSettled.map(r => {
+          if (r.status === 'rejected') {
+            console.warn('Relationship fetch failed for one id:', r.reason);
+            return [];
+          }
+          return r.value;
+        });
 
         if (cancelled) return;
 
@@ -127,7 +134,9 @@ export function RelationshipProvider({ children }) {
     // Wave 6: use user_id-primary fetch with email fallback
     const memberships = await fetchMyMemberships(base44.entities, currentUser);
     const relIds = memberships.map(m => m.relationship_id);
-    const allRelArrays = await Promise.all(relIds.map(id => base44.entities.Relationship.filter({ id })));
+    // Use allSettled: a single failed lookup must not wipe out the user's other valid relationships.
+    const allRelSettled = await Promise.allSettled(relIds.map(id => base44.entities.Relationship.filter({ id })));
+    const allRelArrays = allRelSettled.map(r => (r.status === 'rejected' ? [] : r.value));
     const sortRels = (rels) => rels
       .filter(r => r && !r.is_deleted)
       .sort((a, b) => {
