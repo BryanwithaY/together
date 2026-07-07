@@ -4,7 +4,6 @@ import { base44 } from '@/api/base44Client';
 import { AnimatePresence, motion } from 'framer-motion';
 import BottomTabBar from './components/BottomTabBar';
 import useSystemTheme from './components/hooks/useSystemTheme';
-import { RelationshipProvider } from './components/relationship/RelationshipContext.jsx';
 import AppLoadingScreen from './components/AppLoadingScreen';
 import { PageLoadingProvider } from './components/PageLoadingContext.jsx';
 
@@ -118,7 +117,7 @@ export default function Layout({ children, currentPageName }) {
   }, []);
 
   return (
-    <RelationshipProvider>
+    <>
       <AnimatePresence>
         {showSplash && (
           <motion.div
@@ -154,6 +153,6 @@ export default function Layout({ children, currentPageName }) {
         </main>
         <BottomTabBar currentPageName={currentPageName} />
       </div>
-    </RelationshipProvider>
+    </>
   );
 }
