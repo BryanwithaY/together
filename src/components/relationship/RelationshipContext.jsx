@@ -29,6 +29,7 @@ export function RelationshipProvider({ children }) {
   const [members, setMembers] = useState([]);
   const [myMembership, setMyMembership] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const loadMembers = useCallback(async (relationshipId) => {
     if (!relationshipId) return [];
@@ -55,6 +56,7 @@ export function RelationshipProvider({ children }) {
     let cancelled = false;
     (async () => {
       setLoading(true);
+      setError(null);
       try {
         const user = await base44.auth.me().catch(() => null);
 
@@ -62,7 +64,14 @@ export function RelationshipProvider({ children }) {
         setCurrentUser(user);
 
         // Wave 6: use user_id-primary fetch with email fallback
-        const membershipsResult = await fetchMyMemberships(base44.entities, user);
+        // Retry once on failure — guards against transient network/permission blips
+        let membershipsResult;
+        try {
+          membershipsResult = await fetchMyMemberships(base44.entities, user);
+        } catch (err) {
+          console.warn('Membership fetch failed, retrying once:', err);
+          membershipsResult = await fetchMyMemberships(base44.entities, user);
+        }
 
         if (!membershipsResult.length || cancelled) { setLoading(false); return; }
 
@@ -100,6 +109,7 @@ export function RelationshipProvider({ children }) {
         }
       } catch (err) {
         console.error('RelationshipContext bootstrap error:', err);
+        if (!cancelled) setError(err?.message || 'Failed to load your relationship space');
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -154,6 +164,7 @@ export function RelationshipProvider({ children }) {
       members,
       myMembership,
       loading,
+      error,
       setActiveRelationship,
       refreshRelationships,
     }}>

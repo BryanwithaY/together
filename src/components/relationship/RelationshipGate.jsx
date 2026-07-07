@@ -3,7 +3,7 @@ import { useRelationship } from './RelationshipContext';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
-import { Plus } from 'lucide-react';
+import { Plus, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import AppLoadingScreen from '../AppLoadingScreen';
 
@@ -12,11 +12,35 @@ import AppLoadingScreen from '../AppLoadingScreen';
  * If no relationship exists, prompts user to create one.
  */
 export default function RelationshipGate({ children }) {
-  const { loading, activeRelationship } = useRelationship();
+  const { loading, activeRelationship, error } = useRelationship();
   const navigate = useNavigate();
 
   if (loading) {
     return <AppLoadingScreen />;
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center px-6 text-center">
+        <div className="space-y-5">
+          <div className="w-20 h-20 rounded-3xl bg-red-50 flex items-center justify-center mx-auto">
+            <AlertCircle className="w-9 h-9 text-red-400" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-stone-800">Couldn't load your space</h2>
+            <p className="text-sm text-stone-500 mt-2 max-w-xs mx-auto">
+              Something went wrong loading your relationship space. Your data is safe — please try again.
+            </p>
+          </div>
+          <Button
+            onClick={() => window.location.reload()}
+            className="bg-stone-800 hover:bg-stone-900 text-white rounded-xl px-8"
+          >
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   if (!activeRelationship) {
