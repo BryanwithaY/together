@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +38,15 @@ export default function RelationshipSettings() {
   const [deleteSpaceConfirmText, setDeleteSpaceConfirmText] = useState('');
   const [deleteSpaceOpen, setDeleteSpaceOpen] = useState(false);
   const [copiedId, setCopiedId] = useState(false);
+  const [allMemberRecords, setAllMemberRecords] = useState([]);
+  const [archiveOpen, setArchiveOpen] = useState(false);
+
+  useEffect(() => {
+    if (!activeRelationship?.id) return;
+    base44.entities.RelationshipMember.filter({ relationship_id: activeRelationship.id })
+      .then(setAllMemberRecords)
+      .catch(() => setAllMemberRecords([]));
+  }, [activeRelationship?.id]);
 
   if (!activeRelationship) return null;
 
@@ -48,6 +57,17 @@ export default function RelationshipSettings() {
   const canRemove = canRemoveMembers(myMembership);
   const maxMembers = activeRelationship.max_members || 10;
   const activeMembers = members.filter(m => m.status === 'active');
+
+  // Phase 1 closure rules: a space can only be deleted by its creator, and only if
+  // no other person has ever been an accepted (active or later removed) member.
+  // Pending invites that were never accepted don't count as "joined".
+  const myEmail = currentUser?.email?.toLowerCase();
+  const isCreator = activeRelationship.created_by_id === currentUser?.id
+    || activeRelationship.owner_email?.toLowerCase() === myEmail;
+  const otherEverJoined = allMemberRecords.some(m =>
+    m.user_email?.toLowerCase() !== myEmail && m.status !== 'pending'
+  );
+  const canDeleteSolo = isCreator && !otherEverJoined;
 
   const handleInvite = async () => {
     if (!inviteEmail.trim()) return;
@@ -96,6 +116,10 @@ export default function RelationshipSettings() {
 
   const handleArchive = async () => {
     await base44.entities.Relationship.update(activeRelationship.id, { is_archived: true });
+    setArchiveOpen(false);
+    // Rule 8: switch to another available (non-archived) space if one exists
+    const next = myRelationships.find(r => r.id !== activeRelationship.id && !r.is_archived);
+    if (next) await setActiveRelationship(next);
     await refreshRelationships();
   };
 
@@ -107,14 +131,14 @@ export default function RelationshipSettings() {
   return (
     <div className="space-y-6">
 
-      {/* Your spaces — all relationships this account belongs to */}
-      {myRelationships.length > 0 && (
+      {/* Your spaces — non-archived relationships this account belongs to */}
+      {myRelationships.filter(r => !r.is_archived).length > 0 && (
         <div>
           <p className="text-sm font-semibold text-stone-700 mb-2">
-            Your Spaces <span className="text-stone-400 font-normal">({myRelationships.length})</span>
+            Your Spaces <span className="text-stone-400 font-normal">({myRelationships.filter(r => !r.is_archived).length})</span>
           </p>
           <div className="space-y-2">
-            {myRelationships.map(rel => {
+            {myRelationships.filter(r => !r.is_archived).map(rel => {
               const isActive = rel.id === activeRelationship.id;
               return (
                 <button
@@ -132,8 +156,45 @@ export default function RelationshipSettings() {
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-stone-800 truncate">{rel.name}{rel.is_archived ? ' (Archived)' : ''}</p>
+                    <p className="text-sm font-medium text-stone-800 truncate">{rel.name}</p>
                     <p className="text-xs text-stone-400">{TYPE_LABELS[rel.type] || 'Relationship'}</p>
+                  </div>
+                  {isActive && <span className="text-xs font-medium text-stone-500 flex-shrink-0">Active</span>}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Archived Spaces — hidden from the main switcher, still reachable here */}
+      {myRelationships.some(r => r.is_archived) && (
+        <div>
+          <p className="text-sm font-semibold text-stone-700 mb-2 flex items-center gap-1.5">
+            <Archive className="w-3.5 h-3.5 text-stone-400" /> Archived Spaces
+            <span className="text-stone-400 font-normal">({myRelationships.filter(r => r.is_archived).length})</span>
+          </p>
+          <div className="space-y-2">
+            {myRelationships.filter(r => r.is_archived).map(rel => {
+              const isActive = rel.id === activeRelationship.id;
+              return (
+                <button
+                  key={rel.id}
+                  onClick={() => !isActive && setActiveRelationship(rel)}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left transition-colors opacity-70 ${
+                    isActive ? 'bg-stone-100 border-stone-300' : 'bg-white border-stone-100 hover:bg-stone-50'
+                  }`}
+                >
+                  {rel.photo_url ? (
+                    <img src={rel.photo_url} alt="" className="w-10 h-10 rounded-xl object-cover flex-shrink-0 grayscale" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center flex-shrink-0">
+                      <Users className="w-5 h-5 text-stone-400" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-stone-600 truncate">{rel.name}</p>
+                    <p className="text-xs text-stone-400">Archived</p>
                   </div>
                   {isActive && <span className="text-xs font-medium text-stone-500 flex-shrink-0">Active</span>}
                 </button>
@@ -335,20 +396,44 @@ export default function RelationshipSettings() {
         </div>
       )}
 
-      {/* Archive / Unarchive (owner only) */}
-      {isOwner && !activeRelationship.is_archived && (
-        <Button
-          variant="ghost"
-          onClick={handleArchive}
-          className="w-full text-stone-400 hover:text-stone-700 hover:bg-stone-100 text-sm"
-        >
-          <Archive className="w-4 h-4 mr-2" />
-          Archive this Space
-        </Button>
+      {/* Archive / Unarchive (owner or admin) */}
+      {isAdmin && !activeRelationship.is_archived && (
+        <AlertDialog open={archiveOpen} onOpenChange={setArchiveOpen}>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="ghost"
+              className="w-full text-stone-400 hover:text-stone-700 hover:bg-stone-100 text-sm"
+            >
+              <Archive className="w-4 h-4 mr-2" />
+              Archive this Space
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Archive "{activeRelationship.name}"?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This space will be hidden from your main switcher and become read-only for all members —
+                no new moments, invites, or changes. Nothing is deleted: all moments, schedules, and notes
+                stay intact, and you can find this space anytime under Archived Spaces to unarchive it.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <Button onClick={handleArchive} className="bg-stone-800 hover:bg-stone-900 text-white">
+                Archive Space
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
 
-      {/* Delete relationship (owner only) — low-prominence */}
-      {isOwner && (
+      {/* Delete relationship — creator only, and only for solo spaces with no shared history */}
+      {isOwner && otherEverJoined && (
+        <p className="w-full text-xs text-stone-400 text-center py-1 px-4">
+          This space has shared history and cannot be deleted by one person. You can archive it or leave it.
+        </p>
+      )}
+      {canDeleteSolo && (
         <AlertDialog open={deleteSpaceOpen} onOpenChange={(open) => { setDeleteSpaceOpen(open); if (!open) setDeleteSpaceConfirmText(''); }}>
           <AlertDialogTrigger asChild>
             <button className="w-full text-xs text-stone-300 hover:text-red-500 transition-colors flex items-center justify-center gap-1.5 py-1">
@@ -360,7 +445,9 @@ export default function RelationshipSettings() {
             <AlertDialogHeader>
               <AlertDialogTitle>Delete "{activeRelationship.name}"?</AlertDialogTitle>
               <AlertDialogDescription>
-                This will archive the relationship for all members. Moments will no longer be accessible. This cannot be undone.
+                Since you're the only member and no one else has ever joined, this space can be safely deleted.
+                It will be permanently marked as deleted and removed from your spaces. Any moments or notes you
+                created will not be automatically deleted. This cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <div className="px-1 py-2">
