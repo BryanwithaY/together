@@ -8,6 +8,7 @@ import { createPageUrl } from '@/utils';
 
 import RelationshipGate from '../components/relationship/RelationshipGate';
 import RelationshipSwitcher from '../components/relationship/RelationshipSwitcher';
+import RelationshipDebugPanel from '../components/relationship/RelationshipDebugPanel';
 import { useRelationship } from '../components/relationship/RelationshipContext';
 import MomentForm from '../components/moments/MomentForm';
 import MomentsList from '../components/moments/MomentsList';
@@ -123,6 +124,8 @@ function HomeContent() {
           </button>
         </div>
       </div>
+
+      <RelationshipDebugPanel />
 
       <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
         <AnimatePresence>

@@ -30,18 +30,17 @@ async function fetchMyMemberships(entities, user) {
  * This guards against any discrepancy between how $in behaves under RLS for the
  * authenticated client vs. a flat equality lookup.
  */
-async function fetchRelationshipsForIds(relIds) {
+async function fetchRelationshipsForIds(relIds, outCounts) {
   if (relIds.length === 0) return [];
 
   let methodAResult = [];
-  let methodAError = null;
   try {
     methodAResult = await base44.entities.Relationship.filter({ id: { $in: relIds } });
     log('Method A ($in query) returned', methodAResult.length, 'of', relIds.length, 'ids:', methodAResult.map(r => r.id));
   } catch (err) {
-    methodAError = err;
     log('Method A ($in query) threw error:', err?.message);
   }
+  if (outCounts) outCounts.a = methodAResult.length;
 
   if (methodAResult.length >= relIds.length) {
     return methodAResult;
@@ -57,6 +56,7 @@ async function fetchRelationshipsForIds(relIds) {
     return r.value;
   });
   log('Method B (per-id) returned', methodBResult.length, 'of', relIds.length, 'ids:', methodBResult.map(r => r.id));
+  if (outCounts) outCounts.b = methodBResult.length;
 
   // Use whichever method returned more results.
   return methodBResult.length > methodAResult.length ? methodBResult : methodAResult;
@@ -80,6 +80,7 @@ export function RelationshipProvider({ children }) {
   const [myMembership, setMyMembership] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [debugInfo, setDebugInfo] = useState({});
 
   const loadMembers = useCallback(async (relationshipId) => {
     if (!relationshipId) return [];
@@ -113,6 +114,7 @@ export function RelationshipProvider({ children }) {
         if (!user || cancelled) { setLoading(false); return; }
         setCurrentUser(user);
         log('auth.me() ->', { id: user.id, email: user.email });
+        setDebugInfo(d => ({ ...d, userEmail: user.email, userId: user.id }));
 
         let membershipsResult;
         try {
@@ -124,22 +126,31 @@ export function RelationshipProvider({ children }) {
 
         const relIds = membershipsResult.map(m => m.relationship_id);
         log('membership relationship_ids:', relIds);
+        setDebugInfo(d => ({ ...d, membershipCount: membershipsResult.length, relIds }));
 
         if (relIds.length === 0 || cancelled) { setLoading(false); return; }
 
         const savedId = localStorage.getItem('active_relationship_id');
 
-        let allRels = sortRels(await fetchRelationshipsForIds(relIds));
+        const methodACounts = {};
+        let allRels = sortRels(await fetchRelationshipsForIds(relIds, methodACounts));
         // Retry once if short — guards against replication lag right after signup/creation.
         if (allRels.length < relIds.length) {
           await new Promise(res => setTimeout(res, 500));
-          const retry = sortRels(await fetchRelationshipsForIds(relIds));
+          const retry = sortRels(await fetchRelationshipsForIds(relIds, methodACounts));
           if (retry.length > allRels.length) allRels = retry;
         }
 
         if (cancelled) return;
 
         log('final relationships before setMyRelationships:', allRels.length, allRels.map(r => r.name));
+        setDebugInfo(d => ({
+          ...d,
+          methodACount: methodACounts.a,
+          methodBCount: methodACounts.b,
+          finalCount: allRels.length,
+          finalNames: allRels.map(r => r.name),
+        }));
 
         // Never wipe out relationships if we have memberships but the lookup came back empty —
         // surface an error/retry state instead of showing zero spaces.
@@ -164,9 +175,11 @@ export function RelationshipProvider({ children }) {
         setMyMembership(m.find(mb => mb.user_email?.toLowerCase() === email) || null);
         localStorage.setItem('active_relationship_id', preferred.id);
         log('activeRelationship selected:', preferred.id, preferred.name);
+        setDebugInfo(d => ({ ...d, activeRelationshipName: preferred.name }));
       } catch (err) {
         console.error('RelationshipContext bootstrap error:', err);
         if (!cancelled) setError(err?.message || 'Failed to load your relationship space');
+        setDebugInfo(d => ({ ...d, contextError: err?.message || 'Failed to load your relationship space' }));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -239,6 +252,7 @@ export function RelationshipProvider({ children }) {
       myMembership,
       loading,
       error,
+      debugInfo,
       setActiveRelationship,
       refreshRelationships,
     }}>
