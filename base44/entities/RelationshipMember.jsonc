@@ -80,11 +80,7 @@
           "data.user_id": "{{user.id}}"
         },
         {
-          "data.relationship_id": {
-            "$in": [
-              "{{lookup.RelationshipMember.relationship_id}}"
-            ]
-          }
+          "data.user_email": "{{user.email}}"
         },
         {
           "user_condition": {
