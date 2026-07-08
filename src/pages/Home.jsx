@@ -45,7 +45,7 @@ function HomeContent() {
     queryKey: ['moments', activeRelationship?.id],
     queryFn: () => base44.entities.Moment.filter({
       relationship_id: activeRelationship.id,
-      is_private: false,
+      is_private: { $ne: true },
     }, '-date', 100),
     enabled: !!activeRelationship?.id,
     staleTime: 60_000,
