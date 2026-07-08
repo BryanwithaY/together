@@ -97,6 +97,25 @@
       "type": "boolean",
       "default": false,
       "description": "Durable one-way flag. Once set true (because more than one person was ever an active member, or another user authored a moment/schedule in this space), it is NEVER reset to false, even if the space later appears solo again. Used to permanently block deletion of spaces that ever had shared participation."
+    },
+    "trust_level": {
+      "type": "string",
+      "enum": [
+        "temporary",
+        "shared_memory",
+        "permanent_record"
+      ],
+      "description": "How durable/sensitive this relationship's shared history is considered. Derived from relationship type at creation time, editable later. Drives the sensible default for lifecycle_policy. temporary = short-lived (travel, project, event); shared_memory = ongoing personal relationships (friends, partners, families); permanent_record = high-stakes/durable records (marriage, co-parenting, family, medical, legal)."
+    },
+    "lifecycle_policy": {
+      "type": "string",
+      "enum": [
+        "archive_only",
+        "destroy_with_consent",
+        "destroy_solo_only",
+        "never_destroy"
+      ],
+      "description": "Governs whether/how this relationship container can ever be destroyed (independent from any individual member's personal data preference). archive_only = can be archived but never destroyed; destroy_with_consent = destruction requires unanimous member consent (workflow not yet implemented); destroy_solo_only = may only be destroyed while it has never had shared history (today's existing solo-deletion rule); never_destroy = archive is the only end state. Defaulted from trust_level at creation, editable later by the owner."
     }
   },
   "required": [
