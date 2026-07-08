@@ -6,6 +6,20 @@
       "type": "string",
       "description": "ID of the relationship this moment belongs to"
     },
+    "member_user_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Base44 user IDs of the relationship's active members at creation time \u2014 mirrors Relationship.member_user_ids, set on write so RLS can check membership directly on this record without a cross-entity lookup."
+    },
+    "member_emails": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Emails of the relationship's active members at creation time \u2014 mirrors Relationship.member_emails, fallback for members whose user_id hasn't been backfilled yet."
+    },
     "type": {
       "type": "string",
       "enum": [
@@ -131,12 +145,7 @@
   ],
   "rls": {
     "create": {
-      "created_by_id": "{{user.id}}",
-      "data.relationship_id": {
-        "$in": [
-          "{{lookup.RelationshipMember.relationship_id}}"
-        ]
-      }
+      "created_by_id": "{{user.id}}"
     },
     "read": {
       "$or": [
@@ -170,16 +179,31 @@
             {
               "$or": [
                 {
-                  "data.visibility": "relationship",
-                  "data.relationship_id": {
-                    "$in": [
-                      "{{lookup.RelationshipMember.relationship_id}}"
-                    ]
-                  }
+                  "$and": [
+                    {
+                      "data.visibility": "relationship"
+                    },
+                    {
+                      "$or": [
+                        {
+                          "data.member_user_ids": "{{user.id}}"
+                        },
+                        {
+                          "data.member_emails": "{{user.email}}"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
-                  "data.visibility": "tagged_only",
-                  "data.tagged_users": "{{user.email}}"
+                  "$and": [
+                    {
+                      "data.visibility": "tagged_only"
+                    },
+                    {
+                      "data.tagged_users": "{{user.email}}"
+                    }
+                  ]
                 }
               ]
             }
