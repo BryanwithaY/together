@@ -8,7 +8,6 @@ import { createPageUrl } from '@/utils';
 
 import RelationshipGate from '../components/relationship/RelationshipGate';
 import RelationshipSwitcher from '../components/relationship/RelationshipSwitcher';
-import RelationshipDebugPanel from '../components/relationship/RelationshipDebugPanel';
 import { useRelationship } from '../components/relationship/RelationshipContext';
 import MomentForm from '../components/moments/MomentForm';
 import MomentsList from '../components/moments/MomentsList';
@@ -202,13 +201,8 @@ function HomeContent() {
 
 export default function Home() {
   return (
-    <>
-      {/* Rendered outside RelationshipGate so it's visible even if the gate
-          shows a loading/error/uninitialized state instead of Home content. */}
-      <RelationshipDebugPanel />
-      <RelationshipGate>
-        <HomeContent />
-      </RelationshipGate>
-    </>
+    <RelationshipGate>
+      <HomeContent />
+    </RelationshipGate>
   );
 }
