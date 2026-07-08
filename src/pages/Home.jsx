@@ -125,8 +125,6 @@ function HomeContent() {
         </div>
       </div>
 
-      <RelationshipDebugPanel />
-
       <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
         <AnimatePresence>
           {showForm && (
@@ -204,8 +202,13 @@ function HomeContent() {
 
 export default function Home() {
   return (
-    <RelationshipGate>
-      <HomeContent />
-    </RelationshipGate>
+    <>
+      {/* Rendered outside RelationshipGate so it's visible even if the gate
+          shows a loading/error/uninitialized state instead of Home content. */}
+      <RelationshipDebugPanel />
+      <RelationshipGate>
+        <HomeContent />
+      </RelationshipGate>
+    </>
   );
 }
