@@ -3,6 +3,11 @@ import { base44 } from '@/api/base44Client';
 
 const RelationshipContext = createContext(null);
 
+// Temporary diagnostic flag — logs are gated behind this so they can be
+// disabled in one place once the failing step is confirmed fixed.
+const DIAG = true;
+const log = (...args) => { if (DIAG) console.warn('[RelDiag]', ...args); };
+
 /**
  * Wave 6: Fetch the current user's active memberships.
  * Prefers user_id filter (validated by Wave 5 backfill) for performance and stability.
@@ -11,15 +16,60 @@ const RelationshipContext = createContext(null);
 async function fetchMyMemberships(entities, user) {
   if (user.id) {
     const byId = await entities.RelationshipMember.filter({ user_id: user.id, status: 'active' });
+    log('fetchMyMemberships: user_id query returned', byId.length, 'rows');
     if (byId.length > 0) return byId;
   }
-  // Fallback: email-based lookup (pre-backfill safety net)
-  // Wave 7: log when fallback fires — helps identify any users whose user_id backfill is incomplete.
-  // Console-only, not user-visible.
-  if (import.meta.env.DEV) {
-    console.warn('[Wave6Fallback] RelationshipMember id-based lookup returned empty; falling back to email for user:', user.id || '(no id)');
+  const byEmail = await entities.RelationshipMember.filter({ user_email: user.email.toLowerCase(), status: 'active' });
+  log('fetchMyMemberships: email fallback returned', byEmail.length, 'rows');
+  return byEmail;
+}
+
+/**
+ * Fetch relationships for a set of ids, trying the $in query first and falling
+ * back to per-id parallel lookups if the $in query comes back short or errors.
+ * This guards against any discrepancy between how $in behaves under RLS for the
+ * authenticated client vs. a flat equality lookup.
+ */
+async function fetchRelationshipsForIds(relIds) {
+  if (relIds.length === 0) return [];
+
+  let methodAResult = [];
+  let methodAError = null;
+  try {
+    methodAResult = await base44.entities.Relationship.filter({ id: { $in: relIds } });
+    log('Method A ($in query) returned', methodAResult.length, 'of', relIds.length, 'ids:', methodAResult.map(r => r.id));
+  } catch (err) {
+    methodAError = err;
+    log('Method A ($in query) threw error:', err?.message);
   }
-  return entities.RelationshipMember.filter({ user_email: user.email.toLowerCase(), status: 'active' });
+
+  if (methodAResult.length >= relIds.length) {
+    return methodAResult;
+  }
+
+  // Method A came back short or errored — try per-id lookups as a fallback.
+  const settled = await Promise.allSettled(relIds.map(id => base44.entities.Relationship.filter({ id })));
+  const methodBResult = settled.flatMap((r, i) => {
+    if (r.status === 'rejected') {
+      log('Method B per-id lookup failed for', relIds[i], ':', r.reason?.message);
+      return [];
+    }
+    return r.value;
+  });
+  log('Method B (per-id) returned', methodBResult.length, 'of', relIds.length, 'ids:', methodBResult.map(r => r.id));
+
+  // Use whichever method returned more results.
+  return methodBResult.length > methodAResult.length ? methodBResult : methodAResult;
+}
+
+function sortRels(rels) {
+  return rels
+    .filter(r => r && !r.is_deleted)
+    .sort((a, b) => {
+      if (a.is_archived && !b.is_archived) return 1;
+      if (!a.is_archived && b.is_archived) return -1;
+      return 0;
+    });
 }
 
 export function RelationshipProvider({ children }) {
@@ -51,7 +101,7 @@ export function RelationshipProvider({ children }) {
     setMyMembership(m.find(mb => mb.user_email?.toLowerCase() === email) || null);
   }, [loadMembers]);
 
-  // Bootstrap: run user fetch + membership fetch in parallel, then parallel relationship fetches
+  // Bootstrap: run user fetch + membership fetch in parallel, then relationship fetches
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -62,9 +112,8 @@ export function RelationshipProvider({ children }) {
 
         if (!user || cancelled) { setLoading(false); return; }
         setCurrentUser(user);
+        log('auth.me() ->', { id: user.id, email: user.email });
 
-        // Wave 6: use user_id-primary fetch with email fallback
-        // Retry once on failure — guards against transient network/permission blips
         let membershipsResult;
         try {
           membershipsResult = await fetchMyMemberships(base44.entities, user);
@@ -73,46 +122,48 @@ export function RelationshipProvider({ children }) {
           membershipsResult = await fetchMyMemberships(base44.entities, user);
         }
 
-        if (!membershipsResult.length || cancelled) { setLoading(false); return; }
-
         const relIds = membershipsResult.map(m => m.relationship_id);
+        log('membership relationship_ids:', relIds);
+
+        if (relIds.length === 0 || cancelled) { setLoading(false); return; }
+
         const savedId = localStorage.getItem('active_relationship_id');
 
-        // Fetch all relationships in a single query ($in) — one round-trip, no per-id race.
-        const fetchAllRels = async () => {
-          const rels = await base44.entities.Relationship.filter({ id: { $in: relIds } });
-          return rels
-            .filter(r => r && !r.is_deleted)
-            .sort((a, b) => {
-              if (a.is_archived && !b.is_archived) return 1;
-              if (!a.is_archived && b.is_archived) return -1;
-              return 0;
-            });
-        };
-
-        let allRels = await fetchAllRels();
-        // Retry once if the fetch came back short — guards against replication lag right after signup/creation.
+        let allRels = sortRels(await fetchRelationshipsForIds(relIds));
+        // Retry once if short — guards against replication lag right after signup/creation.
         if (allRels.length < relIds.length) {
           await new Promise(res => setTimeout(res, 500));
-          const retry = await fetchAllRels();
+          const retry = sortRels(await fetchRelationshipsForIds(relIds));
           if (retry.length > allRels.length) allRels = retry;
         }
 
         if (cancelled) return;
 
+        log('final relationships before setMyRelationships:', allRels.length, allRels.map(r => r.name));
+
+        // Never wipe out relationships if we have memberships but the lookup came back empty —
+        // surface an error/retry state instead of showing zero spaces.
+        if (allRels.length === 0 && relIds.length > 0) {
+          log('relationship lookup returned 0 despite', relIds.length, 'memberships — preserving loading/error state, not clearing list');
+          setError('Failed to load your relationship spaces — please refresh.');
+          setLoading(false);
+          return;
+        }
+
         setMyRelationships(allRels);
 
-        if (allRels.length > 0) {
-          const preferred = (savedId && allRels.find(r => r.id === savedId)) || allRels[0];
-          // Fetch members while we set state
-          const m = await loadMembers(preferred.id);
-          if (cancelled) return;
-          setActiveRelationshipState(preferred);
-          setMembers(m);
-          const email = user.email.toLowerCase();
-          setMyMembership(m.find(mb => mb.user_email?.toLowerCase() === email) || null);
-          localStorage.setItem('active_relationship_id', preferred.id);
-        }
+        const savedIdValid = savedId && allRels.some(r => r.id === savedId);
+        log('saved active_relationship_id:', savedId, 'valid:', savedIdValid);
+
+        const preferred = (savedIdValid && allRels.find(r => r.id === savedId)) || allRels[0];
+        const m = await loadMembers(preferred.id);
+        if (cancelled) return;
+        setActiveRelationshipState(preferred);
+        setMembers(m);
+        const email = user.email.toLowerCase();
+        setMyMembership(m.find(mb => mb.user_email?.toLowerCase() === email) || null);
+        localStorage.setItem('active_relationship_id', preferred.id);
+        log('activeRelationship selected:', preferred.id, preferred.name);
       } catch (err) {
         console.error('RelationshipContext bootstrap error:', err);
         if (!cancelled) setError(err?.message || 'Failed to load your relationship space');
@@ -129,31 +180,28 @@ export function RelationshipProvider({ children }) {
   }, [applyRelationship, currentUser]);
 
   const fetchAllMyRelationships = useCallback(async () => {
-    // Wave 6: use user_id-primary fetch with email fallback
     const memberships = await fetchMyMemberships(base44.entities, currentUser);
     const relIds = memberships.map(m => m.relationship_id);
-    // Single $in query — one round-trip, no per-id race.
-    const rels = await base44.entities.Relationship.filter({ id: { $in: relIds } });
-    const sorted = rels
-      .filter(r => r && !r.is_deleted)
-      .sort((a, b) => {
-        if (a.is_archived && !b.is_archived) return 1;
-        if (!a.is_archived && b.is_archived) return -1;
-        return 0;
-      });
-    return { allRels: sorted, expectedCount: relIds.length };
+    const rels = sortRels(await fetchRelationshipsForIds(relIds));
+    return { allRels: rels, expectedCount: relIds.length };
   }, [currentUser]);
 
   const refreshRelationships = useCallback(async () => {
     if (!currentUser) return;
     let { allRels, expectedCount } = await fetchAllMyRelationships();
-    // Right after creating a relationship there can be a brief replication delay before the
-    // membership lookup sees the new record — if the fetch comes back short, retry once.
     if (allRels.length < expectedCount) {
       await new Promise(res => setTimeout(res, 500));
       const retry = await fetchAllMyRelationships();
       if (retry.allRels.length > allRels.length) allRels = retry.allRels;
     }
+
+    // Don't overwrite an existing non-empty list with an empty one if we still have memberships —
+    // preserve previous state and let the caller retry, rather than flashing an empty switcher.
+    if (allRels.length === 0 && expectedCount > 0) {
+      log('refreshRelationships: lookup returned 0 despite', expectedCount, 'memberships — preserving existing myRelationships');
+      return;
+    }
+
     setMyRelationships(allRels);
 
     if (activeRelationship) {
@@ -164,15 +212,23 @@ export function RelationshipProvider({ children }) {
         setMembers(m);
         const email = currentUser.email.toLowerCase();
         setMyMembership(m.find(mb => mb.user_email?.toLowerCase() === email) || null);
+      } else if (allRels.length > 0) {
+        // Active relationship no longer in the list (e.g. deleted) — fall back to another valid one
+        // rather than clearing localStorage based on a possibly-incomplete fetch.
+        setActiveRelationshipState(allRels[0]);
+        localStorage.setItem('active_relationship_id', allRels[0].id);
+        const m = await loadMembers(allRels[0].id);
+        setMembers(m);
+        const email = currentUser.email.toLowerCase();
+        setMyMembership(m.find(mb => mb.user_email?.toLowerCase() === email) || null);
       } else {
-        // Active relationship was removed
         setActiveRelationshipState(null);
         localStorage.removeItem('active_relationship_id');
         setMembers([]);
         setMyMembership(null);
       }
     }
-  }, [currentUser, activeRelationship, loadMembers]);
+  }, [currentUser, activeRelationship, loadMembers, fetchAllMyRelationships]);
 
   return (
     <RelationshipContext.Provider value={{
