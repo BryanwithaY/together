@@ -28,7 +28,7 @@ const TYPE_LABELS = {
 const ROLES = ['owner', 'admin', 'member', 'read_only'];
 
 export default function RelationshipSettings() {
-  const { currentUser, activeRelationship, members, myMembership, refreshRelationships } = useRelationship();
+  const { currentUser, activeRelationship, myRelationships, setActiveRelationship, members, myMembership, refreshRelationships } = useRelationship();
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('member');
   const [inviting, setInviting] = useState(false);
@@ -106,6 +106,42 @@ export default function RelationshipSettings() {
 
   return (
     <div className="space-y-6">
+
+      {/* Your spaces — all relationships this account belongs to */}
+      {myRelationships.length > 0 && (
+        <div>
+          <p className="text-sm font-semibold text-stone-700 mb-2">
+            Your Spaces <span className="text-stone-400 font-normal">({myRelationships.length})</span>
+          </p>
+          <div className="space-y-2">
+            {myRelationships.map(rel => {
+              const isActive = rel.id === activeRelationship.id;
+              return (
+                <button
+                  key={rel.id}
+                  onClick={() => !isActive && setActiveRelationship(rel)}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left transition-colors ${
+                    isActive ? 'bg-stone-100 border-stone-300' : 'bg-white border-stone-100 hover:bg-stone-50'
+                  }`}
+                >
+                  {rel.photo_url ? (
+                    <img src={rel.photo_url} alt="" className="w-10 h-10 rounded-xl object-cover flex-shrink-0" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center flex-shrink-0">
+                      <Users className="w-5 h-5 text-stone-400" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-stone-800 truncate">{rel.name}{rel.is_archived ? ' (Archived)' : ''}</p>
+                    <p className="text-xs text-stone-400">{TYPE_LABELS[rel.type] || 'Relationship'}</p>
+                  </div>
+                  {isActive && <span className="text-xs font-medium text-stone-500 flex-shrink-0">Active</span>}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Archived banner */}
       {activeRelationship.is_archived && (
