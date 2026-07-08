@@ -54,6 +54,32 @@ function sortRels(rels) {
     });
 }
 
+/**
+ * RelationshipMember read RLS only reliably returns rows the caller directly owns
+ * (their own user_id/user_email match) — a partner's row isn't guaranteed to come back
+ * client-side. Since every active member CAN read the parent Relationship record (via
+ * member_user_ids/member_emails), we use those denormalized arrays as the source of truth
+ * for "who belongs here", and fill in any email not covered by a readable RelationshipMember
+ * row with a lightweight placeholder so member count and display stay correct.
+ */
+function mergeWithRelationshipRoster(rel, readableMembers) {
+  if (!rel) return readableMembers;
+  const rosterEmails = rel.member_emails || [];
+  const covered = new Set(readableMembers.map(m => m.user_email?.toLowerCase()).filter(Boolean));
+  const placeholders = rosterEmails
+    .filter(email => email && !covered.has(email.toLowerCase()))
+    .map(email => ({
+      id: `placeholder-${email}`,
+      user_email: email,
+      user_id: null,
+      display_name: null,
+      role: 'member',
+      status: 'active',
+      __placeholder: true,
+    }));
+  return [...readableMembers, ...placeholders];
+}
+
 export function RelationshipProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [activeRelationship, setActiveRelationshipState] = useState(null);
@@ -63,9 +89,10 @@ export function RelationshipProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const loadMembers = useCallback(async (relationshipId) => {
-    if (!relationshipId) return [];
-    return base44.entities.RelationshipMember.filter({ relationship_id: relationshipId, status: 'active' });
+  const loadMembers = useCallback(async (rel) => {
+    if (!rel?.id) return [];
+    const readable = await base44.entities.RelationshipMember.filter({ relationship_id: rel.id, status: 'active' });
+    return mergeWithRelationshipRoster(rel, readable);
   }, []);
 
   const applyRelationship = useCallback(async (rel, userEmail, cachedMembers) => {
@@ -77,7 +104,7 @@ export function RelationshipProvider({ children }) {
       return;
     }
     localStorage.setItem('active_relationship_id', rel.id);
-    const m = cachedMembers || await loadMembers(rel.id);
+    const m = cachedMembers || await loadMembers(rel);
     setMembers(m);
     const email = (userEmail || '').toLowerCase();
     setMyMembership(m.find(mb => mb.user_email?.toLowerCase() === email) || null);
@@ -132,7 +159,7 @@ export function RelationshipProvider({ children }) {
         const savedIdValid = savedId && allRels.some(r => r.id === savedId);
 
         const preferred = (savedIdValid && allRels.find(r => r.id === savedId)) || allRels[0];
-        const m = await loadMembers(preferred.id);
+        const m = await loadMembers(preferred);
         if (cancelled) return;
         setActiveRelationshipState(preferred);
         setMembers(m);
@@ -182,7 +209,7 @@ export function RelationshipProvider({ children }) {
       const updated = allRels.find(r => r.id === activeRelationship.id);
       if (updated) {
         setActiveRelationshipState(updated);
-        const m = await loadMembers(updated.id);
+        const m = await loadMembers(updated);
         setMembers(m);
         const email = currentUser.email.toLowerCase();
         setMyMembership(m.find(mb => mb.user_email?.toLowerCase() === email) || null);
@@ -191,7 +218,7 @@ export function RelationshipProvider({ children }) {
         // rather than clearing localStorage based on a possibly-incomplete fetch.
         setActiveRelationshipState(allRels[0]);
         localStorage.setItem('active_relationship_id', allRels[0].id);
-        const m = await loadMembers(allRels[0].id);
+        const m = await loadMembers(allRels[0]);
         setMembers(m);
         const email = currentUser.email.toLowerCase();
         setMyMembership(m.find(mb => mb.user_email?.toLowerCase() === email) || null);
