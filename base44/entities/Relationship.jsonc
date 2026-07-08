@@ -78,6 +78,20 @@
       "type": "number",
       "default": 1,
       "description": "Number of active members"
+    },
+    "member_user_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Base44 user IDs of active members \u2014 mirrors active RelationshipMember.user_id rows, kept in sync so RLS can check membership directly on this record (RLS cannot cross-reference other entities by id)."
+    },
+    "member_emails": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Emails of active members \u2014 mirrors active RelationshipMember.user_email rows, fallback for members whose user_id hasn't been backfilled yet."
     }
   },
   "required": [
@@ -93,11 +107,13 @@
     "read": {
       "$or": [
         {
-          "id": {
-            "$in": [
-              "{{lookup.RelationshipMember.relationship_id}}"
-            ]
-          }
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.member_user_ids": "{{user.id}}"
+        },
+        {
+          "data.member_emails": "{{user.email}}"
         },
         {
           "user_condition": {
