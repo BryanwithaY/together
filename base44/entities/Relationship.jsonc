@@ -92,6 +92,11 @@
         "type": "string"
       },
       "description": "Emails of active members \u2014 mirrors active RelationshipMember.user_email rows, fallback for members whose user_id hasn't been backfilled yet."
+    },
+    "has_shared_history": {
+      "type": "boolean",
+      "default": false,
+      "description": "Durable one-way flag. Once set true (because more than one person was ever an active member, or another user authored a moment/schedule in this space), it is NEVER reset to false, even if the space later appears solo again. Used to permanently block deletion of spaces that ever had shared participation."
     }
   },
   "required": [
