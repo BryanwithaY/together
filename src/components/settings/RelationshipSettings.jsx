@@ -68,6 +68,7 @@ export default function RelationshipSettings() {
     m.user_email?.toLowerCase() !== myEmail && m.status !== 'pending'
   );
   const canDeleteSolo = isCreator && !otherEverJoined;
+  const canManage = checkAdmin(myMembership); // unaffected by archive status — used for unarchive
 
   const handleInvite = async () => {
     if (!inviteEmail.trim()) return;
@@ -212,7 +213,7 @@ export default function RelationshipSettings() {
             <p className="text-sm font-medium text-stone-600">This space is archived</p>
             <p className="text-xs text-stone-400">It's locked and read-only. Unarchive to make it active again.</p>
           </div>
-          {isOwner && (
+          {canManage && (
             <button
               onClick={handleUnarchive}
               className="flex items-center gap-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 bg-white border border-stone-200 rounded-lg px-3 py-1.5 transition-colors flex-shrink-0"
