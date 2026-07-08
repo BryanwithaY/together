@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { UserPlus, Camera, Users, Clock, ChevronDown, Settings2, Trash2, Archive, ArchiveRestore, Shield } from 'lucide-react';
+import { UserPlus, Camera, Users, Clock, ChevronDown, Settings2, Trash2, Archive, ArchiveRestore, Shield, FileClock } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import FacilitatorConsentManager from '../facilitator/FacilitatorConsentManager';
 import FacilitatorAccessRequest from '../facilitator/FacilitatorAccessRequest';
 import { useRelationship } from '../relationship/RelationshipContext';
@@ -252,6 +254,18 @@ export default function RelationshipSettings() {
           )}
         </div>
       )}
+
+      {/* Data & Lifecycle governance page */}
+      <Link
+        to={createPageUrl('DataLifecycle')}
+        className="flex items-center gap-3 p-3 rounded-xl bg-stone-50 border border-stone-100 hover:bg-stone-100 transition-colors"
+      >
+        <FileClock className="w-4 h-4 text-stone-400 flex-shrink-0" />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-stone-700">Data &amp; Lifecycle</p>
+          <p className="text-xs text-stone-400">View this space's lifecycle policy, trust level, and data preferences</p>
+        </div>
+      </Link>
 
       {/* Relationship ID (for sharing with facilitators) */}
       <div className="bg-stone-50 border border-stone-100 rounded-xl p-3 flex items-center gap-3">

@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Users, Heart, Handshake, Baby, PersonStanding, Briefcase, UserRound, ArrowRight, Camera } from 'lucide-react';
 import { useRelationship } from '../components/relationship/RelationshipContext';
+import { getDefaultTrustLevel, getDefaultLifecyclePolicy } from '../components/lib/lifecycleDefaults';
 
 const RELATIONSHIP_TYPES = [
   { value: 'romantic_partner', label: 'Romantic Partners', icon: Heart, color: 'rose' },
@@ -85,12 +86,15 @@ export default function RelationshipSetup() {
 
     let rel = null;
     try {
+      const trustLevel = getDefaultTrustLevel(relType);
       rel = await base44.entities.Relationship.create({
         name: relName.trim(),
         type: relType,
         owner_email: currentUser.email.toLowerCase(),
         photo_url: photoUrl || null,
         max_members: maxMembers,
+        trust_level: trustLevel,
+        lifecycle_policy: getDefaultLifecyclePolicy(trustLevel),
       });
     } catch (createErr) {
       setSaving(false);
