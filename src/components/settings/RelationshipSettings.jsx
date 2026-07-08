@@ -38,15 +38,7 @@ export default function RelationshipSettings() {
   const [deleteSpaceConfirmText, setDeleteSpaceConfirmText] = useState('');
   const [deleteSpaceOpen, setDeleteSpaceOpen] = useState(false);
   const [copiedId, setCopiedId] = useState(false);
-  const [allMemberRecords, setAllMemberRecords] = useState([]);
   const [archiveOpen, setArchiveOpen] = useState(false);
-
-  useEffect(() => {
-    if (!activeRelationship?.id) return;
-    base44.entities.RelationshipMember.filter({ relationship_id: activeRelationship.id })
-      .then(setAllMemberRecords)
-      .catch(() => setAllMemberRecords([]));
-  }, [activeRelationship?.id]);
 
   if (!activeRelationship) return null;
 
@@ -61,12 +53,20 @@ export default function RelationshipSettings() {
   // Phase 1 closure rules: a space can only be deleted by its creator, and only if
   // no other person has ever been an accepted (active or later removed) member.
   // Pending invites that were never accepted don't count as "joined".
+  //
+  // IMPORTANT: RelationshipMember read RLS only returns rows belonging to the
+  // requesting user, so a client-side fetch of "all members" for this relationship
+  // silently comes back containing only your own row — it can NEVER be trusted to
+  // detect other members. That bug incorrectly allowed a multi-member space to be
+  // deleted. Use the denormalized member_emails/member_user_ids on the Relationship
+  // record instead (readable by every active member via Relationship RLS) as the
+  // source of truth for "does anyone else currently belong to this space".
   const myEmail = currentUser?.email?.toLowerCase();
   const isCreator = activeRelationship.created_by_id === currentUser?.id
     || activeRelationship.owner_email?.toLowerCase() === myEmail;
-  const otherEverJoined = allMemberRecords.some(m =>
-    m.user_email?.toLowerCase() !== myEmail && m.status !== 'pending'
-  );
+  const otherMemberEmails = (activeRelationship.member_emails || []).filter(e => e?.toLowerCase() !== myEmail);
+  const otherMemberIds = (activeRelationship.member_user_ids || []).filter(id => id !== currentUser?.id);
+  const otherEverJoined = otherMemberEmails.length > 0 || otherMemberIds.length > 0;
   const canDeleteSolo = isCreator && !otherEverJoined;
   const canManage = checkAdmin(myMembership); // unaffected by archive status — used for unarchive
 
@@ -111,11 +111,32 @@ export default function RelationshipSettings() {
   };
 
   const handleDeleteRelationship = async () => {
+    // Final safety check immediately before mutation — re-fetch the live record so a stale
+    // client state can never permit deleting a space that actually has other members.
+    const fresh = await base44.entities.Relationship.get(activeRelationship.id);
+    const freshIsCreator = fresh.created_by_id === currentUser?.id || fresh.owner_email?.toLowerCase() === myEmail;
+    const freshOtherJoined = (fresh.member_emails || []).some(e => e?.toLowerCase() !== myEmail)
+      || (fresh.member_user_ids || []).some(id => id !== currentUser?.id);
+    if (!freshIsCreator || freshOtherJoined) {
+      setDeleteSpaceOpen(false);
+      await refreshRelationships();
+      return;
+    }
     await base44.entities.Relationship.update(activeRelationship.id, { is_deleted: true });
+    setDeleteSpaceOpen(false);
     await refreshRelationships();
   };
 
   const handleArchive = async () => {
+    // Final safety check immediately before mutation — re-fetch to confirm this user still
+    // has manage rights right before locking the space.
+    const fresh = await base44.entities.Relationship.get(activeRelationship.id);
+    const freshMyMember = members.find(m => m.user_email?.toLowerCase() === myEmail);
+    if (!checkAdmin(freshMyMember) || fresh.is_archived) {
+      setArchiveOpen(false);
+      await refreshRelationships();
+      return;
+    }
     await base44.entities.Relationship.update(activeRelationship.id, { is_archived: true });
     setArchiveOpen(false);
     // Rule 8: switch to another available (non-archived) space if one exists
