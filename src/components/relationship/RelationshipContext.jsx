@@ -80,26 +80,34 @@ export function RelationshipProvider({ children }) {
 
         // Fetch all relationships in parallel — one call per relationship.
         // Use allSettled: a single failed lookup must not wipe out the user's other valid relationships.
-        const allRelSettled = await Promise.allSettled(relIds.map(id => base44.entities.Relationship.filter({ id })));
-        const allRelArrays = allRelSettled.map(r => {
-          if (r.status === 'rejected') {
-            console.warn('Relationship fetch failed for one id:', r.reason);
-            return [];
-          }
-          return r.value;
-        });
+        const fetchAllRels = async () => {
+          const allRelSettled = await Promise.allSettled(relIds.map(id => base44.entities.Relationship.filter({ id })));
+          const allRelArrays = allRelSettled.map(r => {
+            if (r.status === 'rejected') {
+              console.warn('Relationship fetch failed for one id:', r.reason);
+              return [];
+            }
+            return r.value;
+          });
+          const sortRels = (rels) => rels
+            .filter(r => r && !r.is_deleted)
+            .sort((a, b) => {
+              if (a.is_archived && !b.is_archived) return 1;
+              if (!a.is_archived && b.is_archived) return -1;
+              return 0;
+            });
+          return sortRels(allRelArrays.flat());
+        };
+
+        let allRels = await fetchAllRels();
+        // Retry once if the fetch came back short — guards against replication lag right after signup/creation.
+        if (allRels.length < relIds.length) {
+          await new Promise(res => setTimeout(res, 500));
+          const retry = await fetchAllRels();
+          if (retry.length > allRels.length) allRels = retry;
+        }
 
         if (cancelled) return;
-
-        const sortRels = (rels) => rels
-          .filter(r => r && !r.is_deleted)
-          .sort((a, b) => {
-            if (a.is_archived && !b.is_archived) return 1;
-            if (!a.is_archived && b.is_archived) return -1;
-            return 0;
-          });
-
-        const allRels = sortRels(allRelArrays.flat());
 
         setMyRelationships(allRels);
 
@@ -129,8 +137,7 @@ export function RelationshipProvider({ children }) {
     await applyRelationship(rel, currentUser?.email, null);
   }, [applyRelationship, currentUser]);
 
-  const refreshRelationships = useCallback(async () => {
-    if (!currentUser) return;
+  const fetchAllMyRelationships = useCallback(async () => {
     // Wave 6: use user_id-primary fetch with email fallback
     const memberships = await fetchMyMemberships(base44.entities, currentUser);
     const relIds = memberships.map(m => m.relationship_id);
@@ -144,7 +151,19 @@ export function RelationshipProvider({ children }) {
         if (!a.is_archived && b.is_archived) return -1;
         return 0;
       });
-    const allRels = sortRels(allRelArrays.flat());
+    return { allRels: sortRels(allRelArrays.flat()), expectedCount: relIds.length };
+  }, [currentUser]);
+
+  const refreshRelationships = useCallback(async () => {
+    if (!currentUser) return;
+    let { allRels, expectedCount } = await fetchAllMyRelationships();
+    // Right after creating a relationship there can be a brief replication delay before the
+    // membership lookup sees the new record — if the fetch comes back short, retry once.
+    if (allRels.length < expectedCount) {
+      await new Promise(res => setTimeout(res, 500));
+      const retry = await fetchAllMyRelationships();
+      if (retry.allRels.length > allRels.length) allRels = retry.allRels;
+    }
     setMyRelationships(allRels);
 
     if (activeRelationship) {
