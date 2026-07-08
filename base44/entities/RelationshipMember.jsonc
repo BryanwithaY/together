@@ -85,7 +85,7 @@
         {
           "data.relationship_id": {
             "$in": [
-              "{{lookup.RelationshipMember.relationship_id}}"
+              "{{lookup.Relationship.id}}"
             ]
           }
         },
