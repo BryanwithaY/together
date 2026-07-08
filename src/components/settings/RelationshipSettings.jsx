@@ -6,6 +6,7 @@ import { UserPlus, Camera, Users, Clock, ChevronDown, Settings2, Trash2, Archive
 import FacilitatorConsentManager from '../facilitator/FacilitatorConsentManager';
 import FacilitatorAccessRequest from '../facilitator/FacilitatorAccessRequest';
 import { useRelationship } from '../relationship/RelationshipContext';
+import { useSharedHistoryGuard } from '../relationship/useSharedHistoryGuard';
 import MemberRoleBadge from '../relationship/MemberRoleBadge';
 import RemoveMemberDialog from '../relationship/RemoveMemberDialog';
 import {
@@ -67,7 +68,8 @@ export default function RelationshipSettings() {
   const otherMemberEmails = (activeRelationship.member_emails || []).filter(e => e?.toLowerCase() !== myEmail);
   const otherMemberIds = (activeRelationship.member_user_ids || []).filter(id => id !== currentUser?.id);
   const otherEverJoined = otherMemberEmails.length > 0 || otherMemberIds.length > 0;
-  const canDeleteSolo = isCreator && !otherEverJoined;
+  const hasSharedHistory = otherEverJoined || sharedHistoryEvidence;
+  const canDeleteSolo = isCreator && !sharedHistoryLoading && !hasSharedHistory;
   const canManage = checkAdmin(myMembership); // unaffected by archive status — used for unarchive
 
   const handleInvite = async () => {
@@ -112,12 +114,13 @@ export default function RelationshipSettings() {
 
   const handleDeleteRelationship = async () => {
     // Final safety check immediately before mutation — re-fetch the live record so a stale
-    // client state can never permit deleting a space that actually has other members.
+    // client state can never permit deleting a space that actually has other members or any
+    // durable shared-history flag set.
     const fresh = await base44.entities.Relationship.get(activeRelationship.id);
     const freshIsCreator = fresh.created_by_id === currentUser?.id || fresh.owner_email?.toLowerCase() === myEmail;
     const freshOtherJoined = (fresh.member_emails || []).some(e => e?.toLowerCase() !== myEmail)
       || (fresh.member_user_ids || []).some(id => id !== currentUser?.id);
-    if (!freshIsCreator || freshOtherJoined) {
+    if (!freshIsCreator || freshOtherJoined || fresh.has_shared_history || sharedHistoryEvidence) {
       setDeleteSpaceOpen(false);
       await refreshRelationships();
       return;
@@ -450,7 +453,7 @@ export default function RelationshipSettings() {
       )}
 
       {/* Delete relationship — creator only, and only for solo spaces with no shared history */}
-      {isOwner && otherEverJoined && (
+      {isOwner && !sharedHistoryLoading && hasSharedHistory && (
         <p className="w-full text-xs text-stone-400 text-center py-1 px-4">
           This space has shared history and cannot be deleted by one person. You can archive it or leave it.
         </p>
