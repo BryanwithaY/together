@@ -63,6 +63,7 @@ export default function MomentForm({ onSubmit, onClose }) {
         show_up_next_time: showUpNextTime.trim() || undefined,
         media_url: mediaUrl || undefined,
         date: new Date(momentDate).toISOString(),
+        visibility: 'relationship',
         is_private: type === 'self_reflection',
         shared_with_partner: false,
       });

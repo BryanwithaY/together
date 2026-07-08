@@ -40,6 +40,11 @@ export default function RelationshipSettings() {
   const [deleteSpaceOpen, setDeleteSpaceOpen] = useState(false);
   const [copiedId, setCopiedId] = useState(false);
   const [archiveOpen, setArchiveOpen] = useState(false);
+  // Durable check — moments/schedules ever authored or attended by someone else, plus the
+  // one-way has_shared_history flag it sets. Delete stays hidden while this loads so the
+  // option can never flash available before shared-history evidence has been ruled out.
+  // Called before the early return below to satisfy the Rules of Hooks.
+  const { loading: sharedHistoryLoading, hasEvidence: sharedHistoryEvidence } = useSharedHistoryGuard(activeRelationship, currentUser?.email?.toLowerCase());
 
   if (!activeRelationship) return null;
 
