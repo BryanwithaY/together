@@ -77,6 +77,8 @@ function HomeContent() {
     mutationFn: (data) => base44.entities.Moment.create({
       ...data,
       relationship_id: activeRelationship.id,
+      member_user_ids: activeRelationship.member_user_ids || [],
+      member_emails: activeRelationship.member_emails || [],
     }),
     onSuccess: (created) => {
       queryClient.invalidateQueries({ queryKey: ['moments', activeRelationship?.id] });
