@@ -78,25 +78,16 @@ export function RelationshipProvider({ children }) {
         const relIds = membershipsResult.map(m => m.relationship_id);
         const savedId = localStorage.getItem('active_relationship_id');
 
-        // Fetch all relationships in parallel — one call per relationship.
-        // Use allSettled: a single failed lookup must not wipe out the user's other valid relationships.
+        // Fetch all relationships in a single query ($in) — one round-trip, no per-id race.
         const fetchAllRels = async () => {
-          const allRelSettled = await Promise.allSettled(relIds.map(id => base44.entities.Relationship.filter({ id })));
-          const allRelArrays = allRelSettled.map(r => {
-            if (r.status === 'rejected') {
-              console.warn('Relationship fetch failed for one id:', r.reason);
-              return [];
-            }
-            return r.value;
-          });
-          const sortRels = (rels) => rels
+          const rels = await base44.entities.Relationship.filter({ id: { $in: relIds } });
+          return rels
             .filter(r => r && !r.is_deleted)
             .sort((a, b) => {
               if (a.is_archived && !b.is_archived) return 1;
               if (!a.is_archived && b.is_archived) return -1;
               return 0;
             });
-          return sortRels(allRelArrays.flat());
         };
 
         let allRels = await fetchAllRels();
@@ -141,17 +132,16 @@ export function RelationshipProvider({ children }) {
     // Wave 6: use user_id-primary fetch with email fallback
     const memberships = await fetchMyMemberships(base44.entities, currentUser);
     const relIds = memberships.map(m => m.relationship_id);
-    // Use allSettled: a single failed lookup must not wipe out the user's other valid relationships.
-    const allRelSettled = await Promise.allSettled(relIds.map(id => base44.entities.Relationship.filter({ id })));
-    const allRelArrays = allRelSettled.map(r => (r.status === 'rejected' ? [] : r.value));
-    const sortRels = (rels) => rels
+    // Single $in query — one round-trip, no per-id race.
+    const rels = await base44.entities.Relationship.filter({ id: { $in: relIds } });
+    const sorted = rels
       .filter(r => r && !r.is_deleted)
       .sort((a, b) => {
         if (a.is_archived && !b.is_archived) return 1;
         if (!a.is_archived && b.is_archived) return -1;
         return 0;
       });
-    return { allRels: sortRels(allRelArrays.flat()), expectedCount: relIds.length };
+    return { allRels: sorted, expectedCount: relIds.length };
   }, [currentUser]);
 
   const refreshRelationships = useCallback(async () => {
