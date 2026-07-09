@@ -1,19 +1,27 @@
 import React from 'react';
-import { Shield, Archive, Users, Download, History as HistoryIcon, FileClock, CheckCircle2, XCircle } from 'lucide-react';
+import { Shield, Archive, Users, Download, LogOut, Lock, Sparkles, CheckCircle2, XCircle } from 'lucide-react';
 import RelationshipGate from '../components/relationship/RelationshipGate';
 import RelationshipSwitcher from '../components/relationship/RelationshipSwitcher';
 import { useRelationship } from '../components/relationship/RelationshipContext';
 import { useSharedHistoryGuard } from '../components/relationship/useSharedHistoryGuard';
-import { isOwner as checkOwner } from '../components/lib/permissions';
 import {
   getDefaultTrustLevel, getDefaultLifecyclePolicy,
-  TRUST_LEVEL_LABELS, TRUST_LEVEL_DESCRIPTIONS, LIFECYCLE_POLICY_LABELS, DATA_PREFERENCE_LABELS,
+  TRUST_LEVEL_LABELS, TRUST_LEVEL_DESCRIPTIONS, DATA_PREFERENCE_LABELS,
 } from '../components/lib/lifecycleDefaults';
 import { usePageLoading } from '../components/PageLoadingContext';
 
+function Section({ title, children }) {
+  return (
+    <div className="bg-white rounded-2xl border border-stone-200/60 shadow-sm p-5">
+      <h2 className="text-sm font-semibold text-stone-800 mb-3">{title}</h2>
+      {children}
+    </div>
+  );
+}
+
 function Row({ icon: Icon, label, children }) {
   return (
-    <div className="flex items-start gap-3 py-3 border-b border-stone-100 last:border-0">
+    <div className="flex items-start gap-3 py-2.5 border-b border-stone-100 last:border-0">
       <Icon className="w-4 h-4 text-stone-400 mt-0.5 flex-shrink-0" />
       <div className="flex-1 min-w-0">
         <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider">{label}</p>
@@ -44,7 +52,8 @@ function DataLifecycleContent() {
   const otherMemberIds = (activeRelationship.member_user_ids || []).filter(id => id !== currentUser?.id);
   const otherEverJoined = otherMemberEmails.length > 0 || otherMemberIds.length > 0;
   const hasSharedHistory = otherEverJoined || sharedHistoryEvidence || !!activeRelationship.has_shared_history;
-  const canDeleteSolo = isCreator && !sharedHistoryLoading && !hasSharedHistory && lifecyclePolicy !== 'never_destroy' && lifecyclePolicy !== 'archive_only';
+  const canDeleteSolo = isCreator && !sharedHistoryLoading && !hasSharedHistory
+    && lifecyclePolicy !== 'never_destroy' && lifecyclePolicy !== 'archive_only';
 
   const myPreference = myMembership?.data_preference || 'ask_later';
 
@@ -53,65 +62,101 @@ function DataLifecycleContent() {
       <div className="bg-white border-b border-stone-200/60 sticky top-0 z-30">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <RelationshipSwitcher />
-          <h1 className="text-lg font-bold text-stone-800 ml-auto">Data &amp; Lifecycle</h1>
+          <h1 className="text-lg font-bold text-stone-800 ml-auto">Shared History</h1>
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
-        <div className="bg-white rounded-2xl border border-stone-200/60 shadow-sm px-5">
-          <Row icon={activeRelationship.is_archived ? Archive : CheckCircle2} label="Relationship Status">
+
+        {/* Why this exists */}
+        <div className="bg-gradient-to-br from-stone-100 to-stone-50 rounded-2xl border border-stone-200/60 p-5">
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles className="w-4 h-4 text-stone-500" />
+            <h2 className="text-sm font-semibold text-stone-800">Why this exists</h2>
+          </div>
+          <p className="text-sm text-stone-600 leading-relaxed">
+            Relationships change. This space may eventually contain years of memories, reflections, schedules, conversations, and history.
+          </p>
+          <p className="text-sm text-stone-600 leading-relaxed mt-2">
+            Together separates leaving a relationship from deleting its history, so no one can unexpectedly erase something you built together.
+          </p>
+          <p className="text-sm font-medium text-stone-700 mt-3 italic">
+            The cost of accidentally preserving memories is far lower than the cost of accidentally destroying them.
+          </p>
+        </div>
+
+        {/* 1. This Relationship */}
+        <Section title="This Relationship">
+          <Row icon={activeRelationship.is_archived ? Archive : CheckCircle2} label="Status">
             {activeRelationship.is_archived ? 'Archived — read only' : 'Active'}
-          </Row>
-          <Row icon={Users} label="Members">
-            {activeMembers.length} member{activeMembers.length !== 1 ? 's' : ''}
-            <span className="text-stone-400"> ({activeMembers.map(m => m.display_name || m.user_email).join(', ')})</span>
           </Row>
           <Row icon={Shield} label="Trust Level">
             <span className="font-medium">{TRUST_LEVEL_LABELS[trustLevel]}</span>
             <p className="text-xs text-stone-400 mt-1">{TRUST_LEVEL_DESCRIPTIONS[trustLevel]}</p>
           </Row>
-          <Row icon={FileClock} label="Lifecycle Policy">
-            {LIFECYCLE_POLICY_LABELS[lifecyclePolicy]}
+          <Row icon={Users} label="Members">
+            {activeMembers.length} member{activeMembers.length !== 1 ? 's' : ''}
+            <span className="text-stone-400"> ({activeMembers.map(m => m.display_name || m.user_email).join(', ')})</span>
           </Row>
+          <Row icon={hasSharedHistory ? CheckCircle2 : XCircle} label="Shared History">
+            {sharedHistoryLoading ? 'Checking…' : hasSharedHistory ? 'This space has shared history' : 'No shared history yet'}
+          </Row>
+        </Section>
+
+        {/* 2. Your Data */}
+        <Section title="Your Data">
           <Row icon={Shield} label="Your Personal Data Preference">
             {DATA_PREFERENCE_LABELS[myPreference]}
           </Row>
           <Row icon={Download} label="Export Permissions">
-            {activeRelationship.allow_export !== false ? 'Members can export their data' : 'Export disabled'}
+            {activeRelationship.allow_export !== false ? 'You can export your data' : 'Export is disabled for this space'}
           </Row>
-          <Row icon={HistoryIcon} label="Retention Policy">
-            {trustLevel === 'permanent_record'
-              ? 'Content is retained indefinitely and never unilaterally destroyed.'
-              : trustLevel === 'temporary'
-              ? 'Content may be destroyed if this space stays solo and its policy allows it.'
-              : 'Content is preferably archived rather than destroyed.'}
-          </Row>
-          <Row icon={hasSharedHistory ? CheckCircle2 : XCircle} label="Shared History Status">
-            {sharedHistoryLoading ? 'Checking…' : hasSharedHistory ? 'This space has shared history (permanent)' : 'No shared history yet'}
-          </Row>
-          <Row icon={Archive} label="Archive Status">
-            {activeRelationship.is_archived ? 'Archived' : 'Not archived'}
-          </Row>
-          <Row icon={canDeleteSolo ? CheckCircle2 : XCircle} label="Deletion Eligibility">
-            {sharedHistoryLoading
-              ? 'Checking…'
-              : canDeleteSolo
-              ? 'Eligible — you are the sole creator with no shared history'
-              : 'Not eligible — this space has shared history or its policy does not allow destruction'}
-          </Row>
-          <Row icon={FileClock} label="Pending Approvals">
-            None — consent workflows are not yet available.
-          </Row>
-          <Row icon={HistoryIcon} label="Lifecycle Audit Log">
-            Not yet available — coming in a future update.
-          </Row>
-        </div>
-
-        {isCreator && (
-          <p className="text-xs text-stone-400 text-center px-4">
-            Trust level and lifecycle policy are set automatically when a space is created. Editing them isn't available yet.
+          <p className="text-xs text-stone-400 mt-2">
+            You own your contributions. Future tools will let you review, export, or request changes to your own data.
           </p>
-        )}
+        </Section>
+
+        {/* 3. If Someone Leaves */}
+        <Section title="If Someone Leaves">
+          <div className="flex items-start gap-3">
+            <LogOut className="w-4 h-4 text-stone-400 mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-stone-600 leading-relaxed">
+              Leaving changes membership. It does not automatically delete shared history.
+            </p>
+          </div>
+        </Section>
+
+        {/* 4. If This Space Is Archived */}
+        <Section title="If This Space Is Archived">
+          <div className="flex items-start gap-3">
+            <Archive className="w-4 h-4 text-stone-400 mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-stone-600 leading-relaxed">
+              Archiving makes the space inactive and read-only. Nothing is deleted, and the space can be restored.
+            </p>
+          </div>
+        </Section>
+
+        {/* 5. If This Space Is Destroyed */}
+        <Section title="If This Space Is Destroyed">
+          <div className="flex items-start gap-3">
+            <Lock className="w-4 h-4 text-stone-400 mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-stone-600 leading-relaxed">
+              {sharedHistoryLoading
+                ? 'Checking eligibility…'
+                : canDeleteSolo
+                ? "This space is eligible for deletion — you're its sole creator and it has no shared history yet."
+                : 'This space cannot be deleted by one person because it has shared history. Destruction would require a future consent workflow.'}
+            </p>
+          </div>
+        </Section>
+
+        {/* 6. Future Tools */}
+        <Section title="Future Tools">
+          <Row icon={Users} label="Consent Workflows">Not yet available</Row>
+          <Row icon={Shield} label="Lifecycle Audit Log">Not yet available</Row>
+          <Row icon={Download} label="Personal Data Requests">Not yet available</Row>
+        </Section>
+
       </div>
     </div>
   );

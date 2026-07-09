@@ -65,6 +65,7 @@ const AuthenticatedApp = () => {
           />
         ))}
         <Route path="/DataLifecycle" element={<LayoutWrapper currentPageName="DataLifecycle"><DataLifecycle /></LayoutWrapper>} />
+        <Route path="/SharedHistory" element={<LayoutWrapper currentPageName="SharedHistory"><DataLifecycle /></LayoutWrapper>} />
         <Route path="/PrivacyPolicy" element={<LayoutWrapper currentPageName="PrivacyPolicy"><PrivacyPolicy /></LayoutWrapper>} />
         <Route path="/TermsOfService" element={<LayoutWrapper currentPageName="TermsOfService"><TermsOfService /></LayoutWrapper>} />
         <Route path="*" element={<PageNotFound />} />

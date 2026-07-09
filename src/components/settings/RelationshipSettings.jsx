@@ -262,8 +262,8 @@ export default function RelationshipSettings() {
       >
         <FileClock className="w-4 h-4 text-stone-400 flex-shrink-0" />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-stone-700">Data &amp; Lifecycle</p>
-          <p className="text-xs text-stone-400">View this space's lifecycle policy, trust level, and data preferences</p>
+          <p className="text-sm font-medium text-stone-700">Shared History</p>
+          <p className="text-xs text-stone-400">Understand how this space protects memories, data, and deletion.</p>
         </div>
       </Link>
 
