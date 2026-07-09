@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import MobileSafeSelect from '@/components/ui/MobileSafeSelect';
 import { UserPlus, Camera, Users, Clock, ChevronDown, Settings2, Trash2, Archive, ArchiveRestore, Shield, FileClock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -418,15 +419,12 @@ export default function RelationshipSettings() {
               onKeyDown={e => e.key === 'Enter' && handleInvite()}
             />
             {isAdmin && (
-              <select
+              <MobileSafeSelect
                 value={inviteRole}
-                onChange={e => setInviteRole(e.target.value)}
-                className="border border-stone-200 rounded-md px-2 py-1.5 text-sm text-stone-700 bg-white"
-              >
-                {['admin', 'member', 'read_only'].map(r => (
-                  <option key={r} value={r}>{ROLE_LABELS[r]}</option>
-                ))}
-              </select>
+                onChange={setInviteRole}
+                className="w-auto"
+                options={['admin', 'member', 'read_only'].map(r => ({ value: r, label: ROLE_LABELS[r] }))}
+              />
             )}
             <Button
               onClick={handleInvite}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Checkbox } from '@/components/ui/checkbox';
+import MobileSafeSelect from '@/components/ui/MobileSafeSelect';
 import { CheckCircle2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { DATA_PREFERENCE_LABELS } from '../lib/lifecycleDefaults';
@@ -38,16 +39,12 @@ export default function SharedHistoryPreference({ membership, onUpdated }) {
         <p className="text-sm text-stone-600 mb-2">
           Your preference helps Together understand what you would want if you ever left this space. It only records your wish — it doesn't delete, anonymize, or change anything right now.
         </p>
-        <select
+        <MobileSafeSelect
           value={preference}
-          onChange={(e) => savePreference(e.target.value)}
+          onChange={savePreference}
           disabled={saving}
-          className="w-full h-9 rounded-md border border-input px-3 py-1 text-sm bg-white text-stone-900"
-        >
-          {PREFERENCE_OPTIONS.map(opt => (
-            <option key={opt} value={opt}>{DATA_PREFERENCE_LABELS[opt]}</option>
-          ))}
-        </select>
+          options={PREFERENCE_OPTIONS.map(opt => ({ value: opt, label: DATA_PREFERENCE_LABELS[opt] }))}
+        />
       </div>
 
       <div className="flex items-start gap-3 pt-2 border-t border-stone-100">

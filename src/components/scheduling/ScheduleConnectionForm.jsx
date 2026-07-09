@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import MobileSafeSelect from '@/components/ui/MobileSafeSelect';
 import { Calendar, Clock, MapPin, Link2, Zap, Users, Eye } from 'lucide-react';
 import { generateEventDescription, getFocusAreasForType } from '../lib/connectionGuidance';
 
@@ -150,33 +151,30 @@ export default function ScheduleConnectionForm({
           <label className="block text-sm font-medium text-stone-700 mb-2">
             <Zap className="w-4 h-4 inline mr-1" />Focus Area
           </label>
-          <select
+          <MobileSafeSelect
             value={focusArea}
-            onChange={(e) => setFocusArea(e.target.value)}
-            className="w-full h-9 rounded-md border border-input px-3 py-1 text-sm bg-white text-stone-900"
-          >
-            {focusAreas.map(area => (
-              <option key={area} value={area}>
-                {area.charAt(0).toUpperCase() + area.slice(1).replace(/_/g, ' ')}
-              </option>
-            ))}
-          </select>
+            onChange={setFocusArea}
+            options={focusAreas.map(area => ({
+              value: area,
+              label: area.charAt(0).toUpperCase() + area.slice(1).replace(/_/g, ' '),
+            }))}
+          />
         </div>
 
         {/* Repeat */}
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-2">Repeat</label>
-          <select
+          <MobileSafeSelect
             value={recurrence}
-            onChange={(e) => setRecurrence(e.target.value)}
-            className="w-full h-9 rounded-md border border-input px-3 py-1 text-sm bg-white text-stone-900"
-          >
-            <option value="none">One Time</option>
-            <option value="weekly">Weekly</option>
-            <option value="biweekly">Every 2 Weeks</option>
-            <option value="monthly">Monthly</option>
-            <option value="custom">Custom…</option>
-          </select>
+            onChange={setRecurrence}
+            options={[
+              { value: 'none', label: 'One Time' },
+              { value: 'weekly', label: 'Weekly' },
+              { value: 'biweekly', label: 'Every 2 Weeks' },
+              { value: 'monthly', label: 'Monthly' },
+              { value: 'custom', label: 'Custom…' },
+            ]}
+          />
 
           {recurrence === 'custom' && (
             <div className="mt-3 p-3 bg-stone-50 rounded-xl border border-stone-200 space-y-3">
@@ -190,15 +188,16 @@ export default function ScheduleConnectionForm({
                   onChange={(e) => setCustomInterval(e.target.value)}
                   className="w-16 h-8 rounded-md border border-input px-2 text-sm bg-white text-stone-900 text-center"
                 />
-                <select
+                <MobileSafeSelect
                   value={customUnit}
-                  onChange={(e) => setCustomUnit(e.target.value)}
-                  className="flex-1 h-8 rounded-md border border-input px-2 text-sm bg-white text-stone-900"
-                >
-                  <option value="days">days</option>
-                  <option value="weeks">weeks</option>
-                  <option value="months">months</option>
-                </select>
+                  onChange={setCustomUnit}
+                  className="flex-1 h-8"
+                  options={[
+                    { value: 'days', label: 'days' },
+                    { value: 'weeks', label: 'weeks' },
+                    { value: 'months', label: 'months' },
+                  ]}
+                />
               </div>
               <div>
                 <label className="block text-xs text-stone-500 mb-1">End date (optional)</label>
@@ -218,15 +217,15 @@ export default function ScheduleConnectionForm({
           <label className="block text-sm font-medium text-stone-700 mb-2">
             <Eye className="w-4 h-4 inline mr-1" />Who can see this?
           </label>
-          <select
+          <MobileSafeSelect
             value={visibilityType}
-            onChange={(e) => handleVisibilityChange(e.target.value)}
-            className="w-full h-9 rounded-md border border-input px-3 py-1 text-sm bg-white text-stone-900"
-          >
-            <option value="relationship">Everyone in this relationship</option>
-            <option value="creator_only">Just me</option>
-            {otherMembers.length > 0 && <option value="invited">Specific people only</option>}
-          </select>
+            onChange={handleVisibilityChange}
+            options={[
+              { value: 'relationship', label: 'Everyone in this relationship' },
+              { value: 'creator_only', label: 'Just me' },
+              ...(otherMembers.length > 0 ? [{ value: 'invited', label: 'Specific people only' }] : []),
+            ]}
+          />
         </div>
 
         {/* Attendee picker — only when visibility = invited */}

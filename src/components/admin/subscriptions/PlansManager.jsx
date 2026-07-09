@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import MobileSafeSelect from '@/components/ui/MobileSafeSelect';
 import { Plus, Pencil, Star, Check, X } from 'lucide-react';
 
 const INTERVALS = { free: 'Free', month: '/mo', year: '/yr', once: 'one-time' };
@@ -31,12 +32,17 @@ function PlanForm({ plan, onSave, onCancel }) {
         </div>
         <div>
           <label className="text-xs font-medium text-stone-500">Interval</label>
-          <select className="w-full mt-1 px-3 py-2 rounded-lg border border-stone-200 text-sm" value={form.interval} onChange={e => set('interval', e.target.value)}>
-            <option value="free">Free</option>
-            <option value="month">Monthly</option>
-            <option value="year">Annual</option>
-            <option value="once">One-time / Lifetime</option>
-          </select>
+          <MobileSafeSelect
+            className="mt-1"
+            value={form.interval}
+            onChange={v => set('interval', v)}
+            options={[
+              { value: 'free', label: 'Free' },
+              { value: 'month', label: 'Monthly' },
+              { value: 'year', label: 'Annual' },
+              { value: 'once', label: 'One-time / Lifetime' },
+            ]}
+          />
         </div>
         <div className="col-span-2">
           <label className="text-xs font-medium text-stone-500">Stripe Price ID</label>

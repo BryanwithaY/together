@@ -5,6 +5,7 @@ import { useRelationship } from '../relationship/RelationshipContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import MobileSafeSelect from '@/components/ui/MobileSafeSelect';
 import { ArrowLeft, AlertTriangle, MessageSquare, FileText, Send, Eye, EyeOff, Users, Download } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import FacilitatorExportPanel from './FacilitatorExportPanel';
@@ -367,16 +368,12 @@ export default function FacilitatorRelationshipDetail({ facRelId, onBack }) {
           </div>
 
           {messageTarget === 'member' && (
-            <select
+            <MobileSafeSelect
               value={messageTargetEmail}
-              onChange={e => setMessageTargetEmail(e.target.value)}
-              className="w-full border border-stone-200 rounded-lg px-3 py-2 text-sm text-stone-700 bg-white"
-            >
-              <option value="">Select a member...</option>
-              {members.map(m => (
-                <option key={m.id} value={m.user_email}>{m.display_name || m.user_email}</option>
-              ))}
-            </select>
+              onChange={setMessageTargetEmail}
+              placeholder="Select a member..."
+              options={members.map(m => ({ value: m.user_email, label: m.display_name || m.user_email }))}
+            />
           )}
 
           {!messageContent && (

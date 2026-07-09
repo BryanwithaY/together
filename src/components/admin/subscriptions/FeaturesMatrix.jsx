@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import MobileSafeSelect from '@/components/ui/MobileSafeSelect';
 import { Plus, Check, X, Pencil, CheckSquare, Square } from 'lucide-react';
 
 function FeatureForm({ feature, onSave, onCancel }) {
@@ -22,11 +23,12 @@ function FeatureForm({ feature, onSave, onCancel }) {
         </div>
         <div>
           <label className="text-xs font-medium text-stone-500">Category</label>
-          <select className="w-full mt-1 px-2 py-1.5 rounded-lg border border-stone-200 text-xs" value={form.category} onChange={e => set('category', e.target.value)}>
-            {['moments','relationships','analytics','export','media','partner','other'].map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
+          <MobileSafeSelect
+            className="mt-1 h-8 text-xs"
+            value={form.category}
+            onChange={v => set('category', v)}
+            options={['moments','relationships','analytics','export','media','partner','other']}
+          />
         </div>
         <div>
           <label className="text-xs font-medium text-stone-500">Description</label>
