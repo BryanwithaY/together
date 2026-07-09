@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Shield, Archive, Users, Download, LogOut, Lock, Sparkles, CheckCircle2, XCircle } from 'lucide-react';
 import RelationshipGate from '../components/relationship/RelationshipGate';
 import RelationshipSwitcher from '../components/relationship/RelationshipSwitcher';
@@ -6,9 +6,10 @@ import { useRelationship } from '../components/relationship/RelationshipContext'
 import { useSharedHistoryGuard } from '../components/relationship/useSharedHistoryGuard';
 import {
   getDefaultTrustLevel, getDefaultLifecyclePolicy,
-  TRUST_LEVEL_LABELS, TRUST_LEVEL_DESCRIPTIONS, DATA_PREFERENCE_LABELS,
+  TRUST_LEVEL_LABELS, TRUST_LEVEL_DESCRIPTIONS,
 } from '../components/lib/lifecycleDefaults';
 import { usePageLoading } from '../components/PageLoadingContext';
+import SharedHistoryPreference from '../components/relationship/SharedHistoryPreference';
 
 function Section({ title, children }) {
   return (
@@ -32,8 +33,11 @@ function Row({ icon: Icon, label, children }) {
 }
 
 function DataLifecycleContent() {
-  const { activeRelationship, currentUser, members, myMembership } = useRelationship();
+  const { activeRelationship, currentUser, members, myMembership: myMembershipFromContext } = useRelationship();
+  const [myMembership, setMyMembership] = useState(myMembershipFromContext);
   const { setPageReady } = usePageLoading();
+
+  React.useEffect(() => { setMyMembership(myMembershipFromContext); }, [myMembershipFromContext]);
   const myEmail = currentUser?.email?.toLowerCase();
   const { loading: sharedHistoryLoading, hasEvidence: sharedHistoryEvidence } =
     useSharedHistoryGuard(activeRelationship, myEmail);
@@ -54,8 +58,6 @@ function DataLifecycleContent() {
   const hasSharedHistory = otherEverJoined || sharedHistoryEvidence || !!activeRelationship.has_shared_history;
   const canDeleteSolo = isCreator && !sharedHistoryLoading && !hasSharedHistory
     && lifecyclePolicy !== 'never_destroy' && lifecyclePolicy !== 'archive_only';
-
-  const myPreference = myMembership?.data_preference || 'ask_later';
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -105,15 +107,17 @@ function DataLifecycleContent() {
 
         {/* 2. Your Data */}
         <Section title="Your Data">
-          <Row icon={Shield} label="Your Personal Data Preference">
-            {DATA_PREFERENCE_LABELS[myPreference]}
-          </Row>
           <Row icon={Download} label="Export Permissions">
             {activeRelationship.allow_export !== false ? 'You can export your data' : 'Export is disabled for this space'}
           </Row>
-          <p className="text-xs text-stone-400 mt-2">
+          <p className="text-xs text-stone-400 mt-2 mb-4">
             You own your contributions. Future tools will let you review, export, or request changes to your own data.
           </p>
+        </Section>
+
+        {/* Your Preference — editable, own row only */}
+        <Section title="Your Preference">
+          <SharedHistoryPreference membership={myMembership} onUpdated={setMyMembership} />
         </Section>
 
         {/* 3. If Someone Leaves */}

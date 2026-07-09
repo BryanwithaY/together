@@ -63,6 +63,11 @@
       ],
       "default": "ask_later",
       "description": "This member's own preference for what happens to their contributions if they permanently leave the relationship. Owned solely by this member \u2014 never set or overridden by anyone else. delete_on_leave = erase my contributions if I leave; retain_on_leave = my contributions may remain; require_approval = ask me for approval before any deletion; ask_later = undecided, ask me later. The erasure workflow itself is not yet implemented \u2014 this field only records the preference."
+    },
+    "shared_history_acknowledged_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this member acknowledged that leaving a space does not automatically delete shared history. Owned solely by this member \u2014 never set or overridden by anyone else. Null until acknowledged."
     }
   },
   "required": [
