@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CheckCircle2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { DATA_PREFERENCE_LABELS } from '../lib/lifecycleDefaults';
@@ -39,16 +38,16 @@ export default function SharedHistoryPreference({ membership, onUpdated }) {
         <p className="text-sm text-stone-600 mb-2">
           Your preference helps Together understand what you would want if you ever left this space. It only records your wish — it doesn't delete, anonymize, or change anything right now.
         </p>
-        <Select value={preference} onValueChange={savePreference} disabled={saving}>
-          <SelectTrigger className="w-full">
-            <SelectValue>{DATA_PREFERENCE_LABELS[preference]}</SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {PREFERENCE_OPTIONS.map(opt => (
-              <SelectItem key={opt} value={opt}>{DATA_PREFERENCE_LABELS[opt]}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <select
+          value={preference}
+          onChange={(e) => savePreference(e.target.value)}
+          disabled={saving}
+          className="w-full h-9 rounded-md border border-input px-3 py-1 text-sm bg-white text-stone-900"
+        >
+          {PREFERENCE_OPTIONS.map(opt => (
+            <option key={opt} value={opt}>{DATA_PREFERENCE_LABELS[opt]}</option>
+          ))}
+        </select>
       </div>
 
       <div className="flex items-start gap-3 pt-2 border-t border-stone-100">
