@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { ArrowLeft, Heart, HandHeart, Sparkles, ShieldAlert, BarChart2, Bookmark, Play, MessageCircle, Users, Eye, Star, Shield, UserCheck, Lock } from 'lucide-react';
+import { ArrowLeft, Heart, HandHeart, Sparkles, ShieldAlert, BarChart2, Bookmark, Play, MessageCircle, Users, Eye, Star, Shield, UserCheck, Lock, FileClock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import AppTour from '../components/help/AppTour.jsx';
 import BugReportForm from '../components/support/BugReportForm.jsx';
@@ -301,6 +301,21 @@ export default function Help() {
             Open AI Coach
           </Button>
         </div>
+
+        {/* How Together Protects Shared History */}
+        <Link
+          to={createPageUrl('SharedHistoryGuide')}
+          className="bg-white rounded-2xl border border-stone-200/60 shadow-sm p-5 flex items-center gap-4 hover:bg-stone-50 transition-colors"
+        >
+          <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center flex-shrink-0">
+            <FileClock className="w-5 h-5 text-stone-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-stone-800 text-sm">How Together Protects Shared History</p>
+            <p className="text-xs text-stone-500 mt-0.5">Why shared memories are protected differently</p>
+          </div>
+          <svg className="w-4 h-4 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+        </Link>
 
         {/* Bug Report / Support */}
         <BugReportForm />

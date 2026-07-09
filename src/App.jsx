@@ -7,6 +7,8 @@ import PageNotFound from './lib/PageNotFound';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import DataLifecycle from './pages/DataLifecycle';
 import TermsOfService from './pages/TermsOfService';
+import SharedHistoryGuide from './pages/SharedHistoryGuide';
+import StewardshipDoctrine from './pages/StewardshipDoctrine';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { RelationshipProvider } from '@/components/relationship/RelationshipContext.jsx';
@@ -66,6 +68,8 @@ const AuthenticatedApp = () => {
         ))}
         <Route path="/DataLifecycle" element={<LayoutWrapper currentPageName="DataLifecycle"><DataLifecycle /></LayoutWrapper>} />
         <Route path="/SharedHistory" element={<LayoutWrapper currentPageName="SharedHistory"><DataLifecycle /></LayoutWrapper>} />
+        <Route path="/SharedHistoryGuide" element={<LayoutWrapper currentPageName="SharedHistoryGuide"><SharedHistoryGuide /></LayoutWrapper>} />
+        <Route path="/StewardshipDoctrine" element={<LayoutWrapper currentPageName="StewardshipDoctrine"><StewardshipDoctrine /></LayoutWrapper>} />
         <Route path="/PrivacyPolicy" element={<LayoutWrapper currentPageName="PrivacyPolicy"><PrivacyPolicy /></LayoutWrapper>} />
         <Route path="/TermsOfService" element={<LayoutWrapper currentPageName="TermsOfService"><TermsOfService /></LayoutWrapper>} />
         <Route path="*" element={<PageNotFound />} />

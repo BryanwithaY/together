@@ -24,6 +24,9 @@ import StripeReconciliation from '../components/admin/StripeReconciliation';
 import PrivacyAuditPanel from '../components/admin/PrivacyAuditPanel';
 import LegacyFieldReadinessPanel from '../components/admin/LegacyFieldReadinessPanel';
 import ConsentHealthPanel from '../components/admin/ConsentHealthPanel';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
+import { BookOpen } from 'lucide-react';
 
 export default function Admin() {
   const { currentUser } = useRelationship();
@@ -103,6 +106,9 @@ export default function Admin() {
             <ArrowLeft className="w-5 h-5 text-stone-600" />
           </button>
           <h1 className="text-lg font-bold text-stone-800 flex-1">Admin Dashboard</h1>
+          <Link to={createPageUrl('StewardshipDoctrine')} className="p-2 hover:bg-stone-100 rounded-lg transition-colors text-stone-500">
+            <BookOpen className="w-4 h-4" />
+          </Link>
           <Button
             size="sm"
             variant="ghost"
