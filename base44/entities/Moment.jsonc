@@ -25,9 +25,10 @@
       "enum": [
         "ego_aside",
         "gratitude",
-        "self_reflection"
+        "self_reflection",
+        "other"
       ],
-      "description": "The type of moment being tracked"
+      "description": "The type of moment being tracked. 'other' is a flexible catch-all for moments that don't fit the standard categories."
     },
     "subtype": {
       "type": "string",
@@ -44,7 +45,7 @@
         "unkind",
         "other"
       ],
-      "description": "Specific subtype for the moment"
+      "description": "Specific subtype for the moment. For type=other, this may instead hold a short freeform label the user typed in describing the moment."
     },
     "what_happened": {
       "type": "string",
@@ -131,12 +132,12 @@
     "is_private": {
       "type": "boolean",
       "default": false,
-      "description": "Whether this moment is private to the author only"
+      "description": "Whether this moment is private to the author only. Self-reflections default to true. Ego Aside, Gratitude, and Other moments may also be logged private and shared with the relationship later."
     },
     "shared_with_partner": {
       "type": "boolean",
       "default": false,
-      "description": "Whether this private self-reflection has been shared with the relationship"
+      "description": "Whether a moment that was logged private has since been shared with the relationship. Applies to any moment type that was created with is_private true."
     }
   },
   "required": [

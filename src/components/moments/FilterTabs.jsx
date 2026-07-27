@@ -6,6 +6,7 @@ const typeFilters = [
   { value: 'ego_aside', label: 'Ego Aside' },
   { value: 'gratitude', label: 'Gratitude' },
   { value: 'self_reflection', label: 'Reflections' },
+  { value: 'other', label: 'Other' },
 ];
 
 const ownerFilters = [
@@ -40,12 +41,12 @@ export default function FilterTabs({ activeType, activeOwner, onTypeChange, onOw
       </div>
 
       {/* Type Filter */}
-      <div className="flex gap-1 p-1 bg-stone-100 rounded-xl w-fit">
+      <div className="flex gap-1 p-1 bg-stone-100 rounded-xl w-fit max-w-full overflow-x-auto">
         {typeFilters.map(({ value, label }) => (
           <button
             key={value}
             onClick={() => onTypeChange(value)}
-            className="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 select-none"
+            className="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 select-none whitespace-nowrap"
           >
             {activeType === value && (
               <motion.div

@@ -17,14 +17,11 @@ export default function MomentsList({ moments, privateReflections = [], typeFilt
     scrolledRef.current = false;
   }, [typeFilter, ownerFilter]);
 
-  // Compute filtered list — memoized so it doesn't re-run on every render
+  // Merge publicly-visible moments with the current user's own private moments
+  // (any type — self-reflections default private, other types may be kept private too),
+  // then apply the active filters. Memoized so it doesn't re-run on every render.
   const filtered = useMemo(() => {
-    const combined = typeFilter === 'self_reflection'
-      ? [
-          ...moments.filter(m => m.type === 'self_reflection'),
-          ...privateReflections,
-        ].sort((a, b) => new Date(b.date) - new Date(a.date))
-      : moments;
+    const combined = [...moments, ...privateReflections].sort((a, b) => new Date(b.date) - new Date(a.date));
 
     return combined.filter(m => {
       const typeMatch = typeFilter === 'all' || m.type === typeFilter;

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HandHeart, Sparkles, Ear, BookOpen, Flag, Users, MessageCircle, CheckCircle, ChevronDown, Pencil, Trash2, Star, ShieldAlert, Lock, Share2, Zap, VolumeX, PhoneOff, Frown, Power, Bookmark, ChevronRight } from 'lucide-react';
+import { HandHeart, Sparkles, Ear, BookOpen, Flag, Users, MessageCircle, CheckCircle, ChevronDown, Pencil, Trash2, Star, ShieldAlert, Lock, Share2, Zap, VolumeX, PhoneOff, Frown, Power, Bookmark, ChevronRight, MoreHorizontal } from 'lucide-react';
 import { format, isToday, isYesterday, differenceInMinutes } from 'date-fns';
 import { base44 } from '@/api/base44Client';
 import { Analytics } from '@/components/lib/analytics';
@@ -53,8 +53,9 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
 
   const isEgoAside = moment.type === 'ego_aside';
   const isReflection = moment.type === 'self_reflection';
+  const isOther = moment.type === 'other';
   const subtype = subtypeConfig[moment.subtype] || subtypeConfig.general;
-  const Icon = isEgoAside ? subtype.icon : isReflection ? ShieldAlert : Sparkles;
+  const Icon = isEgoAside ? subtype.icon : isReflection ? ShieldAlert : isOther ? MoreHorizontal : Sparkles;
   const isOwner = moment.created_by === currentUser?.email;
   const isReviewed = !!(moment.reviewed_by || moment.reviews?.length);
   const canReview = !isOwner && !isReviewed && !isReflection;
@@ -239,7 +240,7 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
         >
           <div className="flex gap-4 p-4">
             <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${
-              isEgoAside ? 'bg-amber-50 text-amber-600' : isReflection ? 'bg-violet-50 text-violet-600' : 'bg-emerald-50 text-emerald-600'
+              isEgoAside ? 'bg-amber-50 text-amber-600' : isReflection ? 'bg-violet-50 text-violet-600' : isOther ? 'bg-stone-100 text-stone-600' : 'bg-emerald-50 text-emerald-600'
             }`}>
               <Icon className="w-5 h-5" />
             </div>
@@ -247,15 +248,15 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
               <div className="flex items-start justify-between mb-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className={`text-xs font-semibold uppercase tracking-wider ${
-                    isEgoAside ? 'text-amber-600' : isReflection ? 'text-violet-600' : 'text-emerald-600'
+                    isEgoAside ? 'text-amber-600' : isReflection ? 'text-violet-600' : isOther ? 'text-stone-600' : 'text-emerald-600'
                   }`}>
-                    {isEgoAside ? subtype.label : isReflection ? (subtypeConfig[moment.subtype]?.label || 'Self Reflection') : 'Gratitude'}
+                    {isEgoAside ? subtype.label : isReflection ? (subtypeConfig[moment.subtype]?.label || 'Self Reflection') : isOther ? (moment.subtype && moment.subtype !== 'general' ? moment.subtype : 'Other') : 'Gratitude'}
                   </span>
                   <span className="text-stone-300">·</span>
                   <span className="text-xs text-stone-400">{formatDate(moment.date)}</span>
                   <span className="text-stone-300">·</span>
                   <span className="text-xs text-stone-500">{isOwner ? 'You' : 'Your Partner'}</span>
-                  {isReflection && isPrivate && isOwner && (
+                  {isPrivate && isOwner && (
                     <>
                       <span className="text-stone-300">·</span>
                       <div className="flex items-center gap-1 text-xs text-violet-500">
@@ -264,7 +265,7 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
                       </div>
                     </>
                   )}
-                  {isReflection && moment.shared_with_partner && (
+                  {moment.shared_with_partner && (
                     <>
                       <span className="text-stone-300">·</span>
                       <div className="flex items-center gap-1 text-xs text-violet-600">
@@ -403,7 +404,7 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
                     Mark as Reviewed
                   </Button>
                 )}
-                {isReflection && isOwner && isPrivate && (
+                {isOwner && isPrivate && (
                   <Button
                     disabled={shareWithPartnerMutation.isPending}
                     size="sm"
@@ -454,9 +455,9 @@ export default function MomentCard({ moment, index, currentUser, onDeleted }) {
     <AlertDialog open={showShareConfirm} onOpenChange={setShowShareConfirm}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Share this reflection?</AlertDialogTitle>
+          <AlertDialogTitle>Share this moment?</AlertDialogTitle>
           <AlertDialogDescription>
-            Your partner will be able to see this self-reflection. This cannot be undone.
+            Your partner will be able to see this moment. This cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
