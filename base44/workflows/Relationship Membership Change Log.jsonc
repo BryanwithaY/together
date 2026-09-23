@@ -1,0 +1,39 @@
+{
+  "name": "Relationship Membership Change Log",
+  "description": "Wave 1 audit trail \u2014 writes a RelationshipMemberEvent record for every membership create, update, or delete. Additive only. Does not modify RelationshipMember records.",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "create",
+        "update",
+        "delete"
+      ],
+      "entity_name": "RelationshipMember"
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "relationship_membership_change_log",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "logMembershipEvent",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "logMembershipEvent"
+  }
+}
